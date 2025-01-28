@@ -1,0 +1,31 @@
+int change(int &array);
+
+int main()
+{
+	int myArray[5];
+
+	int i = 0;
+
+	while i < 5
+	{
+		myArray[i] = i;
+	}
+
+	change(&myArray);
+
+	return 0;
+
+}
+
+
+int change(int &array)
+{
+	array[2] = 25;
+
+}
+
+
+/*
+attempting to modify a borrowed value, myArray is immutable
+need to use a mutable reference
+*/

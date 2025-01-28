@@ -1,0 +1,98 @@
+// function declarations
+int*  gives_ownership(arg);
+
+int*  takes_and_gives_back(int* arrayParam);
+
+int calculate_total(int&  arrayParam);
+
+
+
+// main
+int main(arg)
+{
+	// variable is read only (immutable by default)
+	int var1 = 10;
+
+	print("The value of var1 is {var1}");
+
+	// variable can be changed
+	int mut i = 0;
+
+	// gives_ownership moves its return value into array1
+	int* array1 = gives_ownership(1);
+
+	// array object allocated from the heap, array2 comes into scope
+	int* mut array2 = new array[10];
+
+	while(i < 10)
+	{
+		myArray[i] = i;
+
+		i = i + 1;
+	}
+
+	// array2 is moved into takes_and_gives_back, which also moves its return
+	// value into array3
+	int* array3 = takes_and_gives_back(array2);
+
+	// pass array2 by reference to calculate its sum
+	int total = calculate_total(&array2);
+
+	print("Total = {total}");
+
+	return 0;
+	// here, array3 goes out of scope and is dropped. array2 was moved,
+	// so nothing happend. array1 goes out of scoped and is dropped.
+	// (dropped meaning its memory is automatically freed).
+}
+
+
+// function definitions
+
+
+// gives ownership will move its return value into the function that calls it
+int*  gives_ownership(arg)
+{
+	// A comes into scope
+	int* mut A = new array[10];
+
+	int mut i = 0;
+
+	while(i < 10)
+	{
+		A[i] = i;
+
+		i = i + 1;
+	}
+
+	// A is returned and moves out to the calling function
+	return A;
+}
+
+
+
+
+// This function takes a pointer to an integer array and returns one
+int*  takes_and_gives_back(int* arrayParam) // arrayParam comes into scope
+{
+	// arrayParam is returned and moves out to the calling function
+	return arrayParam;
+}
+
+
+
+// this function takes a reference to an integer array
+// and calculates the sum of its contents
+int calculate_total(int&  arrayParam)
+{
+	int mut i = 0;
+
+	int mut total = 0;
+
+	while(i < 10)
+	{
+		total = total + arrayParam[i]
+	}
+
+	return total;
+}

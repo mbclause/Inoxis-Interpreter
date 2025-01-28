@@ -13,10 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Inoxis Test Suite">
+      <UniqueIdentifier>{d41c9331-d193-43f6-8abb-f3ee2c3da3a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Lexer.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="accepted_1.txt">
+      <Filter>Inoxis Test Suite</Filter>
+    </Text>
+    <Text Include="rejected_1.txt">
+      <Filter>Inoxis Test Suite</Filter>
+    </Text>
   </ItemGroup>
 </Project>
