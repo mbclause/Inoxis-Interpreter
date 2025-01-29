@@ -135,11 +135,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="error.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt" />
     <Text Include="rejected_1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="error.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

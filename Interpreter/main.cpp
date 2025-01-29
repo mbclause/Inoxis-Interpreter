@@ -8,6 +8,7 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include <string>
 
 #include "antlr4-runtime.h"
+#include "error.h"
 
 using namespace std;
 
@@ -38,9 +39,11 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
+	report_error(SYNTAX_ERROR, 15);
+
 	// interpret the program in the file, passed as file stream, right now this will just do lexical analysis on the program
 	// and print out the list of tokens
-	// interpret(in)
+	// error_count = lexer(in);
 
 
 	return 0;
