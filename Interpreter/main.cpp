@@ -39,11 +39,17 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	report_error(SYNTAX_ERROR, 15);
+	// from user Konrad Rudolph from Stack Overflow
+	// convert file into a string
+	ostringstream sstr;
+
+	sstr << in.rdbuf();
+
+	string input(sstr.str());
 
 	// interpret the program in the file, passed as file stream, right now this will just do lexical analysis on the program
 	// and print out the list of tokens
-	// error_count = lexer(in);
+	// interpret(input)
 
 
 	return 0;

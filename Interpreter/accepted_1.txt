@@ -22,7 +22,7 @@ int main(arg)
 	int* array1 = gives_ownership(1);
 
 	// array object allocated from the heap, array2 comes into scope
-	int* mut array2 = new array[10];
+	int* mut array2 = new int[10];
 
 	while(i < 10)
 	{
@@ -54,7 +54,7 @@ int main(arg)
 int*  gives_ownership(arg)
 {
 	// A comes into scope
-	int* mut A = new array[10];
+	int* mut A = new int[10];
 
 	int mut i = 0;
 

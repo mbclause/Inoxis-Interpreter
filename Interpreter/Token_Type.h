@@ -1,0 +1,19 @@
+enum TOKEN_TYPE {
+	// reserved words
+	INT, MAIN, MUT, WHILE, PRINT, IF, ELIF, ELSE, NEW, RETURN, ARRAY,
+
+	// unary operators
+	POINTER, REFERENCE,
+
+	// binary operators
+	ASSIGNMENT, PLUS, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND,
+
+	// scope operators
+	L_BRACE, R_BRACE, L_BRACKET, R_BRACKET, L_PAREN, R_PAREN, DOUBLE_SLASH, QUOTE, SEMI_COLON,
+
+	// literals
+	STRING, NUMBER,
+
+	// user defined
+	IDENTIFIER
+};

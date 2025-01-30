@@ -37,5 +37,8 @@
     <ClInclude Include="error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Token_Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
