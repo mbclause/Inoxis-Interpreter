@@ -135,7 +135,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="error.cpp" />
+    <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +143,8 @@
     <Text Include="rejected_1.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="error.h" />
+    <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="Token.h" />
     <ClInclude Include="Token_Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
