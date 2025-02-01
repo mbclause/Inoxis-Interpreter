@@ -6,6 +6,7 @@ File: Interpreter.cpp
 // include statements
 #include "Interpreter.h"
 #include "Lexer.h"
+#include <iostream>
 
 
 
@@ -14,20 +15,13 @@ Function: run
 */
 void Interpreter::run(string input)
 {
-	lexer(input);
+	Lexer lexer(input);
+
+	antlr4::CommonTokenStream tokens = lexer.ScanTokens();
 
 	
 }
 
-
-
-/*
-Function: lexer
-*/
-void Interpreter::lexer(string input)
-{
-
-}
 
 
 

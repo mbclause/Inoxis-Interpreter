@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Interpreter.cpp" />
+    <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="Lexer.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="Token_Type.h" />
   </ItemGroup>

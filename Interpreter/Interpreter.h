@@ -6,6 +6,7 @@ File: Interpreter.h
 #include <string>
 #include <vector>
 #include "Token.h"
+#include "antlr4-runtime.h"
 
 using namespace std;
 
@@ -20,7 +21,6 @@ class Interpreter
 	Interpreter(string input) { run(input); error_count = 0; };
 
 	// data members
-	vector<Token> tokens;
 
 	int error_count;
 
@@ -28,6 +28,4 @@ class Interpreter
 	void run(string input);
 
 	void report_error(ERROR_TYPE type, int line);
-
-	void lexer(string input);
 };
