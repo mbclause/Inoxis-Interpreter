@@ -146,8 +146,10 @@
   <ItemGroup>
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="Lexer.h" />
-    <ClInclude Include="Token.h" />
     <ClInclude Include="Token_Type.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Inoxis.g4" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
