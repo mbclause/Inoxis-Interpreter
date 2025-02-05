@@ -16,6 +16,9 @@
     <Filter Include="Inoxis Test Suite">
       <UniqueIdentifier>{d41c9331-d193-43f6-8abb-f3ee2c3da3a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="grammar files">
+      <UniqueIdentifier>{c9fcef60-a4e4-4834-aea4-cb860aff07b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +51,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Inoxis.g4" />
+    <None Include="Inoxis.g4">
+      <Filter>grammar files</Filter>
+    </None>
   </ItemGroup>
 </Project>
