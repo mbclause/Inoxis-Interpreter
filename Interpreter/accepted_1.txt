@@ -1,5 +1,5 @@
 // function declarations
-int*  gives_ownership(arg);
+int*  gives_ownership(int arg);
 
 int*  takes_and_gives_back(int* arrayParam);
 
@@ -8,12 +8,14 @@ int calculate_total(int&  arrayParam);
 
 
 // main
-int main(arg)
+int main()
 {
 	// variable is read only (immutable by default)
 	int var1 = 10;
 
-	print("The value of var1 is {var1}");
+	int aD;
+
+	//print("The value of var1 is {var1}");
 
 	// variable can be changed
 	int mut i = 0;
@@ -38,7 +40,7 @@ int main(arg)
 	// pass array2 by reference to calculate its sum
 	int total = calculate_total(&array2);
 
-	print("Total = {total}");
+	//print("Total = {total}");
 
 	return 0;
 	// here, array3 goes out of scope and is dropped. array2 was moved,
@@ -51,7 +53,7 @@ int main(arg)
 
 
 // gives ownership will move its return value into the function that calls it
-int*  gives_ownership(arg)
+int*  gives_ownership(int arg)
 {
 	// A comes into scope
 	int* mut A = new int[10];
@@ -91,7 +93,7 @@ int calculate_total(int&  arrayParam)
 
 	while(i < 10)
 	{
-		total = total + arrayParam[i]
+		total = total + arrayParam[i];
 	}
 
 	return total;
