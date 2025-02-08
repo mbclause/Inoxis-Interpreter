@@ -135,6 +135,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include=".antlr\InoxisBaseListener.cpp" />
+    <ClCompile Include=".antlr\InoxisLexer.cpp" />
+    <ClCompile Include=".antlr\InoxisListener.cpp" />
+    <ClCompile Include=".antlr\InoxisParser.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -144,12 +148,16 @@
     <Text Include="rejected_1.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include=".antlr\InoxisBaseListener.h" />
+    <ClInclude Include=".antlr\InoxisLexer.h" />
+    <ClInclude Include=".antlr\InoxisListener.h" />
+    <ClInclude Include=".antlr\InoxisParser.h" />
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="Lexer.h" />
-    <ClInclude Include="Token_Type.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Inoxis.g4" />
+    <None Include=".antlr\Inoxis.g4" />
+    <None Include=".antlr\lexRules.g4" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

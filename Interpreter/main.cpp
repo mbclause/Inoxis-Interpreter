@@ -8,7 +8,8 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include <string>
 
 #include "antlr4-runtime.h"
-#include "error.h"
+#include ".antlr/InoxisLexer.h"
+#include ".antlr/InoxisParser.h"
 
 using namespace std;
 
@@ -39,13 +40,23 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	// from user Konrad Rudolph from Stack Overflow
-	// convert file into a string
-	ostringstream sstr;
 
-	sstr << in.rdbuf();
+	// code taken from antlr4 cpp runtime docs
+	antlr4::ANTLRInputStream input(in);
 
-	string input(sstr.str());
+	InoxisLexer lexer(&input);
+
+	antlr4::CommonTokenStream tokens(&lexer);
+
+	InoxisParser parser(&tokens);
+
+	antlr4::tree::ParseTree* tree = parser.main();
+
+	auto s = tree->toStringTree(&parser);
+
+	cout << "Parse Tree: " << s << endl;
+
+
 
 	// interpret the program in the file, passed as file stream, right now this will just do lexical analysis on the program
 	// and print out the list of tokens

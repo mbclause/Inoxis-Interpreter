@@ -15,9 +15,9 @@ Function: run
 */
 void Interpreter::run(string input)
 {
-	Lexer lexer(input);
+	//Lexer lexer(input);
 
-	antlr4::CommonTokenStream tokens = lexer.ScanTokens();
+	//antlr4::CommonTokenStream tokens = lexer.ScanTokens();
 
 	
 }

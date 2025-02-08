@@ -1,7 +1,7 @@
 #include "Lexer.h"
 
 
-vector<antlr4::Token>    Lexer::ScanTokens()
+/*vector<antlr4::Token>    Lexer::ScanTokens()
 {
 	
-}
+}*/

@@ -24,13 +24,13 @@ class Lexer : public antlr4::TokenSource
 public:
 	Lexer(string in) { input = in; };
 
-	vector<antlr4::Token> tokens;
+	//vector<antlr4::Token> tokens;
 
 	string input;
 
-	std::unique_ptr<antlr4::Token> nextToken() override;
+	//std::unique_ptr<antlr4::Token> nextToken() override;
 
 
 
-	vector<antlr4::Token> ScanTokens();
+	//vector<antlr4::Token> ScanTokens();
 };

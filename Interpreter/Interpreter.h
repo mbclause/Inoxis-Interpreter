@@ -5,7 +5,6 @@ File: Interpreter.h
 // include statements
 #include <string>
 #include <vector>
-#include "Token.h"
 #include "antlr4-runtime.h"
 
 using namespace std;
