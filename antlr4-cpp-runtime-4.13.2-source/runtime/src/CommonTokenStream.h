@@ -10,36 +10,36 @@
 namespace antlr4 {
 
   /**
-   * This class extends {@link BufferedTokenStream} with functionality to filter
+   * This class extends BufferedTokenStream with functionality to filter
    * token streams to tokens on a particular channel (tokens where
-   * {@link Token#getChannel} returns a particular value).
+   * Token::getChannel returns a particular value).
    *
-   * <p>
+   * 
    * This token stream provides access to all tokens by index or when calling
-   * methods like {@link #getText}. The channel filtering is only used for code
-   * accessing tokens via the lookahead methods {@link #LA}, {@link #LT}, and
-   * {@link #LB}.</p>
+   * methods like getText. The channel filtering is only used for code
+   * accessing tokens via the lookahead methods LA, LT, and
+   * LB.
    *
-   * <p>
+   * 
    * By default, tokens are placed on the default channel
-   * ({@link Token#DEFAULT_CHANNEL}), but may be reassigned by using the
-   * {@code ->channel(HIDDEN)} lexer command, or by using an embedded action to
-   * call {@link Lexer#setChannel}.
-   * </p>
+   * (Token::DEFAULT_CHANNEL, but may be reassigned by using the
+   * code ->channel(HIDDEN)) lexer command, or by using an embedded action to
+   * Lexer.setChannel.
+   * 
    *
-   * <p>
-   * Note: lexer rules which use the {@code ->skip} lexer command or call
-   * {@link Lexer#skip} do not produce tokens at all, so input text matched by
+   * 
+   * Note: lexer rules which use the code ->skip lexer command or call
+   * Lexer.skip do not produce tokens at all, so input text matched by
    * such a rule will not be available as part of the token stream, regardless of
-   * channel.</p>
+   * channel.
    */
   class ANTLR4CPP_PUBLIC CommonTokenStream : public BufferedTokenStream {
   public:
     /**
-     * Constructs a new {@link CommonTokenStream} using the specified token
-     * source and the default token channel ({@link Token#DEFAULT_CHANNEL}).
+     * Constructs a new CommonTokenStream using the specified token
+     * source and the default token channel (Token.DEFAULT_CHANNEL).
      *
-     * @param tokenSource The token source.
+     * param tokenSource The token source.
      */
     CommonTokenStream(TokenSource *tokenSource);
 

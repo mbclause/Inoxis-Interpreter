@@ -50,23 +50,22 @@ namespace antlr4 {
     virtual size_t LA(ssize_t i) override;
     virtual size_t LT(ssize_t i);
 
-    /// <summary>
+    ///
     /// Return the current input symbol index 0..n where n indicates the
     ///  last symbol has been read.  The index is the index of char to
     ///  be returned from LA(1).
-    /// </summary>
+    ///
     virtual size_t index() override;
     virtual size_t size() override;
 
-    /// <summary>
-    /// mark/release do nothing; we have entire buffer </summary>
+    /// 
+    /// mark/release do nothing; we have entire buffer 
     virtual ssize_t mark() override;
     virtual void release(ssize_t marker) override;
 
-    /// <summary>
+
     /// consume() ahead until p==index; can't just set p=index as we must
     ///  update line and charPositionInLine. If we seek backwards, just set p
-    /// </summary>
     virtual void seek(size_t index) override;
     virtual std::string getText(const misc::Interval &interval) override;
     virtual std::string getSourceName() const override;

@@ -11,6 +11,8 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include ".antlr/InoxisLexer.h"
 #include ".antlr/InoxisParser.h"
 
+#include "myLexer.h"
+
 using namespace std;
 
 
@@ -44,7 +46,9 @@ int main(int argc, char* argv[])
 	// code taken from antlr4 cpp runtime docs
 	antlr4::ANTLRInputStream input(in);
 
-	InoxisLexer lexer(&input);
+	myLexer lexer(input);
+
+	//InoxisLexer lexer(&input);
 
 	antlr4::CommonTokenStream tokens(&lexer);
 
@@ -55,12 +59,6 @@ int main(int argc, char* argv[])
 	auto s = tree->toStringTree(&parser);
 
 	cout << "Parse Tree: " << s << endl;
-
-
-
-	// interpret the program in the file, passed as file stream, right now this will just do lexical analysis on the program
-	// and print out the list of tokens
-	// interpret(input)
 
 
 	return 0;

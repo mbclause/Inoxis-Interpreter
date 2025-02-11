@@ -13,7 +13,7 @@ File: Interpreter.cpp
 /*
 Function: run
 */
-void Interpreter::run(string input)
+void Interpreter::run(antlr4::ANTLRInputStream input)
 {
 	//Lexer lexer(input);
 

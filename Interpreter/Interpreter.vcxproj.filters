@@ -27,7 +27,7 @@
     <ClCompile Include="Interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lexer.cpp">
+    <ClCompile Include="myLexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisBaseListener.cpp">
@@ -55,7 +55,7 @@
     <ClInclude Include="Interpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lexer.h">
+    <ClInclude Include="myLexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include=".antlr\InoxisBaseListener.h">
@@ -74,5 +74,7 @@
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />
     <None Include=".antlr\lexRules.g4" />
+    <None Include="Inoxis.g4" />
+    <None Include="lexRules.g4" />
   </ItemGroup>
 </Project>

@@ -17,14 +17,14 @@ enum ERROR_TYPE { SYNTAX_ERROR, MEM_SAFETY_ERROR };
 class Interpreter
 {
 	// default ctor
-	Interpreter(string input) { run(input); error_count = 0; };
+	Interpreter(antlr4::ANTLRInputStream input) { run(input); error_count = 0; };
 
 	// data members
 
 	int error_count;
 
 	// member functions
-	void run(string input);
+	void run(antlr4::ANTLRInputStream input);
 
 	void report_error(ERROR_TYPE type, int line);
 };
