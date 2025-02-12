@@ -20,15 +20,18 @@ namespace antlr4 {
     /// specified interval lies entirely within a marked range. For more
     /// information about marked ranges, see IntStream::mark.
     ///
-    /// <param name="interval"> an interval within the stream </param>
-    /// <returns> the text of the specified interval
-    /// </returns>
-    /// <exception cref="NullPointerException"> if {@code interval} is {@code null} </exception>
-    /// <exception cref="IllegalArgumentException"> if {@code interval.a < 0}, or if
-    /// {@code interval.b < interval.a - 1}, or if {@code interval.b} lies at or
-    /// past the end of the stream </exception>
-    /// <exception cref="UnsupportedOperationException"> if the stream does not support
-    /// getting the text of the specified interval </exception>
+    /// param: interval - an interval within the stream
+    /// 
+    /// Return the text of the specified interval
+    /// 
+    /// NullPointerException if interval is null
+    /// 
+    /// IllegalArgumentException if interval.a < 0 or if
+    /// interval.b < interval.a - 1, or if interval.b lies at or
+    /// past the end of the stream
+    /// 
+    /// UnsupportedOperationException if the stream does not support
+    /// getting the text of the specified interval
     virtual std::string getText(const misc::Interval &interval) = 0;
 
     virtual std::string toString() const = 0;

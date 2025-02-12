@@ -6,17 +6,7 @@
 
 
 std::unique_ptr<antlr4::Token> myLexer::nextToken() {
-	if (index < tokens.size())
-	{
-		index++;
-		return std::move(tokens[index - 1]);
-	}
 
-	else
-	{
-		cerr << "ran out of tokens\n";
-		exit(1);
-	}
 }
 
 

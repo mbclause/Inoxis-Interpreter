@@ -10,16 +10,16 @@
 namespace antlr4 {
 
   /**
-   * This implementation of {@link TokenStream} loads tokens from a
-   * {@link TokenSource} on-demand, and places the tokens in a buffer to provide
+   * This implementation of TokenStream loads tokens from a
+   * TokenSource on-demand, and places the tokens in a buffer to provide
    * access to any previous token by index.
    *
-   * <p>
-   * This token stream ignores the value of {@link Token#getChannel}. If your
+   * 
+   * This token stream ignores the value of Token#getChannel. If your
    * parser requires the token stream filter tokens to only those on a particular
-   * channel, such as {@link Token#DEFAULT_CHANNEL} or
-   * {@link Token#HIDDEN_CHANNEL}, use a filtering token stream such a
-   * {@link CommonTokenStream}.</p>
+   * channel, such as Token#DEFAULT_CHANNEL or
+   * Token#HIDDEN_CHANNEL, use a filtering token stream such a
+   * CommonTokenStream.
    */
   class ANTLR4CPP_PUBLIC BufferedTokenStream : public TokenStream {
   public:
@@ -52,11 +52,11 @@ namespace antlr4 {
     virtual std::vector<Token *> getTokens();
     virtual std::vector<Token *> getTokens(size_t start, size_t stop);
 
-    /// <summary>
+    /// 
     /// Given a start and stop index, return a List of all tokens in
     ///  the token type BitSet.  Return null if no tokens were found.  This
     ///  method looks at both on and off channel tokens.
-    /// </summary>
+    /// 
     virtual std::vector<Token *> getTokens(size_t start, size_t stop, const std::vector<size_t> &types);
     virtual std::vector<Token *> getTokens(size_t start, size_t stop, size_t ttype);
 
@@ -65,11 +65,11 @@ namespace antlr4 {
     ///  EOF. If channel is -1, find any non default channel token.
     virtual std::vector<Token *> getHiddenTokensToRight(size_t tokenIndex, ssize_t channel);
 
-    /// <summary>
+    /// 
     /// Collect all hidden tokens (any off-default channel) to the right of
     ///  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL
     ///  or EOF.
-    /// </summary>
+    /// 
     virtual std::vector<Token *> getHiddenTokensToRight(size_t tokenIndex);
 
     /// <summary>
@@ -96,21 +96,21 @@ namespace antlr4 {
 
   protected:
     /**
-     * The {@link TokenSource} from which tokens for this stream are fetched.
+     * The TokenSource from which tokens for this stream are fetched.
      */
     TokenSource *_tokenSource;
 
     /**
      * A collection of all tokens fetched from the token source. The list is
-     * considered a complete view of the input once {@link #fetchedEOF} is set
-     * to {@code true}.
+     * considered a complete view of the input once fetchedEOF is set
+     * to true.
      */
     std::vector<std::unique_ptr<Token>> _tokens;
 
     /**
-     * The index into {@link #tokens} of the current token (next token to
-     * {@link #consume}). {@link #tokens}{@code [}{@link #p}{@code ]} should be
-     * {@link #LT LT(1)}.
+     * The index into tokens of the current token (next token to
+     * consume). tokens[p] should be
+     * LT LT(1).
      *
      * <p>This field is set to -1 when the stream is first constructed or when
      * {@link #setTokenSource} is called, indicating that the first token has

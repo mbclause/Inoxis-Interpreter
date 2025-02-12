@@ -46,7 +46,10 @@ public:
 
 
 	// data members
-	vector<std::unique_ptr<antlr4::Token>> tokens;
+	// Life cycle of a token is this:
+	// Created by emit() (via the token factory) or by action code, holding ownership of it.
+	// Ownership is handed over to the token stream when calling nextToken().
+
 
 	antlr4::ANTLRInputStream input;
 
