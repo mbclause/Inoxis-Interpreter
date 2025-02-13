@@ -12,18 +12,18 @@ namespace antlr4 {
   class ANTLR4CPP_PUBLIC CommonToken : public WritableToken {
   protected:
     /**
-     * An empty {@link Pair} which is used as the default value of
-     * {@link #source} for tokens that do not have a source.
+     * An empty Pair which is used as the default value of
+     * source for tokens that do not have a source.
      */
     static const std::pair<TokenSource *, CharStream *> EMPTY_SOURCE;
 
     /**
-     * This is the backing field for {@link #getType} and {@link #setType}.
+     * This is the backing field for getType setType.
      */
     size_t _type;
 
     /**
-     * This is the backing field for {@link #getLine} and {@link #setLine}.
+     * This is the backing field for getLine and setLine.
      */
     size_t _line;
 
@@ -40,14 +40,14 @@ namespace antlr4 {
     size_t _channel;
 
     /**
-     * This is the backing field for {@link #getTokenSource} and
-     * {@link #getInputStream}.
+     * This is the backing field for getTokenSource and
+     * getInputStream.
      *
-     * <p>
+     *
      * These properties share a field to reduce the memory footprint of
-     * {@link CommonToken}. Tokens created by a {@link CommonTokenFactory} from
+     * CommonToken. Tokens created by a CommonTokenFactory from
      * the same source and input stream share a reference to the same
-     * {@link Pair} containing these values.</p>
+     * {Pair containing these values.
      */
 
     std::pair<TokenSource *, CharStream *> _source; // ml: pure references, usually from statically allocated classes.
@@ -80,34 +80,34 @@ namespace antlr4 {
 
   public:
     /**
-     * Constructs a new {@link CommonToken} with the specified token type.
+     * Constructs a new CommonToken with the specified token type.
      *
-     * @param type The token type.
+     * param: type - The token type.
      */
     CommonToken(size_t type);
     CommonToken(std::pair<TokenSource*, CharStream*> source, size_t type, size_t channel, size_t start, size_t stop);
 
     /**
-     * Constructs a new {@link CommonToken} with the specified token type and
+     * Constructs a new CommonToken with the specified token type and
      * text.
      *
-     * @param type The token type.
-     * @param text The text of the token.
+     * param: type - The token type.
+     * param: text - The text of the token.
      */
     CommonToken(size_t type, const std::string &text);
 
     /**
-     * Constructs a new {@link CommonToken} as a copy of another {@link Token}.
+     * Constructs a new CommonToken as a copy of another Token.
      *
-     * <p>
-     * If {@code oldToken} is also a {@link CommonToken} instance, the newly
-     * constructed token will share a reference to the {@link #text} field and
-     * the {@link Pair} stored in {@link #source}. Otherwise, {@link #text} will
-     * be assigned the result of calling {@link #getText}, and {@link #source}
-     * will be constructed from the result of {@link Token#getTokenSource} and
-     * {@link Token#getInputStream}.</p>
+     * 
+     * If oldToken is also a CommonToken instance, the newly
+     * constructed token will share a reference to the text field and
+     * the Pair stored in source. Otherwise, text will
+     * be assigned the result of calling getText, and source
+     * will be constructed from the result of getTokenSource and
+     * getInputStream.
      *
-     * @param oldToken The token to copy.
+     * param: oldToken - The token to copy.
      */
     CommonToken(Token *oldToken);
 

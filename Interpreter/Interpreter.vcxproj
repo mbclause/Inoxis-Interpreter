@@ -139,6 +139,10 @@
     <ClCompile Include=".antlr\InoxisLexer.cpp" />
     <ClCompile Include=".antlr\InoxisListener.cpp" />
     <ClCompile Include=".antlr\InoxisParser.cpp" />
+    <ClCompile Include="InoxisBaseListener.cpp" />
+    <ClCompile Include="InoxisLexer.cpp" />
+    <ClCompile Include="InoxisListener.cpp" />
+    <ClCompile Include="InoxisParser.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -152,6 +156,10 @@
     <ClInclude Include=".antlr\InoxisLexer.h" />
     <ClInclude Include=".antlr\InoxisListener.h" />
     <ClInclude Include=".antlr\InoxisParser.h" />
+    <ClInclude Include="InoxisBaseListener.h" />
+    <ClInclude Include="InoxisLexer.h" />
+    <ClInclude Include="InoxisListener.h" />
+    <ClInclude Include="InoxisParser.h" />
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="myLexer.h" />
   </ItemGroup>
@@ -159,6 +167,10 @@
     <None Include=".antlr\Inoxis.g4" />
     <None Include=".antlr\lexRules.g4" />
     <None Include="Inoxis.g4" />
+    <None Include="Inoxis.interp" />
+    <None Include="Inoxis.tokens" />
+    <None Include="InoxisLexer.interp" />
+    <None Include="InoxisLexer.tokens" />
     <None Include="lexRules.g4" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

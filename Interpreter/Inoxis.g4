@@ -9,7 +9,7 @@ program: funcDecs main funcDefs EOF;
 
 funcDecs: funcDec*;
 
-main: 'int' 'main()' '{' statList 'return 0;' '}';
+main: 'int' 'main()' '{' statList return '}';
 
 funcDefs: funcDef*;
 
