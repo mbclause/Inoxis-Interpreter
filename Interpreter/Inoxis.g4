@@ -94,6 +94,6 @@ condition: not ID condOp condRHS;
 
 not: '!'?;
 
-condOp: '<' | '>' | '==' | '<=' | '>=';
+condOp: '<' | '>' | '==' | '<=' | '>=' | '!=';
 
 condRHS: ID | INT;

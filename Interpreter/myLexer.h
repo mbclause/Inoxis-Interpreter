@@ -52,18 +52,22 @@ public:
 		RETURN, MUT, POINTER, REFERENCE, 
 		DOUBLE_BRACKETS, L_BRACKET, R_BRACKET, 
 		NEW, PLUS, MINUS, WHILE, IF, ELIF, ELSE, NOT, LESS, GREATER, DOUBLE_EQUALS, 
-		LESS_EQUAL, GREATER_EQUAL, WS, ID, COMMENT, NUMBER
+		LESS_EQUAL, GREATER_EQUAL, NOT_EQUAL,WS, ID, COMMENT, NUMBER
 	};
 
 
 	// constructors
-	myLexer(antlr4::ANTLRInputStream in) { input = in; factory = antlr4::CommonTokenFactory::DEFAULT.get();};
+	myLexer(antlr4::ANTLRInputStream in);
 
 
 	// data members
 	antlr4::ANTLRInputStream input;
 
 	antlr4::TokenFactory<antlr4::CommonToken>  *factory;
+
+	size_t lineNum;
+
+	size_t charPosInLine;
 
 
 
@@ -85,15 +89,17 @@ public:
 	/// 
 	/// Returns the line number for the current position in the input stream, or
 	/// 0 if the current token source does not track line numbers
-	size_t getLine() const override;
+	size_t getLine() const override {
+		return lineNum;
+	};
 
 
 	/// Get the index into the current line for the current position in the input
 	/// stream. The first character on a line has position 0.
 	/// 
-	/// Returns the line number for the current position in the input stream, or
-	/// (sze_t)-1 if the current token source does not track character positions. 
-	size_t getCharPositionInLine() override;
+	size_t getCharPositionInLine() override {
+		return charPosInLine;
+	};
 
 
 
@@ -104,4 +110,9 @@ public:
 	std::string getSourceName() override { return input.name; };
 
 	antlr4::TokenFactory<antlr4::CommonToken>* getTokenFactory() override {return factory;};
+
+
+
+
+	void newLine() { lineNum++; charPosInLine = 0; };
 };

@@ -21,20 +21,77 @@ White space and comments will be skipped (the program will do nothing).
 */
 std::unique_ptr<antlr4::Token> myLexer::nextToken()
 {
+	pair<TokenSource*, antlr4::CharStream*> source(this, &input);
 	/*
 	CommonToken data fields for constructor:
 
-		source:
+		source: pair<TokenSource *, CharStream *> source(&this, &intput)
 		type:
-		channel:
-		start: the char index of the first character of the token (index into the stream)
+		channel: Token::DEFAULT_CHANNEL
+		start: the char index of the first character of the token (index into the stream), (just set it to input.index())
 		stop: the char index of the last character of the token
 
 	Then need to use setter methods to set:
 
-		line: 
-		charPositionInLine: the index in the line of the first char of the token
-		text: */
+		line: lineNum
+		charPositionInLine: the index in the line of the first char of the token (use charPosInLine)
+		text: 
+	*/
+
+	//							**ALGORITHM**
+	
+
+	// c = current char in input stream
+
+	// while c is skippable (whitespace, comment, new line):
+		// if c is new line
+			// call newLine()
+		// consume()
+
+
+	// start = stop = index()
+			
+
+	// switch(c):
+		// EASY SINGLE CHAR TOKENS {,},(,),;,*,&,],+
+			// use another switch for type
+			// start = stop = input.index()
+			// 
+		// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=
+			// use another switch for type
+			// check next char to see if this is single or double token
+			// if single
+				// start = stop = input.index()
+			// if double
+				// start = input.index()
+				// stop = input.index() + 1
+		// -
+			// check previous char, if it's a number, then it's subtraction, anything else it's negative
+			// if negative
+				// set start
+				// consume until you get whole number
+				// set stop
+				// get text for interval(start,stop)
+			// if subtraction
+				// start = stop = input.index()
+		// number
+			// get whole number from stream
+			// set stop
+			// type = number
+			// getText for interval(start,stop)
+		// letter
+			// get whole word from stream
+			// set stop
+			// use switch to check if it's a reserved word
+				// if not, it's an ID
+			// getText for interval(start,stop)
+
+	// consume characters until stop is reached
+	// increment charPosInLine by (stop-start)
+
+	// initialize token with the parameters
+
+	// return unique pointer to token
 
 	return NULL;
 	
@@ -43,37 +100,40 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-size_t     myLexer::getLine() const
+/*
+Function: type constructor
+*/
+myLexer::myLexer(antlr4::ANTLRInputStream in)
 {
-	return 1;
+	input = in; 
+	
+	factory = antlr4::CommonTokenFactory::DEFAULT.get(); 
+	
+	lineNum = 1; 
+	
+	charPosInLine = 0;
 }
 
 
 
 
-size_t     myLexer::getCharPositionInLine()
-{
-	return 1;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
