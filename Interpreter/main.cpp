@@ -10,6 +10,7 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include "antlr4-runtime.h"
 #include ".antlr/InoxisLexer.h"
 #include ".antlr/InoxisParser.h"
+#include "misc/interval.h"
 
 #include "myLexer.h"
 
@@ -46,9 +47,21 @@ int main(int argc, char* argv[])
 	// code taken from antlr4 cpp runtime docs
 	antlr4::ANTLRInputStream input(in);
 
-	myLexer lexer(input);
+	// test rig for antlr input stream
+	
 
-	//InoxisLexer lexer(&input);
+	while (input.LA(1) != input.EOF)
+	{
+		cout << input.getText(antlr4::misc::Interval(input.index(),input.index()));
+
+		input.consume();
+	}
+
+
+
+	//myLexer lexer(input);
+
+	InoxisLexer lexer(&input);
 
 	antlr4::CommonTokenStream tokens(&lexer);
 
@@ -58,7 +71,7 @@ int main(int argc, char* argv[])
 
 	auto s = tree->toStringTree(&parser);
 
-	cout << "Parse Tree: " << s << endl;
+	//cout << "Parse Tree: " << s << endl;
 
 
 	return 0;
