@@ -40,8 +40,48 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 	//							**ALGORITHM**
 	
-
 	// c = current char in input stream
+	string c = input.getText(antlr4::misc::Interval(input.index(), input.index()));
+
+	while (input.LA(1) != input.EOF)
+	{
+		// consume comments (47 = '/')
+		if (input.LA(1) == 47)
+		{
+			// consume the comment until we hit a new line
+			while (input.LA(1) != 10)
+			{
+				input.consume();
+			}
+
+			// consume new line
+			input.consume();
+		}
+
+		// skip whitespace
+		else if(input.LA(1) == 32 || input.LA(1) == 9 || input.LA(1) == 13)
+		{
+			input.consume();
+		}
+
+		// skip new line char and call newLine to update fields
+		else if (input.LA(1) == 10)
+		{
+			newLine();
+
+			input.consume();
+		}
+
+
+		else
+		{
+			c = input.getText(antlr4::misc::Interval(input.index(), input.index()));
+
+			input.consume();
+
+			cout << c;
+		}
+	}
 
 	// while c is skippable (whitespace, comment, new line):
 		// if c is new line

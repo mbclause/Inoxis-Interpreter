@@ -43,13 +43,11 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-
-	// code taken from antlr4 cpp runtime docs
 	antlr4::ANTLRInputStream input(in);
 
 	// test rig for antlr input stream
 
-	int line = 1;
+	/*int line = 1;
 
 	int charPosInLine = 0;
 	
@@ -77,21 +75,23 @@ int main(int argc, char* argv[])
 		//cout << input.getText(antlr4::misc::Interval(input.index(),input.index()));
 
 		input.consume();
-	}
+	}*/
 
 
 
-	//myLexer lexer(input);
+	myLexer lexer(input);
 
-	InoxisLexer lexer(&input);
+	lexer.nextToken();
 
-	antlr4::CommonTokenStream tokens(&lexer);
+	//InoxisLexer lexer(&input);
+
+	/*antlr4::CommonTokenStream tokens(&lexer);
 
 	InoxisParser parser(&tokens);
 
 	antlr4::tree::ParseTree* tree = parser.main();
 
-	auto s = tree->toStringTree(&parser);
+	auto s = tree->toStringTree(&parser);*/
 
 	//cout << "Parse Tree: " << s << endl;
 
