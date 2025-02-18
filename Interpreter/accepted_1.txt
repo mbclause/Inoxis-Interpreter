@@ -20,17 +20,31 @@ int main()
 	// variable can be changed
 	int mut i = 0;
 
+	int mut myVar = -25;
+
 	// gives_ownership moves its return value into array1
 	int* array1 = gives_ownership(1);
 
 	// array object allocated from the heap, array2 comes into scope
 	int* mut array2 = new int[10];
 
+	myVar = 10 - 5;
+
 	while(i < 10)
 	{
 		myArray[i] = i;
 
 		i = i + 1;
+	}
+
+	if(i == 0)
+	{
+	
+	}
+
+	elif(i != 0)
+	{
+
 	}
 
 	// array2 is moved into takes_and_gives_back, which also moves its return
