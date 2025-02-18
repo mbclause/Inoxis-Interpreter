@@ -259,6 +259,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 							cout << " greater ";
 						}
+						break;
 
 					default:
 						cout << "invalid token\n";
@@ -268,10 +269,10 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 				if (isDouble)
 				{
+					stop = input.index() + 1;
+
 					// consume second char
 					input.consume();
-
-					stop = input.index() + 1;
 				}
 
 				input.consume();
@@ -302,7 +303,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 						input.consume();
 
 					// set stop
-					stop = input.index();
+					stop = input.index() - 1;
 					
 					// get text for interval(start,stop)
 					text = input.getText(antlr4::misc::Interval(start, stop));
@@ -319,27 +320,84 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 			else if (is_letter(c))
 			{
 				// consume word
-				while (isalnum(char(input.LA(1))))
+				while (isalnum(char(input.LA(1))) || input.LA(1) == 95)
 					input.consume();
 
 				// set stop
-				stop = input.index();
+				stop = input.index() - 1;
 
 				//get word text
 				text = input.getText(antlr4::misc::Interval(start, stop));
 
-				// convert to char* for switch
-				char* text1 = text.data();
-
 				// now check if it's a reserved word
-				switch (*text1)
+				if (text == "int")
 				{
-					case 'int':
-						type = INT_TYPE;
-						cout << " inttype ";
-						break;
+					type = INT_TYPE;
 
-					case 'main';
+					cout << " INT ";
+				}
+
+				else if (text == "main")
+				{
+					type = MAIN;
+
+					cout << " MAIN ";
+				}
+
+				else if (text == "return")
+				{
+					type = RETURN;
+
+					cout << " RETURN ";
+				}
+
+				else if (text == "mut")
+				{
+					type = MUT;
+
+					cout << " MUT ";
+				}
+
+				else if (text == "new")
+				{
+					type = NEW;
+
+					cout << " NEW ";
+				}
+
+				else if (text == "while")
+				{
+					type = WHILE;
+
+					cout << " WHILE ";
+				}
+
+				else if (text == "if")
+				{
+					type = IF;
+
+					cout << " IF ";
+				}
+
+				else if (text == "elif")
+				{
+					type = ELIF;
+
+					cout << " ELIF ";
+				}
+
+				else if (text == "else")
+				{
+					type = ELSE;
+
+					cout << " ELSE ";
+				}
+
+				else
+				{
+					type = ID;
+
+					cout << " id= " << text;
 				}
 			}
 
@@ -351,7 +409,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 					input.consume();
 
 				// set stop
-				stop = input.index();
+				stop = input.index() - 1;
 
 				//get number text
 				text = input.getText(antlr4::misc::Interval(start, stop));

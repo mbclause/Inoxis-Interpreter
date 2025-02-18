@@ -30,6 +30,18 @@
     <ClCompile Include="myLexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include=".antlr\InoxisBaseListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".antlr\InoxisLexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".antlr\InoxisListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".antlr\InoxisParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt">
@@ -46,11 +58,27 @@
     <ClInclude Include="myLexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include=".antlr\InoxisBaseListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisLexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />
     <None Include=".antlr\lexRules.g4" />
     <None Include="Inoxis.g4" />
     <None Include="lexRules.g4" />
+    <None Include=".antlr\Inoxis.interp" />
+    <None Include=".antlr\Inoxis.tokens" />
+    <None Include=".antlr\InoxisLexer.interp" />
+    <None Include=".antlr\InoxisLexer.tokens" />
   </ItemGroup>
 </Project>

@@ -135,6 +135,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include=".antlr\InoxisBaseListener.cpp" />
+    <ClCompile Include=".antlr\InoxisLexer.cpp" />
+    <ClCompile Include=".antlr\InoxisListener.cpp" />
+    <ClCompile Include=".antlr\InoxisParser.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -144,11 +148,19 @@
     <Text Include="rejected_1.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include=".antlr\InoxisBaseListener.h" />
+    <ClInclude Include=".antlr\InoxisLexer.h" />
+    <ClInclude Include=".antlr\InoxisListener.h" />
+    <ClInclude Include=".antlr\InoxisParser.h" />
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="myLexer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />
+    <None Include=".antlr\Inoxis.interp" />
+    <None Include=".antlr\Inoxis.tokens" />
+    <None Include=".antlr\InoxisLexer.interp" />
+    <None Include=".antlr\InoxisLexer.tokens" />
     <None Include=".antlr\lexRules.g4" />
     <None Include="Inoxis.g4" />
     <None Include="lexRules.g4" />
