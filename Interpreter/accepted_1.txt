@@ -1,5 +1,5 @@
 // function declarations
-int*  givesOwnership(int arg);
+    int*  givesOwnership(int arg);
 
 int*  takesAndGivesBack(int* arrayParam);
 

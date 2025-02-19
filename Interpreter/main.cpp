@@ -45,43 +45,12 @@ int main(int argc, char* argv[])
 
 	antlr4::ANTLRInputStream input(in);
 
-	// test rig for antlr input stream
-
-	/*int line = 1;
-
-	int charPosInLine = 0;
-	
-
-	while (input.LA(1) != input.EOF)
-	{
-		//    /n is 10 in ascii
-		if (input.LA(1) == 10)
-		{
-			line++;
-
-			charPosInLine = 0;
-
-			cout << endl;
-		}
-
-		else
-		{
-
-			charPosInLine++;
-
-			cout << charPosInLine << " ";
-		}
-
-		//cout << input.getText(antlr4::misc::Interval(input.index(),input.index()));
-
-		input.consume();
-	}*/
-
 
 
 	myLexer lexer(input);
 
-	lexer.nextToken();
+	while(!lexer.hitEndOfFile)
+		lexer.nextToken();
 
 	//InoxisLexer lexer(&input);
 

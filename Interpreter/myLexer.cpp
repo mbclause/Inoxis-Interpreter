@@ -27,7 +27,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 	/*
 	CommonToken data fields for constructor:
 
-		source: pair<TokenSource *, CharStream *> source(&this, &intput)
+		source: pair<TokenSource *, CharStream *> source(this, &intput)
 		type:
 		channel: Token::DEFAULT_CHANNEL
 		start: the char index of the first character of the token (index into the stream), (just set it to input.index())
@@ -37,14 +37,19 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 		line: lineNum
 		charPositionInLine: the index in the line of the first char of the token (use charPosInLine)
-		text: 
+		text:
 	*/
 
 	//							**ALGORITHM**
-	
-	// c = current char in input stream
-	string c = input.getText(antlr4::misc::Interval(input.index(), input.index()));
 
+	if (input.LA(1) == input.EOF)
+	{
+
+		hitEndOfFile = true;
+	}
+
+else
+{
 	TOKEN_TYPE type;
 
 	size_t start = 0;
@@ -53,7 +58,18 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 	string text = "";
 
-	while (input.LA(1) != input.EOF)
+	pair<TokenSource*, antlr4::CharStream*> newSource(this, &input);
+
+	size_t channel = antlr4::Token::DEFAULT_CHANNEL;
+
+	size_t charPositionInLine = 0;
+
+	size_t line = 0;
+
+	//while (input.LA(1) != input.EOF)
+
+	// skip all whitespace so we can get the next token
+	while (input.LA(1) == 47 || input.LA(1) == 32 || input.LA(1) == 9 || input.LA(1) == 13 || input.LA(1) == 10)
 	{
 		// consume comments (47 = '/')
 		if (input.LA(1) == 47)
@@ -61,20 +77,22 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 			// consume the comment until we hit a new line
 			while (input.LA(1) != 10)
 			{
-				cout << input.getText(antlr4::misc::Interval(input.index(), input.index()));
 				input.consume();
 			}
 
 			// consume new line
-			cout << input.getText(antlr4::misc::Interval(input.index(), input.index()));
 			input.consume();
+
+			newLine();
 		}
 
 		// skip whitespace
-		else if(input.LA(1) == 32 || input.LA(1) == 9 || input.LA(1) == 13)
+		else if (input.LA(1) == 32 || input.LA(1) == 9 || input.LA(1) == 13)
 		{
-			cout << input.getText(antlr4::misc::Interval(input.index(), input.index()));
 			input.consume();
+
+			// increment the char position in the line
+			_charPosInLine++;
 		}
 
 		// skip new line char and call newLine to update fields
@@ -82,370 +100,364 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 		{
 			newLine();
 
-			cout << input.getText(antlr4::misc::Interval(input.index(), input.index()));
+			input.consume();
+		}
+	}
+
+	//cout << "line: " << lineNum << " char pos: " << _charPosInLine + 1 << endl;
+
+
+	// now we can get the next token
+
+
+
+		// convert current char to string
+		string c = input.getText(antlr4::misc::Interval(input.index(), input.index()));
+
+		// convert to char
+		char* c1 = c.data();
+
+		// start = stop = index()
+		start = stop = input.index();
+
+		// EASY SINGLE CHAR TOKENS {,},(,),;,*,&,],+
+		if (c == "{" || c == "}" || c == "(" || c == ")" || c == ";" || c == "*" || c == "&" || c == "]" || c == "+")
+		{
+			switch (*c1)
+			{
+			case '{':
+				type = L_CURLY;
+				cout << " lcurly ";
+				break;
+
+			case '}':
+				type = R_CURLY;
+				cout << " rcurly ";
+				break;
+
+			case '(':
+				type = L_PAREN;
+				cout << " lparen ";
+				break;
+
+			case ')':
+				type = R_PAREN;
+				cout << " rparen ";
+				break;
+
+			case ';':
+				type = SEMI_COLON;
+				cout << " semicolon ";
+				break;
+
+			case '*':
+				type = POINTER;
+				cout << " star ";
+				break;
+
+			case '&':
+				type = REFERENCE;
+				cout << " ref ";
+				break;
+
+			case ']':
+				type = R_BRACKET;
+				cout << " rbrack ";
+				break;
+
+			case '+':
+				type = PLUS;
+				cout << " plus ";
+				break;
+
+			default:
+				cout << "invalid type\n";
+				break;
+
+			}
+
+			// consume the character
+			input.consume();
+		}
+
+		// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=
+		// check next char to see if it's single or double token
+		else if (c == "=" || c == "[" || c == "!" || c == "<" || c == ">")
+		{
+			char nextChar = char(input.LA(2));
+
+			bool isDouble = false;
+
+			switch (*c1)
+			{
+			case '=':
+				if (nextChar == '=')
+				{
+					isDouble = true;
+
+					type = DOUBLE_EQUALS;
+
+					cout << " doubleEquals ";
+				}
+
+				else
+				{
+					type = SINGLE_EQUALS;
+
+					cout << " equals ";
+				}
+
+				break;
+
+			case '[':
+				if (nextChar == ']')
+				{
+					isDouble = true;
+
+					type = DOUBLE_BRACKETS;
+
+					cout << " doublebrackets ";
+				}
+
+				else
+				{
+					type = L_BRACKET;
+
+					cout << " lbracket ";
+				}
+
+				break;
+
+			case '!':
+				if (nextChar == '=')
+				{
+					isDouble = true;
+
+					type = NOT_EQUAL;
+
+					cout << " notequal ";
+				}
+
+				else
+				{
+					type = NOT;
+
+					cout << " not ";
+				}
+
+				break;
+
+			case '<':
+				if (nextChar == '=')
+				{
+					isDouble = true;
+
+					type = LESS_EQUAL;
+
+					cout << " lessEqual ";
+				}
+
+				else
+				{
+					type = LESS;
+
+					cout << " less ";
+				}
+				break;
+
+			case '>':
+				if (nextChar == '=')
+				{
+					isDouble = true;
+
+					type = GREATER_EQUAL;
+
+					cout << " greatEqual ";
+				}
+
+				else
+				{
+					type = GREATER;
+
+					cout << " greater ";
+				}
+				break;
+
+			default:
+				cout << "invalid token\n";
+				break;
+
+			}
+
+			if (isDouble)
+			{
+				stop = input.index() + 1;
+
+				// consume second char
+				input.consume();
+			}
 
 			input.consume();
 		}
 
-
-		else
+		// negative or minus
+		else if (c == "-")
 		{
-			// convert current char to string
-			c = input.getText(antlr4::misc::Interval(input.index(), input.index()));
+			char prevChar = char(input.LA(-1));
 
-			// convert to
-			char* c1 = c.data();
-
-			// start = stop = index()
-			start = stop = input.index();
-
-			// EASY SINGLE CHAR TOKENS {,},(,),;,*,&,],+
-			if (c == "{" || c == "}" || c == "(" || c == ")" || c == ";" || c == "*" || c == "&" || c == "]" || c == "+")
+			// check previous char, if it's a number, then it's subtraction, anything else it's negative
+			if (isdigit(prevChar))
 			{
-				switch (*c1)
-				{
-				case '{':
-					type = L_CURLY;
-					cout << " lcurly ";
-					break;
+				type = MINUS;
 
-				case '}':
-					type = R_CURLY;
-					cout << " rcurly ";
-					break;
-
-				case '(':
-					type = L_PAREN;
-					cout << " lparen ";
-					break;
-
-				case ')':
-					type = R_PAREN;
-					cout << " rparen ";
-					break;
-
-				case ';':
-					type = SEMI_COLON;
-					cout << " semicolon ";
-					break;
-
-				case '*':
-					type = POINTER;
-					cout << " star ";
-					break;
-
-				case '&':
-					type = REFERENCE;
-					cout << " ref ";
-					break;
-
-				case ']':
-					type = R_BRACKET;
-					cout << " rbrack ";
-					break;
-
-				case '+':
-					type = PLUS;
-					cout << " plus ";
-					break;
-
-				default:
-					cout << "invalid type\n";
-					break;
-
-				}
+				cout << " minus ";
 
 				input.consume();
 			}
 
-			// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=
-			// check next char to see if it's single or double token
-			else if (c == "=" || c == "[" || c == "!" || c == "<" || c == ">")
+			else
 			{
-				char nextChar = char(input.LA(2));
-
-				bool isDouble = false;
-
-				switch (*c1)
-				{
-					case '=':
-						if (nextChar == '=')
-						{
-							isDouble = true;
-
-							type = DOUBLE_EQUALS;
-
-							cout << " doubleEquals ";
-						}
-
-						else
-						{
-							type = SINGLE_EQUALS;
-
-							cout << " equals ";
-						}
-
-						break;
-
-					case '[':
-						if (nextChar == ']')
-						{
-							isDouble = true;
-
-							type = DOUBLE_BRACKETS;
-
-							cout << " doublebrackets ";
-						}
-
-						else
-						{
-							type = L_BRACKET;
-
-							cout << " lbracket ";
-						}
-
-						break;
-
-					case '!':
-						if (nextChar == '=')
-						{
-							isDouble = true;
-
-							type = NOT_EQUAL;
-
-							cout << " notequal ";
-						}
-
-						else
-						{
-							type = NOT;
-
-							cout << " not ";
-						}
-
-						break;
-
-					case '<':
-						if (nextChar == '=')
-						{
-							isDouble = true;
-
-							type = LESS_EQUAL;
-
-							cout << " lessEqual ";
-						}
-
-						else
-						{
-							type = LESS;
-
-							cout << " less ";
-						}
-						break;
-
-					case '>':
-						if (nextChar == '=')
-						{
-							isDouble = true;
-
-							type = GREATER_EQUAL;
-
-							cout << " greatEqual ";
-						}
-
-						else
-						{
-							type = GREATER;
-
-							cout << " greater ";
-						}
-						break;
-
-					default:
-						cout << "invalid token\n";
-						break;
-
-				}
-
-				if (isDouble)
-				{
-					stop = input.index() + 1;
-
-					// consume second char
-					input.consume();
-				}
-
+				// consume negative sign
 				input.consume();
-			}
 
-			// negative or minus
-			else if (c == "-")
-			{
-				char prevChar = char(input.LA(-1));
-
-				// check previous char, if it's a number, then it's subtraction, anything else it's negative
-				if (isdigit(prevChar))
-				{
-					type = MINUS;
-
-					cout << " minus ";
-
-					input.consume();
-				}
-
-				else
-				{
-					// consume negative sign
-					input.consume();
-
-					// consume rest of the number
-					while (isdigit(char(input.LA(1))))
-						input.consume();
-
-					// set stop
-					stop = input.index() - 1;
-					
-					// get text for interval(start,stop)
-					text = input.getText(antlr4::misc::Interval(start, stop));
-
-					cout << " negNum= ";
-
-					cout << text;
-
-					type = NUMBER;
-				}
-			}
-
-			// next token is a word, either a reserved word or an ID
-			else if (is_letter(c))
-			{
-				// consume word
-				while (isalnum(char(input.LA(1))) || input.LA(1) == 95)
-					input.consume();
-
-				// set stop
-				stop = input.index() - 1;
-
-				//get word text
-				text = input.getText(antlr4::misc::Interval(start, stop));
-
-				// now check if it's a reserved word
-				if (text == "int")
-				{
-					type = INT_TYPE;
-
-					cout << " INT ";
-				}
-
-				else if (text == "main")
-				{
-					type = MAIN;
-
-					cout << " MAIN ";
-				}
-
-				else if (text == "return")
-				{
-					type = RETURN;
-
-					cout << " RETURN ";
-				}
-
-				else if (text == "mut")
-				{
-					type = MUT;
-
-					cout << " MUT ";
-				}
-
-				else if (text == "new")
-				{
-					type = NEW;
-
-					cout << " NEW ";
-				}
-
-				else if (text == "while")
-				{
-					type = WHILE;
-
-					cout << " WHILE ";
-				}
-
-				else if (text == "if")
-				{
-					type = IF;
-
-					cout << " IF ";
-				}
-
-				else if (text == "elif")
-				{
-					type = ELIF;
-
-					cout << " ELIF ";
-				}
-
-				else if (text == "else")
-				{
-					type = ELSE;
-
-					cout << " ELSE ";
-				}
-
-				else
-				{
-					type = ID;
-
-					cout << " id= " << text;
-				}
-			}
-
-			// number
-			else if (is_digits(c))
-			{
-				// consume number
+				// consume rest of the number
 				while (isdigit(char(input.LA(1))))
 					input.consume();
 
 				// set stop
 				stop = input.index() - 1;
 
-				//get number text
+				// get text for interval(start,stop)
 				text = input.getText(antlr4::misc::Interval(start, stop));
 
-				type = NUMBER;
+				cout << " negNum= ";
 
-				cout << " number= " << text;
+				cout << text;
+
+				type = NUMBER;
+			}
+		}
+
+		// next token is a word, either a reserved word or an ID
+		else if (is_letter(c))
+		{
+			// consume word
+			while (isalnum(char(input.LA(1))) || input.LA(1) == 95)
+				input.consume();
+
+			// set stop
+			stop = input.index() - 1;
+
+			//get word text
+			text = input.getText(antlr4::misc::Interval(start, stop));
+
+			// now check if it's a reserved word
+			if (text == "int")
+			{
+				type = INT_TYPE;
+
+				cout << " INT ";
+			}
+
+			else if (text == "main")
+			{
+				type = MAIN;
+
+				cout << " MAIN ";
+			}
+
+			else if (text == "return")
+			{
+				type = RETURN;
+
+				cout << " RETURN ";
+			}
+
+			else if (text == "mut")
+			{
+				type = MUT;
+
+				cout << " MUT ";
+			}
+
+			else if (text == "new")
+			{
+				type = NEW;
+
+				cout << " NEW ";
+			}
+
+			else if (text == "while")
+			{
+				type = WHILE;
+
+				cout << " WHILE ";
+			}
+
+			else if (text == "if")
+			{
+				type = IF;
+
+				cout << " IF ";
+			}
+
+			else if (text == "elif")
+			{
+				type = ELIF;
+
+				cout << " ELIF ";
+			}
+
+			else if (text == "else")
+			{
+				type = ELSE;
+
+				cout << " ELSE ";
 			}
 
 			else
 			{
-				cout << c;
+				type = ID;
 
-				input.consume();
+				cout << " id= " << text;
 			}
 		}
-	}
 
+		// number
+		else if (is_digits(c))
+		{
+			// consume number
+			while (isdigit(char(input.LA(1))))
+				input.consume();
 
-	// start = stop = index()
-			
-
-	// switch(c):
-		// letter
-			// get whole word from stream
 			// set stop
-			// use switch to check if it's a reserved word
-				// if not, it's an ID
-			// getText for interval(start,stop)
+			stop = input.index() - 1;
 
-	// consume characters until stop is reached
-	// increment charPosInLine by (stop-start)
+			//get number text
+			text = input.getText(antlr4::misc::Interval(start, stop));
 
-	// initialize token with the parameters
+			type = NUMBER;
 
-	// return unique pointer to token
+			cout << " number= " << text;
+		}
+
+		else
+		{
+			cout << "invalid input to lexer \n";
+		}
+
+
+		// increment charPosInLine by (stop-start)
+		_charPosInLine += (stop - start) + 1;
+
+		cout << "\nline: " << lineNum << " char pos: " << _charPosInLine + 1 << endl;
+
+		// initialize token with the parameters
+
+		// return unique pointer to token
+
+
+	}
 
 	return NULL;
 	
@@ -465,7 +477,9 @@ myLexer::myLexer(antlr4::ANTLRInputStream in)
 	
 	lineNum = 1; 
 	
-	charPosInLine = 0;
+	_charPosInLine = 0;
+
+	hitEndOfFile = false;
 }
 
 

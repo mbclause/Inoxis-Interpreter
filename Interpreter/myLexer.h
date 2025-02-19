@@ -67,7 +67,9 @@ public:
 
 	size_t lineNum;
 
-	size_t charPosInLine;
+	size_t _charPosInLine;
+
+	bool hitEndOfFile;
 
 
 
@@ -98,7 +100,7 @@ public:
 	/// stream. The first character on a line has position 0.
 	/// 
 	size_t getCharPositionInLine() override {
-		return charPosInLine;
+		return _charPosInLine;
 	};
 
 
@@ -114,5 +116,5 @@ public:
 
 
 
-	void newLine() { lineNum++; charPosInLine = 0; };
+	void newLine() { lineNum++; _charPosInLine = 0; };
 };
