@@ -20,17 +20,21 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	//check for correct number of command line args
-	if (argc != 2)
+	/*if (argc != 2)
 	{
 		cerr << "Usage: inoxis.exe [file name]" << endl;
 
 		exit(1);
-	}
+	}*/
 
 	// get file name from command line
 	string file_name = argv[1];
 
 	ifstream in;
+
+	ofstream out;
+
+	out.open("parse_tree_antlrLexer.txt");
 
 	// open Inoxis file
 	in.open(file_name);
@@ -43,26 +47,33 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
+	if (!out.is_open())
+	{
+		cerr << "Error opening file\n";
+
+		exit(1);
+	}
+
 	antlr4::ANTLRInputStream input(in);
 
 
 
-	myLexer lexer(input);
+	//myLexer lexer(input);
 
-	while(!lexer.hitEndOfFile)
-		lexer.nextToken();
+	//while(!lexer.hitEndOfFile)
+		//lexer.nextToken();
 
-	//InoxisLexer lexer(&input);
+	InoxisLexer lexer(&input);
 
-	/*antlr4::CommonTokenStream tokens(&lexer);
+	antlr4::CommonTokenStream tokens(&lexer);
 
 	InoxisParser parser(&tokens);
 
 	antlr4::tree::ParseTree* tree = parser.main();
 
-	auto s = tree->toStringTree(&parser);*/
+	auto s = tree->toStringTree(&parser);
 
-	//cout << "Parse Tree: " << s << endl;
+	out << "Parse Tree: " << s << endl;
 
 
 	return 0;

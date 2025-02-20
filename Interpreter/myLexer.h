@@ -117,4 +117,6 @@ public:
 
 
 	void newLine() { lineNum++; _charPosInLine = 0; };
+
+	void outerConsume();
 };

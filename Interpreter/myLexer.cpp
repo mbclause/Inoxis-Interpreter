@@ -10,6 +10,14 @@ bool is_digits(const std::string& str);
 bool is_letter(const std::string& str);
 
 
+void  myLexer::outerConsume()
+{
+	input.consume();
+
+	_charPosInLine++;
+}
+
+
 /*
 Function: nextToken()
 
@@ -25,7 +33,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 {
 	pair<TokenSource*, antlr4::CharStream*> source(this, &input);
 	/*
-	CommonToken data fields for constructor:
+	CommonToken data fields for constructor (source, type,channel, start, stop):
 
 		source: pair<TokenSource *, CharStream *> source(this, &intput)
 		type:
@@ -33,7 +41,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 		start: the char index of the first character of the token (index into the stream), (just set it to input.index())
 		stop: the char index of the last character of the token
 
-	Then need to use setter methods to set:
+	Then need to use setter methods to set (line, charPosinLine, text):
 
 		line: lineNum
 		charPositionInLine: the index in the line of the first char of the token (use charPosInLine)
@@ -42,15 +50,9 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 	//							**ALGORITHM**
 
-	if (input.LA(1) == input.EOF)
-	{
+	TOKEN_TYPE type = WS;
 
-		hitEndOfFile = true;
-	}
-
-else
-{
-	TOKEN_TYPE type;
+	size_t returnedType = antlr4::Token::EOF;
 
 	size_t start = 0;
 
@@ -66,6 +68,17 @@ else
 
 	size_t line = 0;
 
+	size_t initCharPos = 0;
+
+	if (input.LA(1) == input.EOF)
+	{
+
+		hitEndOfFile = true;
+	}
+
+else
+{
+
 	//while (input.LA(1) != input.EOF)
 
 	// skip all whitespace so we can get the next token
@@ -77,11 +90,11 @@ else
 			// consume the comment until we hit a new line
 			while (input.LA(1) != 10)
 			{
-				input.consume();
+				outerConsume();
 			}
 
 			// consume new line
-			input.consume();
+			outerConsume();
 
 			newLine();
 		}
@@ -89,18 +102,15 @@ else
 		// skip whitespace
 		else if (input.LA(1) == 32 || input.LA(1) == 9 || input.LA(1) == 13)
 		{
-			input.consume();
-
-			// increment the char position in the line
-			_charPosInLine++;
+			outerConsume();
 		}
 
 		// skip new line char and call newLine to update fields
 		else if (input.LA(1) == 10)
 		{
-			newLine();
+			outerConsume();
 
-			input.consume();
+			newLine();
 		}
 	}
 
@@ -119,6 +129,8 @@ else
 
 		// start = stop = index()
 		start = stop = input.index();
+
+		initCharPos = _charPosInLine;
 
 		// EASY SINGLE CHAR TOKENS {,},(,),;,*,&,],+
 		if (c == "{" || c == "}" || c == "(" || c == ")" || c == ";" || c == "*" || c == "&" || c == "]" || c == "+")
@@ -177,7 +189,9 @@ else
 			}
 
 			// consume the character
-			input.consume();
+			outerConsume();
+
+			text = c;
 		}
 
 		// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=
@@ -194,6 +208,8 @@ else
 				if (nextChar == '=')
 				{
 					isDouble = true;
+
+					text = "==";
 
 					type = DOUBLE_EQUALS;
 
@@ -214,6 +230,8 @@ else
 				{
 					isDouble = true;
 
+					text = "[]";
+
 					type = DOUBLE_BRACKETS;
 
 					cout << " doublebrackets ";
@@ -232,6 +250,8 @@ else
 				if (nextChar == '=')
 				{
 					isDouble = true;
+					
+					text = "!=";
 
 					type = NOT_EQUAL;
 
@@ -252,6 +272,8 @@ else
 				{
 					isDouble = true;
 
+					text = "<=";
+
 					type = LESS_EQUAL;
 
 					cout << " lessEqual ";
@@ -269,6 +291,8 @@ else
 				if (nextChar == '=')
 				{
 					isDouble = true;
+
+					text = ">=";
 
 					type = GREATER_EQUAL;
 
@@ -294,10 +318,16 @@ else
 				stop = input.index() + 1;
 
 				// consume second char
-				input.consume();
+				outerConsume();
 			}
 
-			input.consume();
+			else
+			{
+				text = c;
+			}
+
+			// consume first char
+			outerConsume();
 		}
 
 		// negative or minus
@@ -312,17 +342,17 @@ else
 
 				cout << " minus ";
 
-				input.consume();
+				outerConsume();
 			}
 
 			else
 			{
 				// consume negative sign
-				input.consume();
+				outerConsume();
 
 				// consume rest of the number
 				while (isdigit(char(input.LA(1))))
-					input.consume();
+					outerConsume();
 
 				// set stop
 				stop = input.index() - 1;
@@ -343,7 +373,7 @@ else
 		{
 			// consume word
 			while (isalnum(char(input.LA(1))) || input.LA(1) == 95)
-				input.consume();
+				outerConsume();
 
 			// set stop
 			stop = input.index() - 1;
@@ -428,7 +458,7 @@ else
 		{
 			// consume number
 			while (isdigit(char(input.LA(1))))
-				input.consume();
+				outerConsume();
 
 			// set stop
 			stop = input.index() - 1;
@@ -447,19 +477,28 @@ else
 		}
 
 
-		// increment charPosInLine by (stop-start)
-		_charPosInLine += (stop - start) + 1;
+		cout << "\nline: " << lineNum << " char pos: " << initCharPos + 1 << endl;
 
-		cout << "\nline: " << lineNum << " char pos: " << _charPosInLine + 1 << endl;
-
-		// initialize token with the parameters
-
-		// return unique pointer to token
-
+		// convert token type from enum to size_t
+		returnedType = type;
 
 	}
 
-	return NULL;
+	// initialize token unique pointer with the parameters
+	// CommonToken data fields for constructor (source, type,channel, start, stop)
+	// this code is taken from antlr c++ source files
+	std::unique_ptr<antlr4::CommonToken>
+		newToken(new antlr4::CommonToken(newSource, returnedType, channel, start, stop));
+
+	// Then need to use setter methods to set (line, charPosinLine, text)
+	newToken->setLine(line);
+
+	newToken->setCharPositionInLine(initCharPos);
+
+	newToken->setText(text);
+
+	// return unique pointer to token
+	return move(newToken);
 	
 }
 
