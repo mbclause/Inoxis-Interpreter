@@ -58,18 +58,21 @@ int main(int argc, char* argv[])
 
 
 
-	//myLexer lexer(input);
+	myLexer lexer(input);
 
 	//while(!lexer.hitEndOfFile)
 		//lexer.nextToken();
 
-	InoxisLexer lexer(&input);
+	//InoxisLexer lexer(&input);
 
 	antlr4::CommonTokenStream tokens(&lexer);
 
 	InoxisParser parser(&tokens);
 
 	antlr4::tree::ParseTree* tree = parser.main();
+
+	// pass this to VM object if there are no errors
+	// if there are errors 
 
 	auto s = tree->toStringTree(&parser);
 
