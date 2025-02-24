@@ -13,6 +13,7 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include "misc/interval.h"
 
 #include "myLexer.h"
+#include "Interpreter.h"
 
 using namespace std;
 
@@ -54,29 +55,11 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
+	
+
 	antlr4::ANTLRInputStream input(in);
 
-
-
-	myLexer lexer(input);
-
-	//while(!lexer.hitEndOfFile)
-		//lexer.nextToken();
-
-	//InoxisLexer lexer(&input);
-
-	antlr4::CommonTokenStream tokens(&lexer);
-
-	InoxisParser parser(&tokens);
-
-	antlr4::tree::ParseTree* tree = parser.main();
-
-	// pass this to VM object if there are no errors
-	// if there are errors 
-
-	auto s = tree->toStringTree(&parser);
-
-	out << "Parse Tree: " << s << endl;
+	Interpreter newInterpreter(input);
 
 
 	return 0;

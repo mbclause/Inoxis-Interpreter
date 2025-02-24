@@ -26,6 +26,8 @@ myLexer::myLexer(antlr4::ANTLRInputStream in)
 	_charPosInLine = 0;
 
 	hitEndOfFile = false;
+
+	errorCount = 0;
 } // end type ctor
 
 
@@ -164,6 +166,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 			default:
 				cerr << "invalid type\n";
+				errorCount++;
 				break;
 
 			} // end switch
@@ -269,6 +272,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 				break;
 
 			default:
+				errorCount++;
 				cerr << "invalid token\n";
 				break;
 
@@ -410,6 +414,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 		else
 		{
 			cerr << "invalid input to lexer \n";
+			errorCount++;
 		}
 
 		// convert token type from enum to size_t

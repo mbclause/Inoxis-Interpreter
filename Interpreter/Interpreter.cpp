@@ -5,19 +5,30 @@ File: Interpreter.cpp
 
 // include statements
 #include "Interpreter.h"
-#include "Lexer.h"
-#include <iostream>
 
 
 
 /*
 Function: run
 */
-void Interpreter::run(antlr4::ANTLRInputStream input)
+void     Interpreter::run(antlr4::ANTLRInputStream input)
 {
-	//Lexer lexer(input);
+	myLexer lexer(input);
 
-	//antlr4::CommonTokenStream tokens = lexer.ScanTokens();
+	int numLexErrors = lexer.getErrorCount();
+
+	antlr4::CommonTokenStream tokens(&lexer);
+
+	InoxisParser parser(&tokens);
+
+	antlr4::tree::ParseTree* tree = parser.main();
+
+	// pass this to VM object if there are no errors
+	// if there are errors 
+
+	auto s = tree->toStringTree(&parser);
+
+	cout << "Parse Tree: " << s << endl;
 
 	
 }

@@ -5,7 +5,12 @@ File: Interpreter.h
 // include statements
 #include <string>
 #include <vector>
+#include <iostream>
 #include "antlr4-runtime.h"
+#include "myLexer.h"
+#include ".antlr/InoxisLexer.h"
+#include ".antlr/InoxisParser.h"
+#include "misc/interval.h"
 
 using namespace std;
 
@@ -16,6 +21,7 @@ enum ERROR_TYPE { SYNTAX_ERROR, MEM_SAFETY_ERROR };
 // Interpreter class definition
 class Interpreter
 {
+public:
 	// default ctor
 	Interpreter(antlr4::ANTLRInputStream input) { run(input); error_count = 0; };
 

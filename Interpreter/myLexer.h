@@ -2,6 +2,9 @@
 File: myLexer.h
 */
 
+#ifndef MYLEXER_H
+#define MYLEXER_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -64,6 +67,8 @@ public:
 
 	bool hitEndOfFile;
 
+	int errorCount;
+
 
 
 	/// Return a Token object from your input stream (usually a
@@ -101,4 +106,8 @@ public:
 
 	// consume char in input stream and increment char pos index in line
 	void outerConsume() {input.consume(); _charPosInLine++;};
+
+	int getErrorCount() { return errorCount; };
 };
+
+#endif
