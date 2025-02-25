@@ -42,6 +42,12 @@
     <ClCompile Include=".antlr\InoxisParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include=".antlr\InoxisVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".antlr\InoxisBaseVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt">
@@ -68,6 +74,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include=".antlr\InoxisParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisBaseVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
