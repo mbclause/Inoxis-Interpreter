@@ -11,12 +11,12 @@
 namespace antlr4 {
 namespace tree {
 
-  /// An interface to access the tree of <seealso cref="RuleContext"/> objects created
+  /// An interface to access the tree of RuleContext objects created
   /// during a parse that makes the data structure look like a simple parse tree.
   /// This node represents both internal nodes, rule invocations,
   /// and leaf nodes, token matches.
   ///
-  /// The payload is either a <seealso cref="Token"/> or a <seealso cref="RuleContext"/> object.
+  /// The payload is either a Token or a RuleContext object.
   // ml: This class unites 4 Java classes: RuleNode, ParseTree, SyntaxTree and Tree.
   class ANTLR4CPP_PUBLIC ParseTree {
   public:
@@ -39,7 +39,7 @@ namespace tree {
     std::vector<ParseTree *> children;
 
     /// Print out a whole tree, not just a node, in LISP format
-    /// {@code (root child1 .. childN)}. Print just a node if this is a leaf.
+    /// (root child1 .. childN). Print just a node if this is a leaf.
     virtual std::string toStringTree(bool pretty = false) = 0;
     virtual std::string toString() = 0;
 
@@ -49,7 +49,7 @@ namespace tree {
 
     virtual bool operator == (const ParseTree &other) const;
 
-    /// The <seealso cref="ParseTreeVisitor"/> needs a double dispatch method.
+    /// The ParseTreeVisitor needs a double dispatch method.
     // ml: This has been changed to use Any instead of a template parameter, to avoid the need of a virtual template function.
     virtual std::any accept(ParseTreeVisitor *visitor) = 0;
 
@@ -59,20 +59,20 @@ namespace tree {
     virtual std::string getText() = 0;
 
     /**
-     * Return an {@link Interval} indicating the index in the
-     * {@link TokenStream} of the first and last token associated with this
+     * Return an Interval indicating the index in the
+     * TokenStream of the first and last token associated with this
      * subtree. If this node is a leaf, then the interval represents a single
      * token and has interval i..i for token index i.
      *
-     * <p>An interval of i..i-1 indicates an empty interval at position
+     * An interval of i..i-1 indicates an empty interval at position
      * i in the input stream, where 0 &lt;= i &lt;= the size of the input
      * token stream.  Currently, the code base can only have i=0..n-1 but
-     * in concept one could have an empty interval after EOF. </p>
+     * in concept one could have an empty interval after EOF. 
      *
-     * <p>If source interval is unknown, this returns {@link Interval#INVALID}.</p>
+     * If source interval is unknown, this returns Interval#INVALID.
      *
-     * <p>As a weird special case, the source interval for rules matched after
-     * EOF is unspecified.</p>
+     * As a weird special case, the source interval for rules matched after
+     * EOF is unspecified.
      */
     virtual misc::Interval getSourceInterval() = 0;
 
