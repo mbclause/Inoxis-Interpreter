@@ -109,8 +109,9 @@ public:
 
 	int getErrorCount() { return errorCount; };
 
-	void report_error() {
-		cerr << "Lexer error at line " << lineNum << ".\n"; errorCount++;
+	void report_error(char token) {
+		cerr << "Lexer error: invalid character ' " << token << " ' at " << lineNum << ": " << _charPosInLine << endl; 
+		errorCount++;
 	};
 };
 
