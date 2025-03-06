@@ -148,6 +148,7 @@
   <ItemGroup>
     <Text Include="accepted_1.txt" />
     <Text Include="rejected_1.txt" />
+    <Text Include="test.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include=".antlr\InoxisBaseListener.h" />

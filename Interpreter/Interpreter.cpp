@@ -15,13 +15,15 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 {
 	myLexer lexer(input);
 
-	int numLexErrors = lexer.getErrorCount();
+	//int numLexErrors = lexer.getErrorCount();
+
+	//InoxisLexer lexer(&input);
 
 	antlr4::CommonTokenStream tokens(&lexer);
 
 	InoxisParser parser(&tokens);
 
-	antlr4::tree::ParseTree* tree = parser.main();
+	antlr4::tree::ParseTree* tree = parser.program();
 
 	// pass this to VM object if there are no errors
 	// if there are errors 

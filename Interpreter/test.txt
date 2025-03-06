@@ -1,0 +1,15 @@
+int func1(int param);
+
+int main()
+{
+	int var*&^*& = 5;
+
+	return 0;
+}
+
+int func1(int param)
+{
+	return 0;
+}
+
+

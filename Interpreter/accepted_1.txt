@@ -32,6 +32,8 @@ int main()
 
 	myVar = 10 - 5;
 
+	myVar = 20 - 13;
+
 	while(i < 10)
 	{
 		myArray[i] = i;
