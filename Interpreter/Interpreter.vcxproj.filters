@@ -83,6 +83,18 @@
     <ClInclude Include=".antlr\InoxisBaseVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="symbolTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="funcSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="varSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memAccess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />

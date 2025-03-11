@@ -157,8 +157,12 @@
     <ClInclude Include=".antlr\InoxisListener.h" />
     <ClInclude Include=".antlr\InoxisParser.h" />
     <ClInclude Include=".antlr\InoxisVisitor.h" />
+    <ClInclude Include="funcSymbol.h" />
     <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="memAccess.h" />
     <ClInclude Include="myLexer.h" />
+    <ClInclude Include="symbolTable.h" />
+    <ClInclude Include="varSymbol.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />

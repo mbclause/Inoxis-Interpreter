@@ -11,6 +11,7 @@ File: Interpreter.h
 #include ".antlr/InoxisLexer.h"
 #include ".antlr/InoxisParser.h"
 #include "misc/interval.h"
+#include "symbolTable.h"
 
 using namespace std;
 
@@ -28,6 +29,8 @@ public:
 	// data members
 
 	int error_count;
+
+	symbolTable symTable;
 
 	// member functions
 	void run(antlr4::ANTLRInputStream input);
