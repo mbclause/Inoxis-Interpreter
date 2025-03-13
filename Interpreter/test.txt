@@ -2,7 +2,7 @@ int func1(int param);
 
 int main()
 {
-	int var*&^*& = 5;
+	int var = 5;
 
 	return 0;
 }

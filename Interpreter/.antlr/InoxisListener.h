@@ -20,7 +20,7 @@ enterParam (add param id to symbol table for function)
 
 enterVarDec (add variable to function symbol table, add appropriate info about whether it's mut or not)
 
-enterVar (check symbol table)
+enterVar (check symbol table, check mem safety if needsMemSafety flag is set)
 
 
 

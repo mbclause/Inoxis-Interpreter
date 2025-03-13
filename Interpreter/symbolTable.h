@@ -3,6 +3,7 @@
 #include "funcSymbol.h"
 #include <string>
 #include <map>
+#include <iostream>
 
 using namespace std;
 
@@ -32,6 +33,12 @@ enterassignRHS (check whether variable is mut or not, if there's allocation, upd
 class symbolTable : public InoxisBaseListener
 {
 	map<string, funcSymbol> funcSymbols;
+
+	void enterFuncDec(InoxisParser::FuncDecContext* ctx);
+
+	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
+
+	// need some error checking and tracking code
 };
 
 
