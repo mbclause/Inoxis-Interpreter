@@ -38,6 +38,8 @@ class symbolTable : public InoxisBaseListener
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 
+	bool compFuncSignatures(funcSymbol func1, funcSymbol func2);
+
 	// need some error checking and tracking code
 };
 
