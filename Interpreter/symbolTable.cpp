@@ -60,8 +60,8 @@ void   symbolTable::enterFuncDec(InoxisParser::FuncDecContext* ctx)
 
 
 
-	cout << "in function declaration. Function name: " << funcName << "\nParam Name: " << paramName << 
-		"\nreturn type: " << returnTypeText << endl;
+	//cout << "in function declaration. Function name: " << funcName << "\nParam Name: " << paramName << 
+		//"\nreturn type: " << returnTypeText << endl;
 
 	funcSymbol newFunction(funcName, paramName, isMut, returnType, paramType);
 
@@ -143,18 +143,46 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 			cout << funcName << " has been declared\n";
 		}
+
+		else
+		{
+			cout << funcName << " has NOT been declared\n";
+
+			reportError();
+		}
 	}
 
 	else
 	{
 		cout << funcName << " has NOT been declared\n";
+
+		reportError();
+	}
+
+	if (isDeclared)
+	{
+		// need to add code to add the parameter to the locals hashmap, problem is, I don't know
+		// how to do the memory safety stuff, because this depends on what's passed to in the function call
+		// this would only matter if the parameter is a pointer or reference
+
+		// use the varSymbol ctor to pass in the parameter name, data type, and isMutable
+		// then add the varSymbol to the locals
+		// I think I'm going to need a separate table that keeps track of heep memory accesses
 	}
 }
 
 
 
 
-bool compFuncSignatures(funcSymbol func1, funcSymbol func2)
+bool symbolTable::compFuncSignatures(funcSymbol func1, funcSymbol func2)
 {
-	return false;
+	bool sameFunc = false;
+
+	if (func1._paramName == func2._paramName)
+		if (func1.paramIsMut == func2.paramIsMut)
+			if (func1._returnType == func2._returnType)
+				if (func1._paramType == func2._paramType)
+					sameFunc = true;
+
+	return sameFunc;
 }

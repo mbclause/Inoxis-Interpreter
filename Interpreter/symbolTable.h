@@ -32,6 +32,10 @@ enterassignRHS (check whether variable is mut or not, if there's allocation, upd
 
 class symbolTable : public InoxisBaseListener
 {
+public:
+
+	symbolTable() : numErrors(0) {};
+
 	map<string, funcSymbol> funcSymbols;
 
 	void enterFuncDec(InoxisParser::FuncDecContext* ctx);
@@ -40,7 +44,10 @@ class symbolTable : public InoxisBaseListener
 
 	bool compFuncSignatures(funcSymbol func1, funcSymbol func2);
 
+	void reportError() { numErrors++; };
+
 	// need some error checking and tracking code
+	int numErrors;
 };
 
 

@@ -1,4 +1,4 @@
-int func1(int param);
+int* func1(int param);
 
 int main()
 {
