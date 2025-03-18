@@ -7,11 +7,18 @@ using namespace std;
 
 class varSymbol
 {
-	string name;
+	string _name;
 
-	bool isMutable;
+	bool _isMutable;
 
-	bool needsMemSafety;
+	bool _needsMemSafety;
 
-	memAccess memInfo;
+	funcSymbol parentFunction;
+
+	//memAccess memInfo;
+
+	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false) {};
+
+	varSymbol(string name, bool mut, bool memSafety, funcSymbol parent) : 
+		_name(name), _isMutable(mut), _needsMemSafety(memSafety), parentFunction(parent) {};
 };

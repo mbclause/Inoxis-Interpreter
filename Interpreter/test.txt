@@ -1,5 +1,7 @@
 int* func1(int param);
 
+int func1(int stuff);
+
 int main()
 {
 	int var = 5;

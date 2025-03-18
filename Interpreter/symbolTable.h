@@ -29,6 +29,12 @@ enterassignRHS (check whether variable is mut or not, if there's allocation, upd
 */
 
 
+/*
+Ok, now we need some sort of scope stack which keeps track of which function we're in
+*/
+
+
+
 
 class symbolTable : public InoxisBaseListener
 {
@@ -36,18 +42,33 @@ public:
 
 	symbolTable() : numErrors(0) {};
 
-	map<string, funcSymbol> funcSymbols;
+
+
 
 	void enterFuncDec(InoxisParser::FuncDecContext* ctx);
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 
+	void enterVarDec(InoxisParser::VarDecContext* ctx);
+
+	void enterMain(InoxisParser::MainContext* ctx);
+
+
+
+
 	bool compFuncSignatures(funcSymbol func1, funcSymbol func2);
 
 	void reportError() { numErrors++; };
 
+
+
+
 	// need some error checking and tracking code
 	int numErrors;
+
+	map<string, funcSymbol> funcSymbols;
+
+	funcSymbol  currentFunction;
 };
 
 

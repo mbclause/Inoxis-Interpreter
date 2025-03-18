@@ -9,6 +9,17 @@ void   symbolTable::enterFuncDec(InoxisParser::FuncDecContext* ctx)
 {
 	string funcName = ctx->ID()->getText();
 
+	// check that the function name isn't already in funcSymbols
+	if (funcSymbols.count(funcName) == 1)
+	{
+		reportError();
+
+		cout << "Function name: " << funcName << " already declared.\n";
+
+		return;
+	}
+
+
 	string paramName = ctx->param()->ID()->getText();
 
 	string returnTypeText = ctx->pointRef()->getText();
@@ -161,6 +172,13 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	if (isDeclared)
 	{
+		currentFunction = funcDef;
+
+		// use ctx to get the names of every variable declared in the function body and add them to locals
+		
+
+
+
 		// need to add code to add the parameter to the locals hashmap, problem is, I don't know
 		// how to do the memory safety stuff, because this depends on what's passed to in the function call
 		// this would only matter if the parameter is a pointer or reference
@@ -169,6 +187,26 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		// then add the varSymbol to the locals
 		// I think I'm going to need a separate table that keeps track of heep memory accesses
 	}
+}
+
+
+void symbolTable::enterMain(InoxisParser::MainContext* ctx)
+{
+	funcSymbol main("main", "", false, INT, INT);
+
+	currentFunction = main;
+}
+
+
+
+void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
+{
+	funcSymbol parentFunc = currentFunction;
+
+	// get name, mut, and whether there's an allocation 
+	// do I need to store whether it's a pointer/reference/array?
+	
+	// then check parentFunc locals to see if the name conflicts with another local
 }
 
 
