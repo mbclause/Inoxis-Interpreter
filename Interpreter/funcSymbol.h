@@ -2,10 +2,11 @@
 #include <string>
 #include <map>
 #include "varSymbol.h"
+#include "dataType.h"
 
 using namespace std;
 
-enum DATA_TYPE { POINTER, REF, INT };
+
 
 
 class funcSymbol
@@ -18,18 +19,18 @@ public:
 
 	bool paramIsMut;
 
-	DATA_TYPE _returnType;
+	DataType::DATA_TYPE _returnType;
 
-	DATA_TYPE _paramType;
+	DataType::DATA_TYPE _paramType;
 	
 	map<string, varSymbol> locals;
 
 
 
-	funcSymbol(string name, string paramName, bool mut, DATA_TYPE returnType, DATA_TYPE paramType) : 
+	funcSymbol(string name, string paramName, bool mut, DataType::DATA_TYPE returnType, DataType::DATA_TYPE paramType) : 
 		_name(name), _paramName(paramName), paramIsMut(mut), _returnType(returnType), _paramType(paramType) {};
 
-	funcSymbol() : _name(""), _paramName(""), paramIsMut(false), _returnType(INT), _paramType(INT) {};
+	funcSymbol() : _name(""), _paramName(""), paramIsMut(false), _returnType(DataType::INT), _paramType(DataType::INT) {};
 
 
 

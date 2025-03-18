@@ -1,6 +1,7 @@
 #include "antlr4-runtime.h"
 #include ".antlr/InoxisBaseListener.h"
 #include "funcSymbol.h"
+#include "dataType.h"
 #include <string>
 #include <map>
 #include <iostream>
@@ -52,6 +53,8 @@ public:
 	void enterVarDec(InoxisParser::VarDecContext* ctx);
 
 	void enterMain(InoxisParser::MainContext* ctx);
+
+	void enterVar(InoxisParser::VarContext* ctx);
 
 
 

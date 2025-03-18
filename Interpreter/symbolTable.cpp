@@ -1,4 +1,5 @@
 #include "symbolTable.h"
+using namespace DataType;
 
 
 /*
@@ -205,8 +206,83 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 	// get name, mut, and whether there's an allocation 
 	// do I need to store whether it's a pointer/reference/array?
+	string name = ctx->ID()->getText();
 	
 	// then check parentFunc locals to see if the name conflicts with another local
+	if (currentFunction.locals.count(name) != 0)
+	{
+		reportError();
+
+		cout << "variable name conflict with: " << name << endl;
+
+		return;
+	}
+
+	bool needsMemSafety = false;
+
+	string mutText = ctx->mut()->getText();
+
+	string arrayText = ctx->array()->getText();
+
+	if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
+		needsMemSafety = true;
+		
+
+	string dataTypeText = ctx->pointRef()->getText();
+
+	bool isMut = false;
+
+	bool isArray = false;
+
+	DATA_TYPE dataType = INT;
+
+	if (mutText == "mut")
+		isMut = true;
+
+	if (!arrayText.empty())
+		isArray = true;
+
+	if (dataTypeText == "*")
+		dataType = POINTER;
+
+	else if (dataTypeText == "&")
+		dataType = REF;
+
+	
+
+	if (dataType != POINTER && needsMemSafety)
+	{
+		cout << "cannot allocate heap memory to a non-pointer\n";
+
+		reportError();
+
+		return;
+	}
+
+	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType);
+
+	currentFunction.locals[name] = newVar;
+
+	cout << name << " " << isMut << " " << needsMemSafety << " " << isArray << " " << dataType << endl;
+}
+
+
+
+
+void symbolTable::enterVar(InoxisParser::VarContext* ctx)
+{
+	funcSymbol parentFunc = currentFunction;
+
+	string name = ctx->ID()->getText();
+
+	if (currentFunction.locals.count(name) != 1)
+	{
+		reportError();
+
+		cout << "Variable: " << name << " has not been declared" << endl;
+
+		return;
+	}
 }
 
 

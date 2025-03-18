@@ -1,10 +1,12 @@
-int* func1(int param);
 
-int func1(int stuff);
+
+int func1(int param);
 
 int main()
 {
 	int var = 5;
+
+	var = 7;
 
 	return 0;
 }
