@@ -56,6 +56,8 @@ public:
 
 	void enterVar(InoxisParser::VarContext* ctx);
 
+	void enterFuncCall(InoxisParser::FuncCallContext* ctx);
+
 
 
 

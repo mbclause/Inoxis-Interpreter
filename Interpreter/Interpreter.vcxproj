@@ -145,6 +145,7 @@
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="symbolTable.cpp" />
+    <ClCompile Include="varSymbol.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt" />

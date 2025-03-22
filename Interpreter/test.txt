@@ -1,17 +1,17 @@
 
 
-int func1(int param);
+int func1(int *param);
 
 int main()
 {
-	int var = 5;
+	int *var;
 
-	var = 7;
+	func1(var);
 
 	return 0;
 }
 
-int func1(int param)
+int func1(int *param)
 {
 	return 0;
 }

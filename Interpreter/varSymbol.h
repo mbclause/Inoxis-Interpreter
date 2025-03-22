@@ -33,6 +33,8 @@ public:
 	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data) :
 		_name(name), _isMutable(mut), _needsMemSafety(memSafety), _isArray(isArray), dataType(data)
 	{};
+
+	void printVarSymbol();
 };
 
 

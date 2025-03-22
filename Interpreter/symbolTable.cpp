@@ -153,7 +153,7 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		{
 			isDeclared = true;
 
-			cout << funcName << " has been declared\n";
+			//cout << funcName << " has been declared\n";
 		}
 
 		else
@@ -173,20 +173,14 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	if (isDeclared)
 	{
-		currentFunction = funcDef;
+		currentFunction = funcSymbols[funcName];
 
-		// use ctx to get the names of every variable declared in the function body and add them to locals
-		
+		for (auto x: currentFunction.locals)
+		{
+			varSymbol var = x.second;
 
-
-
-		// need to add code to add the parameter to the locals hashmap, problem is, I don't know
-		// how to do the memory safety stuff, because this depends on what's passed to in the function call
-		// this would only matter if the parameter is a pointer or reference
-
-		// use the varSymbol ctor to pass in the parameter name, data type, and isMutable
-		// then add the varSymbol to the locals
-		// I think I'm going to need a separate table that keeps track of heep memory accesses
+			var.printVarSymbol();
+		}
 	}
 }
 
@@ -196,6 +190,123 @@ void symbolTable::enterMain(InoxisParser::MainContext* ctx)
 	funcSymbol main("main", "", false, INT, INT);
 
 	currentFunction = main;
+}
+
+
+
+void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
+{
+	string funcName = ctx->ID()->getText();
+
+	if (funcSymbols.count(funcName) != 1)
+	{
+		cout << funcName << " has NOT been declared\n";
+
+		reportError();
+
+		return;
+	}
+
+	funcSymbol calledFunc = funcSymbols[funcName];
+
+
+	string argName = "";
+
+	string argDataTypeText = "";
+
+	DATA_TYPE argType = INT;
+
+	bool argIsInt = false;
+
+	bool needsMemSafety = false;
+
+	bool isArray = false;
+
+	if (ctx->arg()->INT() != NULL)
+	{
+		argType = INT;
+
+		argIsInt = true;
+	}
+
+	else
+	{
+		if (ctx->arg()->var() != NULL)
+		{
+
+			if (ctx->arg()->var()->pointRef() != NULL)
+			{
+				argDataTypeText = ctx->arg()->var()->pointRef()->getText();
+
+				if (argDataTypeText == "&")
+					argType = REF;
+				else if(argDataTypeText == "*")
+					argType = POINTER;
+			}
+		}
+	}
+
+	if (!argIsInt)
+	{
+		if (ctx->arg()->var() != NULL)
+		{
+			argName = ctx->arg()->var()->ID()->getText();
+
+			if (currentFunction.locals.count(argName) != 1)
+			{
+				cout << "argument has not been declared\n";
+
+				reportError();
+			}
+
+			varSymbol varArg = currentFunction.locals[argName];
+
+			// if the variable is already a pointer/reference/array, 
+			// we don't want any extra point/ref symbols passed in
+			if (varArg._isArray || varArg.dataType == POINTER || varArg.dataType == REF)
+			{
+
+				if (argType != INT)
+				{
+					cout << "argument is already a pointer or reference\n";
+
+					reportError();
+				}
+
+				if (varArg._needsMemSafety)
+					needsMemSafety = true;
+
+				if (varArg._isArray)
+					isArray = true;
+
+				argType = varArg.dataType;
+			}
+		}
+	}
+
+	// i need to compare the argument data type with the data type of the parameter
+	// or maybe I need to get the variable data type and compare THAT to the parameter data type
+	// then, i could use this info to add the proper PARAM variable to that functions locals,
+	// with all of the proper memory info
+	//cout << argType << " " << calledFunc._paramType << endl;
+
+	if (argType != calledFunc._paramType)
+	{
+		cout << "argument data type does not match parameter data type\n";
+
+		reportError();
+	}
+
+	else
+	{
+		string paramName = calledFunc._paramName;
+
+		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType);
+
+		funcSymbols[funcName].locals[paramName] = param;
+	}
+
+	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
 }
 
 
@@ -224,8 +335,10 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 	string arrayText = ctx->array()->getText();
 
-	if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
-		needsMemSafety = true;
+	if(ctx->varDecRHS() != NULL)
+		if(ctx->varDecRHS()->assignRHS() != NULL)
+			if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
+				needsMemSafety = true;
 		
 
 	string dataTypeText = ctx->pointRef()->getText();
@@ -262,8 +375,6 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType);
 
 	currentFunction.locals[name] = newVar;
-
-	cout << name << " " << isMut << " " << needsMemSafety << " " << isArray << " " << dataType << endl;
 }
 
 
