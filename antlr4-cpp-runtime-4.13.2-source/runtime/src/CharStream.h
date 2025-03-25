@@ -5,7 +5,9 @@
 
 #pragma once
 
+#include <string>
 #include "IntStream.h"
+#include "antlr4-common.h"
 #include "misc/Interval.h"
 
 namespace antlr4 {
@@ -13,25 +15,22 @@ namespace antlr4 {
   /// A source of characters for an ANTLR lexer.
   class ANTLR4CPP_PUBLIC CharStream : public IntStream {
   public:
-    virtual ~CharStream();
+    ~CharStream() override;
 
     /// This method returns the text for a range of characters within this input
     /// stream. This method is guaranteed to not throw an exception if the
     /// specified interval lies entirely within a marked range. For more
     /// information about marked ranges, see IntStream::mark.
     ///
-    /// param: interval - an interval within the stream
-    /// 
-    /// Return the text of the specified interval
-    /// 
-    /// NullPointerException if interval is null
-    /// 
-    /// IllegalArgumentException if interval.a < 0 or if
-    /// interval.b < interval.a - 1, or if interval.b lies at or
-    /// past the end of the stream
-    /// 
-    /// UnsupportedOperationException if the stream does not support
-    /// getting the text of the specified interval
+    /// <param name="interval"> an interval within the stream </param>
+    /// <returns> the text of the specified interval
+    /// </returns>
+    /// <exception cref="NullPointerException"> if {@code interval} is {@code null} </exception>
+    /// <exception cref="IllegalArgumentException"> if {@code interval.a < 0}, or if
+    /// {@code interval.b < interval.a - 1}, or if {@code interval.b} lies at or
+    /// past the end of the stream </exception>
+    /// <exception cref="UnsupportedOperationException"> if the stream does not support
+    /// getting the text of the specified interval </exception>
     virtual std::string getText(const misc::Interval &interval) = 0;
 
     virtual std::string toString() const = 0;

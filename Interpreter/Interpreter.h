@@ -12,6 +12,7 @@ File: Interpreter.h
 #include ".antlr/InoxisParser.h"
 #include "misc/interval.h"
 #include "symbolTable.h"
+#include "MemSafetyPass.h"
 
 using namespace std;
 

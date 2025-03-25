@@ -104,6 +104,9 @@
     <ClInclude Include="dataType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemSafetyPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />

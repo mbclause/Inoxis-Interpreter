@@ -5,50 +5,51 @@
 
 #pragma once
 
+#include "antlr4-common.h"
 #include "support/Any.h"
 
 namespace antlr4 {
 namespace tree {
 
-  /// 
+  /// <summary>
   /// This interface defines the basic notion of a parse tree visitor. Generated
-  /// visitors implement this interface and the XVisitor interface for
-  /// grammar X.
-  /// 
-  /// param <T> The return type of the visit operation. Use Void for
-  /// operations with no return type. 
+  /// visitors implement this interface and the {@code XVisitor} interface for
+  /// grammar {@code X}.
+  /// </summary>
+  /// @param <T> The return type of the visit operation. Use <seealso cref="Void"/> for
+  /// operations with no return type. </param>
   // ml: no template parameter here, to avoid the need for virtual template functions. Instead we have our Any class.
   class ANTLR4CPP_PUBLIC ParseTreeVisitor {
   public:
     virtual ~ParseTreeVisitor();
 
-    /// 
+    /// <summary>
     /// Visit a parse tree, and return a user-defined result of the operation.
-    /// 
-    /// param name="tree"  The ParseTree to visit. 
-    /// returns  The result of visiting the parse tree.
+    /// </summary>
+    /// <param name="tree"> The <seealso cref="ParseTree"/> to visit. </param>
+    /// <returns> The result of visiting the parse tree. </returns>
     virtual std::any visit(ParseTree *tree) = 0;
 
-    /// 
+    /// <summary>
     /// Visit the children of a node, and return a user-defined result of the
     /// operation.
-    /// 
-    /// param name="node" The ParseTree whose children should be visited.
-    /// returns The result of visiting the children of the node. 
+    /// </summary>
+    /// <param name="node"> The <seealso cref="ParseTree"/> whose children should be visited. </param>
+    /// <returns> The result of visiting the children of the node. </returns>
     virtual std::any visitChildren(ParseTree *node) = 0;
 
-    /// 
+    /// <summary>
     /// Visit a terminal node, and return a user-defined result of the operation.
-    /// 
-    /// param name="node" The TerminalNode to visit. 
-    /// returns The result of visiting the node. 
+    /// </summary>
+    /// <param name="node"> The <seealso cref="TerminalNode"/> to visit. </param>
+    /// <returns> The result of visiting the node. </returns>
     virtual std::any visitTerminal(TerminalNode *node) = 0;
 
-    /// 
+    /// <summary>
     /// Visit an error node, and return a user-defined result of the operation.
-    /// 
-    /// param name="node"  The ErrorNode to visit.
-    /// returns  The result of visiting the node. 
+    /// </summary>
+    /// <param name="node"> The <seealso cref="ErrorNode"/> to visit. </param>
+    /// <returns> The result of visiting the node. </returns>
     virtual std::any visitErrorNode(ErrorNode *node) = 0;
 
   };

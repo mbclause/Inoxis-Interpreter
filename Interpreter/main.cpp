@@ -17,6 +17,9 @@ Description: Reads the Inoxis file name/path from the command line and then call
 
 using namespace std;
 
+template class antlr4::tree::ParseTreeProperty<int>;
+
+
 
 int main(int argc, char* argv[])
 {

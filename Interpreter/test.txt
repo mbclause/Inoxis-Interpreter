@@ -2,18 +2,40 @@
 
 int func1(int *param);
 
+int*  func2(int &param2);
+
 int main()
 {
 	int *var;
 
+	int var2;
+
 	func1(var);
+
+	func2(&var2);
 
 	return 0;
 }
 
 int func1(int *param)
 {
+	int var1;
+
+	int var2;
+
+	int *var3;
+
 	return 0;
+}
+
+
+int*  func2(int &param2)
+{
+	int one;
+
+	int two;
+
+	return &one;
 }
 
 

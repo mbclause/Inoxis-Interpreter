@@ -5,8 +5,12 @@
 
 #pragma once
 
+#include <string>
+#include <cstddef>
 #include <string_view>
 
+#include "antlr4-common.h"
+#include "misc/Interval.h"
 #include "CharStream.h"
 
 namespace antlr4 {
@@ -46,30 +50,31 @@ namespace antlr4 {
     /// when the object was created *except* the data array is not
     /// touched.
     virtual void reset();
-    virtual void consume() override;
-    virtual size_t LA(ssize_t i) override;
+    void consume() override;
+    size_t LA(ssize_t i) override;
     virtual size_t LT(ssize_t i);
 
-    ///
+    /// <summary>
     /// Return the current input symbol index 0..n where n indicates the
     ///  last symbol has been read.  The index is the index of char to
     ///  be returned from LA(1).
-    ///
-    virtual size_t index() override;
-    virtual size_t size() override;
+    /// </summary>
+    size_t index() override;
+    size_t size() override;
 
-    /// 
-    /// mark/release do nothing; we have entire buffer 
-    virtual ssize_t mark() override;
-    virtual void release(ssize_t marker) override;
+    /// <summary>
+    /// mark/release do nothing; we have entire buffer </summary>
+    ssize_t mark() override;
+    void release(ssize_t marker) override;
 
-
+    /// <summary>
     /// consume() ahead until p==index; can't just set p=index as we must
     ///  update line and charPositionInLine. If we seek backwards, just set p
-    virtual void seek(size_t index) override;
-    virtual std::string getText(const misc::Interval &interval) override;
-    virtual std::string getSourceName() const override;
-    virtual std::string toString() const override;
+    /// </summary>
+    void seek(size_t index) override;
+    std::string getText(const misc::Interval &interval) override;
+    std::string getSourceName() const override;
+    std::string toString() const override;
 
   private:
     void InitializeInstanceFields();

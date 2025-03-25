@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "antlr4cpp-vs2022", "antlr4-cpp-runtime-4.13.2-source\runtime\antlr4cpp-vs2022.vcxproj", "{52618D4B-6EC4-49AD-8B83-52686244E8F3}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interpreter", "Interpreter\Interpreter.vcxproj", "{E7C49ACA-B830-4E40-8897-BE1285D4145D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3} = {52618D4B-6EC4-49AD-8B83-52686244E8F3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "antlr4cpp-vs2022", "antlr4-cpp-runtime-4.13.2-source\runtime\antlr4cpp-vs2022.vcxproj", "{52618D4B-6EC4-49AD-8B83-52686244E8F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,22 +22,6 @@ Global
 		Release Static|x86 = Release Static|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x64.Build.0 = Debug DLL|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x86.ActiveCfg = Debug DLL|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x86.Build.0 = Debug DLL|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x64.ActiveCfg = Debug Static|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x64.Build.0 = Debug Static|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x86.ActiveCfg = Debug Static|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x86.Build.0 = Debug Static|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x64.ActiveCfg = Release DLL|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x64.Build.0 = Release DLL|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x86.ActiveCfg = Release DLL|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x86.Build.0 = Release DLL|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x64.ActiveCfg = Release Static|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x64.Build.0 = Release Static|x64
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x86.ActiveCfg = Release Static|Win32
-		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x86.Build.0 = Release Static|Win32
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Debug DLL|x64.ActiveCfg = Debug|x64
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Debug DLL|x64.Build.0 = Debug|x64
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Debug DLL|x86.ActiveCfg = Debug|Win32
@@ -51,8 +38,27 @@ Global
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Release Static|x64.Build.0 = Release|x64
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Release Static|x86.ActiveCfg = Release|Win32
 		{E7C49ACA-B830-4E40-8897-BE1285D4145D}.Release Static|x86.Build.0 = Release|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x64.Build.0 = Debug DLL|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x86.ActiveCfg = Debug DLL|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug DLL|x86.Build.0 = Debug DLL|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x64.ActiveCfg = Debug Static|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x64.Build.0 = Debug Static|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x86.ActiveCfg = Debug Static|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Debug Static|x86.Build.0 = Debug Static|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x64.ActiveCfg = Release DLL|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x64.Build.0 = Release DLL|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x86.ActiveCfg = Release DLL|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release DLL|x86.Build.0 = Release DLL|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x64.ActiveCfg = Release Static|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x64.Build.0 = Release Static|x64
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x86.ActiveCfg = Release Static|Win32
+		{52618D4B-6EC4-49AD-8B83-52686244E8F3}.Release Static|x86.Build.0 = Release Static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B28B1276-3B4D-4080-B585-BBA63E8DB38C}
 	EndGlobalSection
 EndGlobal

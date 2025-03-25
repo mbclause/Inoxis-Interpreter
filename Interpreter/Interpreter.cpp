@@ -33,6 +33,10 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 		walker.walk(&symTable, tree);
 
+		MemSafetyPass  memPass(symTable.treeFuncSymbols);
+
+		walker.walk(&memPass, tree);
+
 		//auto s = tree->toStringTree(&parser);
 
 		//cout << "Parse Tree: " << s << endl;

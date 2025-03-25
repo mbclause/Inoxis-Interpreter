@@ -102,15 +102,21 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ANTLR4CPP_STATIC
+</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>"C:\Users\Michael\source\repos\Inoxis-Interpreter\antlr4-cpp-runtime-4.13.2-source\runtime\src"</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);antlr4-runtime-static.lib
+</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <AdditionalLibraryDirectories>C:\Users\Michael\source\repos\Inoxis-Interpreter\antlr4-cpp-runtime-4.13.2-source\dist
+</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -129,11 +135,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\antlr4-cpp-runtime-4.13.2-source\runtime\antlr4cpp-vs2022.vcxproj">
-      <Project>{52618d4b-6ec4-49ad-8b83-52686244e8f3}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".antlr\InoxisBaseListener.cpp" />
     <ClCompile Include=".antlr\InoxisBaseVisitor.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="funcSymbol.h" />
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="memAccess.h" />
+    <ClInclude Include="MemSafetyPass.h" />
     <ClInclude Include="myLexer.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="varSymbol.h" />

@@ -2,6 +2,7 @@
 using namespace DataType;
 
 
+
 /*
 going to need to add more info to funcSymbol, mainly the type and name of the parameter, need to make
 sure it matches with the definition
@@ -175,12 +176,12 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	{
 		currentFunction = funcSymbols[funcName];
 
-		for (auto x: currentFunction.locals)
+		/*for (auto x : currentFunction.locals)
 		{
 			varSymbol var = x.second;
 
 			var.printVarSymbol();
-		}
+		}*/
 	}
 }
 
@@ -189,7 +190,9 @@ void symbolTable::enterMain(InoxisParser::MainContext* ctx)
 {
 	funcSymbol main("main", "", false, INT, INT);
 
-	currentFunction = main;
+	funcSymbols["main"] = main;
+
+	currentFunction = funcSymbols["main"];
 }
 
 
@@ -197,6 +200,10 @@ void symbolTable::enterMain(InoxisParser::MainContext* ctx)
 void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 {
 	string funcName = ctx->ID()->getText();
+
+	string currentFuncName = currentFunction.getName();
+
+	funcSymbol currentFunc = funcSymbols[currentFuncName];
 
 	if (funcSymbols.count(funcName) != 1)
 	{
@@ -252,14 +259,14 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 		{
 			argName = ctx->arg()->var()->ID()->getText();
 
-			if (currentFunction.locals.count(argName) != 1)
+			if (currentFunc.locals.count(argName) != 1)
 			{
 				cout << "argument has not been declared\n";
 
 				reportError();
 			}
 
-			varSymbol varArg = currentFunction.locals[argName];
+			varSymbol varArg = currentFunc.locals[argName];
 
 			// if the variable is already a pointer/reference/array, 
 			// we don't want any extra point/ref symbols passed in
@@ -307,6 +314,49 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 	}
 
 	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
+}
+
+
+
+void symbolTable::exitFuncDef(InoxisParser::FuncDefContext* ctx)
+{
+	string funcName = ctx->ID()->getText();
+
+	funcSymbol function = funcSymbols[funcName];
+
+	treeFuncSymbols.put(ctx, function);
+
+	function = treeFuncSymbols.get(ctx);
+
+	/*cout << function.getName() << endl;
+
+	for (auto x : function.locals)
+	{
+		varSymbol var = x.second;
+
+		var.printVarSymbol();
+	}*/
+}
+
+
+void symbolTable::exitMain(InoxisParser::MainContext* ctx)
+{
+	string funcName = "main";
+
+	funcSymbol function = funcSymbols[funcName];
+
+	treeFuncSymbols.put(ctx, function);
+
+	function = treeFuncSymbols.get(ctx);
+
+	/*cout << "main\n";
+
+	for (auto x : function.locals)
+	{
+		varSymbol var = x.second;
+
+		var.printVarSymbol();
+	}*/
 }
 
 
@@ -374,7 +424,7 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType);
 
-	currentFunction.locals[name] = newVar;
+	funcSymbols[parentFunc.getName()].locals[name] = newVar;
 }
 
 
@@ -382,11 +432,13 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 void symbolTable::enterVar(InoxisParser::VarContext* ctx)
 {
-	funcSymbol parentFunc = currentFunction;
+	string currentFuncName = currentFunction.getName();
+
+	funcSymbol parentFunc = funcSymbols[currentFuncName];
 
 	string name = ctx->ID()->getText();
 
-	if (currentFunction.locals.count(name) != 1)
+	if (parentFunc.locals.count(name) != 1)
 	{
 		reportError();
 
