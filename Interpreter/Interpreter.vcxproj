@@ -143,6 +143,7 @@
     <ClCompile Include=".antlr\InoxisParser.cpp" />
     <ClCompile Include=".antlr\InoxisVisitor.cpp" />
     <ClCompile Include="Interpreter.cpp" />
+    <ClCompile Include="MemSafetyPass.cpp" />
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="symbolTable.cpp" />

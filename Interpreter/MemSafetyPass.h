@@ -23,24 +23,27 @@ public:
 	MemSafetyPass() : _numErrors(0) {};
 
 
+	//void enterFuncDef(InoxisParser::FuncDefContext* ctx);
+
+	//assign: var '=' assignRHS ';';
+	void enterAssign(InoxisParser::AssignContext* ctx);
+
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx) {
-		string funcName = ctx->ID()->getText();
+		currentFunction = functions.get(ctx);
+	}
 
-		funcSymbol function = functions.get(ctx);
+	void enterMain(InoxisParser::MainContext* ctx) {
+		currentFunction = functions.get(ctx);
+	}
 
-		cout << function.getName() << endl;
 
-		for (auto x : function.locals)
-		{
-			varSymbol var = x.second;
-
-			var.printVarSymbol();
-		}
-	};
+	void reportMemError() { _numErrors++; };
 
 
 	// data members
 	ParseTreeProperty<funcSymbol> functions;
 
 	int _numErrors;
+
+	funcSymbol currentFunction;
 };

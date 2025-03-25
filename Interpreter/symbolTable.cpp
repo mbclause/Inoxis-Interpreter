@@ -400,7 +400,9 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	DATA_TYPE dataType = INT;
 
 	if (mutText == "mut")
+	{
 		isMut = true;
+	}
 
 	if (!arrayText.empty())
 		isArray = true;
@@ -425,6 +427,8 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType);
 
 	funcSymbols[parentFunc.getName()].locals[name] = newVar;
+
+	newVar = funcSymbols[parentFunc.getName()].locals[name];
 }
 
 

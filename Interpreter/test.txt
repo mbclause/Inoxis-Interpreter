@@ -23,6 +23,8 @@ int func1(int *param)
 
 	int var2;
 
+	var2 = 5;
+
 	int *var3;
 
 	return 0;
