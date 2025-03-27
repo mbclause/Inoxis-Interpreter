@@ -31,7 +31,7 @@ funcCallFactor: ID '(' arg ')';
 // variable uses
 param: 'int' pointRef mut ID subscript;
 
-var: pointRef ID array;
+var: pointRef mut ID array;
 
 varDec: 'int' pointRef mut ID array varDecRHS ';';
 

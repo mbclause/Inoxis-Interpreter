@@ -164,7 +164,6 @@
     <ClInclude Include="dataType.h" />
     <ClInclude Include="funcSymbol.h" />
     <ClInclude Include="Interpreter.h" />
-    <ClInclude Include="memAccess.h" />
     <ClInclude Include="MemSafetyPass.h" />
     <ClInclude Include="myLexer.h" />
     <ClInclude Include="symbolTable.h" />

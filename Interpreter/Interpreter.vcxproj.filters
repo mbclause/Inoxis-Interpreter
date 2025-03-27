@@ -30,7 +30,19 @@
     <ClCompile Include="myLexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="symbolTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="varSymbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemSafetyPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include=".antlr\InoxisBaseListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".antlr\InoxisBaseVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisLexer.cpp">
@@ -43,18 +55,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisVisitor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include=".antlr\InoxisBaseVisitor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="symbolTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="varSymbol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MemSafetyPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +74,25 @@
     <ClInclude Include="myLexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="symbolTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="funcSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="varSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemSafetyPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include=".antlr\InoxisBaseListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".antlr\InoxisBaseVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include=".antlr\InoxisLexer.h">
@@ -87,27 +105,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include=".antlr\InoxisVisitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include=".antlr\InoxisBaseVisitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="symbolTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="funcSymbol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="varSymbol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="memAccess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MemSafetyPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,5 +31,5 @@ void  varSymbol::printVarSymbol()
 	if (!_isMutable)
 		mut = "/immutable";
 
-	cout << _name << type << array << memSafety << mut << endl;
+	cout << _name << type << array << memSafety << mut << memPermissions << endl;
 }

@@ -7,35 +7,9 @@
 #include "antlr4-runtime.h"
 #include "InoxisParser.h"
 
-/*
-Need to write functions (not sure whether enter/exit for all of them):
-
-enterFuncDef (add function to symbol table)
-
-enterfuncCall (check symbol table)
-
-enterfuncDef (check symbol table)
-
-enterParam (add param id to symbol table for function)
-
-enterVarDec (add variable to function symbol table, add appropriate info about whether it's mut or not)
-
-enterVar (check symbol table, check mem safety if needsMemSafety flag is set)
-
-
-
-
-enterassignRHS (check whether variable is mut or not, if there's allocation, update memSafety info for variable)
-*/
-
 
 /**
  * This interface defines an abstract listener for a parse tree produced by InoxisParser.
- * 
- * The biggest difference between the listener and visitor mechanisms is that 
- listener methods are called by the ANTLR-provided walker object, whereas visitor 
- methods must walk their children with explicit visit calls. 
- Forgetting to invoke visit on a node’s children means those subtrees don’t get visited. 
  */
 class  InoxisListener : public antlr4::tree::ParseTreeListener {
 public:

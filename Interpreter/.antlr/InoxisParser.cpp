@@ -3,6 +3,7 @@
 
 
 #include "InoxisListener.h"
+#include "InoxisVisitor.h"
 
 #include "InoxisParser.h"
 
@@ -72,7 +73,7 @@ void inoxisParserInitialize() {
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,33,281,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,33,282,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
   	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
@@ -81,82 +82,83 @@ void inoxisParserInitialize() {
   	1,2,1,2,1,2,1,3,5,3,92,8,3,10,3,12,3,95,9,3,1,4,5,4,98,8,4,10,4,12,4,
   	101,9,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,
   	6,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,9,1,9,1,9,
-  	1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,
-  	11,1,12,1,12,3,12,153,8,12,1,13,1,13,1,14,1,14,1,14,1,14,1,14,3,14,162,
-  	8,14,1,15,1,15,1,15,1,15,1,15,1,16,1,16,1,16,1,16,1,17,1,17,1,17,3,17,
-  	176,8,17,1,18,3,18,179,8,18,1,19,3,19,182,8,19,1,20,3,20,185,8,20,1,21,
-  	1,21,1,21,1,21,3,21,191,8,21,1,22,1,22,1,22,1,22,1,23,1,23,3,23,199,8,
-  	23,1,24,1,24,3,24,203,8,24,1,25,1,25,1,25,1,25,1,25,1,25,1,25,1,25,1,
-  	25,5,25,214,8,25,10,25,12,25,217,9,25,1,26,1,26,1,26,1,26,1,26,1,26,1,
-  	26,3,26,226,8,26,1,27,1,27,1,27,1,27,1,27,1,27,1,27,1,27,1,28,1,28,1,
-  	28,1,28,1,28,1,28,1,28,1,28,1,28,1,28,1,29,1,29,1,29,1,29,1,29,1,29,1,
-  	29,1,29,5,29,254,8,29,10,29,12,29,257,9,29,1,30,1,30,1,30,1,30,1,30,1,
-  	30,1,30,1,30,3,30,267,8,30,1,31,1,31,1,31,1,31,1,31,1,32,3,32,275,8,32,
-  	1,33,1,33,1,34,1,34,1,34,0,1,50,35,0,2,4,6,8,10,12,14,16,18,20,22,24,
-  	26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,0,3,
-  	2,0,31,31,33,33,1,0,11,12,1,0,24,29,269,0,70,1,0,0,0,2,78,1,0,0,0,4,81,
-  	1,0,0,0,6,93,1,0,0,0,8,99,1,0,0,0,10,102,1,0,0,0,12,110,1,0,0,0,14,121,
-  	1,0,0,0,16,127,1,0,0,0,18,132,1,0,0,0,20,138,1,0,0,0,22,142,1,0,0,0,24,
-  	152,1,0,0,0,26,154,1,0,0,0,28,161,1,0,0,0,30,163,1,0,0,0,32,168,1,0,0,
-  	0,34,175,1,0,0,0,36,178,1,0,0,0,38,181,1,0,0,0,40,184,1,0,0,0,42,190,
-  	1,0,0,0,44,192,1,0,0,0,46,198,1,0,0,0,48,202,1,0,0,0,50,204,1,0,0,0,52,
-  	225,1,0,0,0,54,227,1,0,0,0,56,235,1,0,0,0,58,255,1,0,0,0,60,266,1,0,0,
-  	0,62,268,1,0,0,0,64,274,1,0,0,0,66,276,1,0,0,0,68,278,1,0,0,0,70,71,3,
-  	2,1,0,71,72,3,4,2,0,72,73,3,6,3,0,73,74,5,0,0,1,74,1,1,0,0,0,75,77,3,
-  	10,5,0,76,75,1,0,0,0,77,80,1,0,0,0,78,76,1,0,0,0,78,79,1,0,0,0,79,3,1,
-  	0,0,0,80,78,1,0,0,0,81,82,5,1,0,0,82,83,5,2,0,0,83,84,5,3,0,0,84,85,5,
-  	4,0,0,85,86,5,5,0,0,86,87,3,8,4,0,87,88,3,32,16,0,88,89,5,6,0,0,89,5,
-  	1,0,0,0,90,92,3,12,6,0,91,90,1,0,0,0,92,95,1,0,0,0,93,91,1,0,0,0,93,94,
-  	1,0,0,0,94,7,1,0,0,0,95,93,1,0,0,0,96,98,3,28,14,0,97,96,1,0,0,0,98,101,
-  	1,0,0,0,99,97,1,0,0,0,99,100,1,0,0,0,100,9,1,0,0,0,101,99,1,0,0,0,102,
-  	103,5,1,0,0,103,104,3,38,19,0,104,105,5,31,0,0,105,106,5,3,0,0,106,107,
-  	3,18,9,0,107,108,5,4,0,0,108,109,5,7,0,0,109,11,1,0,0,0,110,111,5,1,0,
-  	0,111,112,3,38,19,0,112,113,5,31,0,0,113,114,5,3,0,0,114,115,3,18,9,0,
-  	115,116,5,4,0,0,116,117,5,5,0,0,117,118,3,8,4,0,118,119,3,32,16,0,119,
-  	120,5,6,0,0,120,13,1,0,0,0,121,122,5,31,0,0,122,123,5,3,0,0,123,124,3,
-  	24,12,0,124,125,5,4,0,0,125,126,5,7,0,0,126,15,1,0,0,0,127,128,5,31,0,
-  	0,128,129,5,3,0,0,129,130,3,24,12,0,130,131,5,4,0,0,131,17,1,0,0,0,132,
-  	133,5,1,0,0,133,134,3,38,19,0,134,135,3,36,18,0,135,136,5,31,0,0,136,
-  	137,3,40,20,0,137,19,1,0,0,0,138,139,3,38,19,0,139,140,5,31,0,0,140,141,
-  	3,42,21,0,141,21,1,0,0,0,142,143,5,1,0,0,143,144,3,38,19,0,144,145,3,
-  	36,18,0,145,146,5,31,0,0,146,147,3,42,21,0,147,148,3,46,23,0,148,149,
-  	5,7,0,0,149,23,1,0,0,0,150,153,5,33,0,0,151,153,3,20,10,0,152,150,1,0,
-  	0,0,152,151,1,0,0,0,153,25,1,0,0,0,154,155,7,0,0,0,155,27,1,0,0,0,156,
-  	162,3,22,11,0,157,162,3,30,15,0,158,162,3,54,27,0,159,162,3,56,28,0,160,
-  	162,3,14,7,0,161,156,1,0,0,0,161,157,1,0,0,0,161,158,1,0,0,0,161,159,
-  	1,0,0,0,161,160,1,0,0,0,162,29,1,0,0,0,163,164,3,20,10,0,164,165,5,8,
-  	0,0,165,166,3,48,24,0,166,167,5,7,0,0,167,31,1,0,0,0,168,169,5,9,0,0,
-  	169,170,3,34,17,0,170,171,5,7,0,0,171,33,1,0,0,0,172,176,5,33,0,0,173,
-  	176,3,20,10,0,174,176,3,50,25,0,175,172,1,0,0,0,175,173,1,0,0,0,175,174,
-  	1,0,0,0,176,35,1,0,0,0,177,179,5,10,0,0,178,177,1,0,0,0,178,179,1,0,0,
-  	0,179,37,1,0,0,0,180,182,7,1,0,0,181,180,1,0,0,0,181,182,1,0,0,0,182,
-  	39,1,0,0,0,183,185,5,13,0,0,184,183,1,0,0,0,184,185,1,0,0,0,185,41,1,
-  	0,0,0,186,187,5,14,0,0,187,188,3,26,13,0,188,189,5,15,0,0,189,191,1,0,
-  	0,0,190,186,1,0,0,0,190,191,1,0,0,0,191,43,1,0,0,0,192,193,5,16,0,0,193,
-  	194,5,1,0,0,194,195,3,42,21,0,195,45,1,0,0,0,196,197,5,8,0,0,197,199,
-  	3,48,24,0,198,196,1,0,0,0,198,199,1,0,0,0,199,47,1,0,0,0,200,203,3,50,
-  	25,0,201,203,3,44,22,0,202,200,1,0,0,0,202,201,1,0,0,0,203,49,1,0,0,0,
-  	204,205,6,25,-1,0,205,206,3,52,26,0,206,215,1,0,0,0,207,208,10,3,0,0,
-  	208,209,5,17,0,0,209,214,3,50,25,4,210,211,10,2,0,0,211,212,5,18,0,0,
-  	212,214,3,50,25,3,213,207,1,0,0,0,213,210,1,0,0,0,214,217,1,0,0,0,215,
-  	213,1,0,0,0,215,216,1,0,0,0,216,51,1,0,0,0,217,215,1,0,0,0,218,226,3,
-  	20,10,0,219,226,5,33,0,0,220,221,5,3,0,0,221,222,3,50,25,0,222,223,5,
-  	4,0,0,223,226,1,0,0,0,224,226,3,16,8,0,225,218,1,0,0,0,225,219,1,0,0,
-  	0,225,220,1,0,0,0,225,224,1,0,0,0,226,53,1,0,0,0,227,228,5,19,0,0,228,
-  	229,5,3,0,0,229,230,3,62,31,0,230,231,5,4,0,0,231,232,5,5,0,0,232,233,
-  	3,8,4,0,233,234,5,6,0,0,234,55,1,0,0,0,235,236,5,20,0,0,236,237,5,3,0,
-  	0,237,238,3,62,31,0,238,239,5,4,0,0,239,240,5,5,0,0,240,241,3,8,4,0,241,
-  	242,5,6,0,0,242,243,3,58,29,0,243,244,3,60,30,0,244,57,1,0,0,0,245,246,
-  	5,21,0,0,246,247,5,3,0,0,247,248,3,62,31,0,248,249,5,4,0,0,249,250,5,
-  	5,0,0,250,251,3,8,4,0,251,252,5,6,0,0,252,254,1,0,0,0,253,245,1,0,0,0,
-  	254,257,1,0,0,0,255,253,1,0,0,0,255,256,1,0,0,0,256,59,1,0,0,0,257,255,
-  	1,0,0,0,258,259,5,22,0,0,259,260,5,3,0,0,260,261,3,62,31,0,261,262,5,
-  	4,0,0,262,263,5,5,0,0,263,264,3,8,4,0,264,265,5,6,0,0,265,267,1,0,0,0,
-  	266,258,1,0,0,0,266,267,1,0,0,0,267,61,1,0,0,0,268,269,3,64,32,0,269,
-  	270,5,31,0,0,270,271,3,66,33,0,271,272,3,68,34,0,272,63,1,0,0,0,273,275,
-  	5,23,0,0,274,273,1,0,0,0,274,275,1,0,0,0,275,65,1,0,0,0,276,277,7,2,0,
-  	0,277,67,1,0,0,0,278,279,7,0,0,0,279,69,1,0,0,0,18,78,93,99,152,161,175,
-  	178,181,184,190,198,202,213,215,225,255,266,274
+  	1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,
+  	11,1,11,1,12,1,12,3,12,154,8,12,1,13,1,13,1,14,1,14,1,14,1,14,1,14,3,
+  	14,163,8,14,1,15,1,15,1,15,1,15,1,15,1,16,1,16,1,16,1,16,1,17,1,17,1,
+  	17,3,17,177,8,17,1,18,3,18,180,8,18,1,19,3,19,183,8,19,1,20,3,20,186,
+  	8,20,1,21,1,21,1,21,1,21,3,21,192,8,21,1,22,1,22,1,22,1,22,1,23,1,23,
+  	3,23,200,8,23,1,24,1,24,3,24,204,8,24,1,25,1,25,1,25,1,25,1,25,1,25,1,
+  	25,1,25,1,25,5,25,215,8,25,10,25,12,25,218,9,25,1,26,1,26,1,26,1,26,1,
+  	26,1,26,1,26,3,26,227,8,26,1,27,1,27,1,27,1,27,1,27,1,27,1,27,1,27,1,
+  	28,1,28,1,28,1,28,1,28,1,28,1,28,1,28,1,28,1,28,1,29,1,29,1,29,1,29,1,
+  	29,1,29,1,29,1,29,5,29,255,8,29,10,29,12,29,258,9,29,1,30,1,30,1,30,1,
+  	30,1,30,1,30,1,30,1,30,3,30,268,8,30,1,31,1,31,1,31,1,31,1,31,1,32,3,
+  	32,276,8,32,1,33,1,33,1,34,1,34,1,34,0,1,50,35,0,2,4,6,8,10,12,14,16,
+  	18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,
+  	64,66,68,0,3,2,0,31,31,33,33,1,0,11,12,1,0,24,29,270,0,70,1,0,0,0,2,78,
+  	1,0,0,0,4,81,1,0,0,0,6,93,1,0,0,0,8,99,1,0,0,0,10,102,1,0,0,0,12,110,
+  	1,0,0,0,14,121,1,0,0,0,16,127,1,0,0,0,18,132,1,0,0,0,20,138,1,0,0,0,22,
+  	143,1,0,0,0,24,153,1,0,0,0,26,155,1,0,0,0,28,162,1,0,0,0,30,164,1,0,0,
+  	0,32,169,1,0,0,0,34,176,1,0,0,0,36,179,1,0,0,0,38,182,1,0,0,0,40,185,
+  	1,0,0,0,42,191,1,0,0,0,44,193,1,0,0,0,46,199,1,0,0,0,48,203,1,0,0,0,50,
+  	205,1,0,0,0,52,226,1,0,0,0,54,228,1,0,0,0,56,236,1,0,0,0,58,256,1,0,0,
+  	0,60,267,1,0,0,0,62,269,1,0,0,0,64,275,1,0,0,0,66,277,1,0,0,0,68,279,
+  	1,0,0,0,70,71,3,2,1,0,71,72,3,4,2,0,72,73,3,6,3,0,73,74,5,0,0,1,74,1,
+  	1,0,0,0,75,77,3,10,5,0,76,75,1,0,0,0,77,80,1,0,0,0,78,76,1,0,0,0,78,79,
+  	1,0,0,0,79,3,1,0,0,0,80,78,1,0,0,0,81,82,5,1,0,0,82,83,5,2,0,0,83,84,
+  	5,3,0,0,84,85,5,4,0,0,85,86,5,5,0,0,86,87,3,8,4,0,87,88,3,32,16,0,88,
+  	89,5,6,0,0,89,5,1,0,0,0,90,92,3,12,6,0,91,90,1,0,0,0,92,95,1,0,0,0,93,
+  	91,1,0,0,0,93,94,1,0,0,0,94,7,1,0,0,0,95,93,1,0,0,0,96,98,3,28,14,0,97,
+  	96,1,0,0,0,98,101,1,0,0,0,99,97,1,0,0,0,99,100,1,0,0,0,100,9,1,0,0,0,
+  	101,99,1,0,0,0,102,103,5,1,0,0,103,104,3,38,19,0,104,105,5,31,0,0,105,
+  	106,5,3,0,0,106,107,3,18,9,0,107,108,5,4,0,0,108,109,5,7,0,0,109,11,1,
+  	0,0,0,110,111,5,1,0,0,111,112,3,38,19,0,112,113,5,31,0,0,113,114,5,3,
+  	0,0,114,115,3,18,9,0,115,116,5,4,0,0,116,117,5,5,0,0,117,118,3,8,4,0,
+  	118,119,3,32,16,0,119,120,5,6,0,0,120,13,1,0,0,0,121,122,5,31,0,0,122,
+  	123,5,3,0,0,123,124,3,24,12,0,124,125,5,4,0,0,125,126,5,7,0,0,126,15,
+  	1,0,0,0,127,128,5,31,0,0,128,129,5,3,0,0,129,130,3,24,12,0,130,131,5,
+  	4,0,0,131,17,1,0,0,0,132,133,5,1,0,0,133,134,3,38,19,0,134,135,3,36,18,
+  	0,135,136,5,31,0,0,136,137,3,40,20,0,137,19,1,0,0,0,138,139,3,38,19,0,
+  	139,140,3,36,18,0,140,141,5,31,0,0,141,142,3,42,21,0,142,21,1,0,0,0,143,
+  	144,5,1,0,0,144,145,3,38,19,0,145,146,3,36,18,0,146,147,5,31,0,0,147,
+  	148,3,42,21,0,148,149,3,46,23,0,149,150,5,7,0,0,150,23,1,0,0,0,151,154,
+  	5,33,0,0,152,154,3,20,10,0,153,151,1,0,0,0,153,152,1,0,0,0,154,25,1,0,
+  	0,0,155,156,7,0,0,0,156,27,1,0,0,0,157,163,3,22,11,0,158,163,3,30,15,
+  	0,159,163,3,54,27,0,160,163,3,56,28,0,161,163,3,14,7,0,162,157,1,0,0,
+  	0,162,158,1,0,0,0,162,159,1,0,0,0,162,160,1,0,0,0,162,161,1,0,0,0,163,
+  	29,1,0,0,0,164,165,3,20,10,0,165,166,5,8,0,0,166,167,3,48,24,0,167,168,
+  	5,7,0,0,168,31,1,0,0,0,169,170,5,9,0,0,170,171,3,34,17,0,171,172,5,7,
+  	0,0,172,33,1,0,0,0,173,177,5,33,0,0,174,177,3,20,10,0,175,177,3,50,25,
+  	0,176,173,1,0,0,0,176,174,1,0,0,0,176,175,1,0,0,0,177,35,1,0,0,0,178,
+  	180,5,10,0,0,179,178,1,0,0,0,179,180,1,0,0,0,180,37,1,0,0,0,181,183,7,
+  	1,0,0,182,181,1,0,0,0,182,183,1,0,0,0,183,39,1,0,0,0,184,186,5,13,0,0,
+  	185,184,1,0,0,0,185,186,1,0,0,0,186,41,1,0,0,0,187,188,5,14,0,0,188,189,
+  	3,26,13,0,189,190,5,15,0,0,190,192,1,0,0,0,191,187,1,0,0,0,191,192,1,
+  	0,0,0,192,43,1,0,0,0,193,194,5,16,0,0,194,195,5,1,0,0,195,196,3,42,21,
+  	0,196,45,1,0,0,0,197,198,5,8,0,0,198,200,3,48,24,0,199,197,1,0,0,0,199,
+  	200,1,0,0,0,200,47,1,0,0,0,201,204,3,50,25,0,202,204,3,44,22,0,203,201,
+  	1,0,0,0,203,202,1,0,0,0,204,49,1,0,0,0,205,206,6,25,-1,0,206,207,3,52,
+  	26,0,207,216,1,0,0,0,208,209,10,3,0,0,209,210,5,17,0,0,210,215,3,50,25,
+  	4,211,212,10,2,0,0,212,213,5,18,0,0,213,215,3,50,25,3,214,208,1,0,0,0,
+  	214,211,1,0,0,0,215,218,1,0,0,0,216,214,1,0,0,0,216,217,1,0,0,0,217,51,
+  	1,0,0,0,218,216,1,0,0,0,219,227,3,20,10,0,220,227,5,33,0,0,221,222,5,
+  	3,0,0,222,223,3,50,25,0,223,224,5,4,0,0,224,227,1,0,0,0,225,227,3,16,
+  	8,0,226,219,1,0,0,0,226,220,1,0,0,0,226,221,1,0,0,0,226,225,1,0,0,0,227,
+  	53,1,0,0,0,228,229,5,19,0,0,229,230,5,3,0,0,230,231,3,62,31,0,231,232,
+  	5,4,0,0,232,233,5,5,0,0,233,234,3,8,4,0,234,235,5,6,0,0,235,55,1,0,0,
+  	0,236,237,5,20,0,0,237,238,5,3,0,0,238,239,3,62,31,0,239,240,5,4,0,0,
+  	240,241,5,5,0,0,241,242,3,8,4,0,242,243,5,6,0,0,243,244,3,58,29,0,244,
+  	245,3,60,30,0,245,57,1,0,0,0,246,247,5,21,0,0,247,248,5,3,0,0,248,249,
+  	3,62,31,0,249,250,5,4,0,0,250,251,5,5,0,0,251,252,3,8,4,0,252,253,5,6,
+  	0,0,253,255,1,0,0,0,254,246,1,0,0,0,255,258,1,0,0,0,256,254,1,0,0,0,256,
+  	257,1,0,0,0,257,59,1,0,0,0,258,256,1,0,0,0,259,260,5,22,0,0,260,261,5,
+  	3,0,0,261,262,3,62,31,0,262,263,5,4,0,0,263,264,5,5,0,0,264,265,3,8,4,
+  	0,265,266,5,6,0,0,266,268,1,0,0,0,267,259,1,0,0,0,267,268,1,0,0,0,268,
+  	61,1,0,0,0,269,270,3,64,32,0,270,271,5,31,0,0,271,272,3,66,33,0,272,273,
+  	3,68,34,0,273,63,1,0,0,0,274,276,5,23,0,0,275,274,1,0,0,0,275,276,1,0,
+  	0,0,276,65,1,0,0,0,277,278,7,2,0,0,278,67,1,0,0,0,279,280,7,0,0,0,280,
+  	69,1,0,0,0,18,78,93,99,153,162,176,179,182,185,191,199,203,214,216,226,
+  	256,267,275
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -244,6 +246,14 @@ void InoxisParser::ProgramContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitProgram(this);
 }
 
+
+std::any InoxisParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitProgram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ProgramContext* InoxisParser::program() {
   ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
   enterRule(_localctx, 0, InoxisParser::RuleProgram);
@@ -305,6 +315,14 @@ void InoxisParser::FuncDecsContext::exitRule(tree::ParseTreeListener *listener) 
   auto parserListener = dynamic_cast<InoxisListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFuncDecs(this);
+}
+
+
+std::any InoxisParser::FuncDecsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncDecs(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 InoxisParser::FuncDecsContext* InoxisParser::funcDecs() {
@@ -373,6 +391,14 @@ void InoxisParser::MainContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<InoxisListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitMain(this);
+}
+
+
+std::any InoxisParser::MainContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitMain(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 InoxisParser::MainContext* InoxisParser::main() {
@@ -446,6 +472,14 @@ void InoxisParser::FuncDefsContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitFuncDefs(this);
 }
 
+
+std::any InoxisParser::FuncDefsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncDefs(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::FuncDefsContext* InoxisParser::funcDefs() {
   FuncDefsContext *_localctx = _tracker.createInstance<FuncDefsContext>(_ctx, getState());
   enterRule(_localctx, 6, InoxisParser::RuleFuncDefs);
@@ -512,6 +546,14 @@ void InoxisParser::StatListContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitStatList(this);
 }
 
+
+std::any InoxisParser::StatListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitStatList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::StatListContext* InoxisParser::statList() {
   StatListContext *_localctx = _tracker.createInstance<StatListContext>(_ctx, getState());
   enterRule(_localctx, 8, InoxisParser::RuleStatList);
@@ -530,7 +572,7 @@ InoxisParser::StatListContext* InoxisParser::statList() {
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 2149062658) != 0)) {
+      ((1ULL << _la) & 2149063682) != 0)) {
       setState(96);
       statement();
       setState(101);
@@ -581,6 +623,14 @@ void InoxisParser::FuncDecContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<InoxisListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFuncDec(this);
+}
+
+
+std::any InoxisParser::FuncDecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncDec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 InoxisParser::FuncDecContext* InoxisParser::funcDec() {
@@ -664,6 +714,14 @@ void InoxisParser::FuncDefContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitFuncDef(this);
 }
 
+
+std::any InoxisParser::FuncDefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncDef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::FuncDefContext* InoxisParser::funcDef() {
   FuncDefContext *_localctx = _tracker.createInstance<FuncDefContext>(_ctx, getState());
   enterRule(_localctx, 12, InoxisParser::RuleFuncDef);
@@ -739,6 +797,14 @@ void InoxisParser::FuncCallContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitFuncCall(this);
 }
 
+
+std::any InoxisParser::FuncCallContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncCall(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::FuncCallContext* InoxisParser::funcCall() {
   FuncCallContext *_localctx = _tracker.createInstance<FuncCallContext>(_ctx, getState());
   enterRule(_localctx, 14, InoxisParser::RuleFuncCall);
@@ -802,6 +868,14 @@ void InoxisParser::FuncCallFactorContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<InoxisListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFuncCallFactor(this);
+}
+
+
+std::any InoxisParser::FuncCallFactorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFuncCallFactor(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 InoxisParser::FuncCallFactorContext* InoxisParser::funcCallFactor() {
@@ -875,6 +949,14 @@ void InoxisParser::ParamContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitParam(this);
 }
 
+
+std::any InoxisParser::ParamContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitParam(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ParamContext* InoxisParser::param() {
   ParamContext *_localctx = _tracker.createInstance<ParamContext>(_ctx, getState());
   enterRule(_localctx, 18, InoxisParser::RuleParam);
@@ -919,6 +1001,10 @@ InoxisParser::PointRefContext* InoxisParser::VarContext::pointRef() {
   return getRuleContext<InoxisParser::PointRefContext>(0);
 }
 
+InoxisParser::MutContext* InoxisParser::VarContext::mut() {
+  return getRuleContext<InoxisParser::MutContext>(0);
+}
+
 tree::TerminalNode* InoxisParser::VarContext::ID() {
   return getToken(InoxisParser::ID, 0);
 }
@@ -944,6 +1030,14 @@ void InoxisParser::VarContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitVar(this);
 }
 
+
+std::any InoxisParser::VarContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitVar(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::VarContext* InoxisParser::var() {
   VarContext *_localctx = _tracker.createInstance<VarContext>(_ctx, getState());
   enterRule(_localctx, 20, InoxisParser::RuleVar);
@@ -960,8 +1054,10 @@ InoxisParser::VarContext* InoxisParser::var() {
     setState(138);
     pointRef();
     setState(139);
-    match(InoxisParser::ID);
+    mut();
     setState(140);
+    match(InoxisParser::ID);
+    setState(141);
     array();
    
   }
@@ -1017,6 +1113,14 @@ void InoxisParser::VarDecContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitVarDec(this);
 }
 
+
+std::any InoxisParser::VarDecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitVarDec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::VarDecContext* InoxisParser::varDec() {
   VarDecContext *_localctx = _tracker.createInstance<VarDecContext>(_ctx, getState());
   enterRule(_localctx, 22, InoxisParser::RuleVarDec);
@@ -1030,19 +1134,19 @@ InoxisParser::VarDecContext* InoxisParser::varDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(142);
-    match(InoxisParser::T__0);
     setState(143);
-    pointRef();
+    match(InoxisParser::T__0);
     setState(144);
-    mut();
+    pointRef();
     setState(145);
-    match(InoxisParser::ID);
+    mut();
     setState(146);
-    array();
+    match(InoxisParser::ID);
     setState(147);
-    varDecRHS();
+    array();
     setState(148);
+    varDecRHS();
+    setState(149);
     match(InoxisParser::T__6);
    
   }
@@ -1086,6 +1190,14 @@ void InoxisParser::ArgContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitArg(this);
 }
 
+
+std::any InoxisParser::ArgContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitArg(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ArgContext* InoxisParser::arg() {
   ArgContext *_localctx = _tracker.createInstance<ArgContext>(_ctx, getState());
   enterRule(_localctx, 24, InoxisParser::RuleArg);
@@ -1098,21 +1210,22 @@ InoxisParser::ArgContext* InoxisParser::arg() {
     exitRule();
   });
   try {
-    setState(152);
+    setState(153);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case InoxisParser::INT: {
         enterOuterAlt(_localctx, 1);
-        setState(150);
+        setState(151);
         match(InoxisParser::INT);
         break;
       }
 
+      case InoxisParser::T__9:
       case InoxisParser::T__10:
       case InoxisParser::T__11:
       case InoxisParser::ID: {
         enterOuterAlt(_localctx, 2);
-        setState(151);
+        setState(152);
         var();
         break;
       }
@@ -1162,6 +1275,14 @@ void InoxisParser::IndexContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitIndex(this);
 }
 
+
+std::any InoxisParser::IndexContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitIndex(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::IndexContext* InoxisParser::index() {
   IndexContext *_localctx = _tracker.createInstance<IndexContext>(_ctx, getState());
   enterRule(_localctx, 26, InoxisParser::RuleIndex);
@@ -1176,7 +1297,7 @@ InoxisParser::IndexContext* InoxisParser::index() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(154);
+    setState(155);
     _la = _input->LA(1);
     if (!(_la == InoxisParser::ID
 
@@ -1241,6 +1362,14 @@ void InoxisParser::StatementContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitStatement(this);
 }
 
+
+std::any InoxisParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitStatement(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::StatementContext* InoxisParser::statement() {
   StatementContext *_localctx = _tracker.createInstance<StatementContext>(_ctx, getState());
   enterRule(_localctx, 28, InoxisParser::RuleStatement);
@@ -1253,40 +1382,40 @@ InoxisParser::StatementContext* InoxisParser::statement() {
     exitRule();
   });
   try {
-    setState(161);
+    setState(162);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(156);
+      setState(157);
       varDec();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(157);
+      setState(158);
       assign();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(158);
+      setState(159);
       while_();
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(159);
+      setState(160);
       ifElseBlock();
       break;
     }
 
     case 5: {
       enterOuterAlt(_localctx, 5);
-      setState(160);
+      setState(161);
       funcCall();
       break;
     }
@@ -1336,6 +1465,14 @@ void InoxisParser::AssignContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitAssign(this);
 }
 
+
+std::any InoxisParser::AssignContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitAssign(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::AssignContext* InoxisParser::assign() {
   AssignContext *_localctx = _tracker.createInstance<AssignContext>(_ctx, getState());
   enterRule(_localctx, 30, InoxisParser::RuleAssign);
@@ -1349,13 +1486,13 @@ InoxisParser::AssignContext* InoxisParser::assign() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(163);
-    var();
     setState(164);
-    match(InoxisParser::T__7);
+    var();
     setState(165);
-    assignRHS();
+    match(InoxisParser::T__7);
     setState(166);
+    assignRHS();
+    setState(167);
     match(InoxisParser::T__6);
    
   }
@@ -1395,6 +1532,14 @@ void InoxisParser::ReturnContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitReturn(this);
 }
 
+
+std::any InoxisParser::ReturnContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitReturn(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ReturnContext* InoxisParser::return_() {
   ReturnContext *_localctx = _tracker.createInstance<ReturnContext>(_ctx, getState());
   enterRule(_localctx, 32, InoxisParser::RuleReturn);
@@ -1408,11 +1553,11 @@ InoxisParser::ReturnContext* InoxisParser::return_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(168);
-    match(InoxisParser::T__8);
     setState(169);
-    retVal();
+    match(InoxisParser::T__8);
     setState(170);
+    retVal();
+    setState(171);
     match(InoxisParser::T__6);
    
   }
@@ -1460,6 +1605,14 @@ void InoxisParser::RetValContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitRetVal(this);
 }
 
+
+std::any InoxisParser::RetValContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitRetVal(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::RetValContext* InoxisParser::retVal() {
   RetValContext *_localctx = _tracker.createInstance<RetValContext>(_ctx, getState());
   enterRule(_localctx, 34, InoxisParser::RuleRetVal);
@@ -1472,26 +1625,26 @@ InoxisParser::RetValContext* InoxisParser::retVal() {
     exitRule();
   });
   try {
-    setState(175);
+    setState(176);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 5, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(172);
+      setState(173);
       match(InoxisParser::INT);
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(173);
+      setState(174);
       var();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(174);
+      setState(175);
       expression(0);
       break;
     }
@@ -1533,6 +1686,14 @@ void InoxisParser::MutContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitMut(this);
 }
 
+
+std::any InoxisParser::MutContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitMut(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::MutContext* InoxisParser::mut() {
   MutContext *_localctx = _tracker.createInstance<MutContext>(_ctx, getState());
   enterRule(_localctx, 36, InoxisParser::RuleMut);
@@ -1547,12 +1708,12 @@ InoxisParser::MutContext* InoxisParser::mut() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(178);
+    setState(179);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__9) {
-      setState(177);
+      setState(178);
       match(InoxisParser::T__9);
     }
    
@@ -1589,6 +1750,14 @@ void InoxisParser::PointRefContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitPointRef(this);
 }
 
+
+std::any InoxisParser::PointRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitPointRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::PointRefContext* InoxisParser::pointRef() {
   PointRefContext *_localctx = _tracker.createInstance<PointRefContext>(_ctx, getState());
   enterRule(_localctx, 38, InoxisParser::RulePointRef);
@@ -1603,14 +1772,14 @@ InoxisParser::PointRefContext* InoxisParser::pointRef() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(181);
+    setState(182);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__10
 
     || _la == InoxisParser::T__11) {
-      setState(180);
+      setState(181);
       _la = _input->LA(1);
       if (!(_la == InoxisParser::T__10
 
@@ -1656,6 +1825,14 @@ void InoxisParser::SubscriptContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitSubscript(this);
 }
 
+
+std::any InoxisParser::SubscriptContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitSubscript(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::SubscriptContext* InoxisParser::subscript() {
   SubscriptContext *_localctx = _tracker.createInstance<SubscriptContext>(_ctx, getState());
   enterRule(_localctx, 40, InoxisParser::RuleSubscript);
@@ -1670,12 +1847,12 @@ InoxisParser::SubscriptContext* InoxisParser::subscript() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(184);
+    setState(185);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__12) {
-      setState(183);
+      setState(184);
       match(InoxisParser::T__12);
     }
    
@@ -1716,6 +1893,14 @@ void InoxisParser::ArrayContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitArray(this);
 }
 
+
+std::any InoxisParser::ArrayContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitArray(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ArrayContext* InoxisParser::array() {
   ArrayContext *_localctx = _tracker.createInstance<ArrayContext>(_ctx, getState());
   enterRule(_localctx, 42, InoxisParser::RuleArray);
@@ -1729,16 +1914,16 @@ InoxisParser::ArrayContext* InoxisParser::array() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(190);
+    setState(191);
     _errHandler->sync(this);
 
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 9, _ctx)) {
     case 1: {
-      setState(186);
-      match(InoxisParser::T__13);
       setState(187);
-      index();
+      match(InoxisParser::T__13);
       setState(188);
+      index();
+      setState(189);
       match(InoxisParser::T__14);
       break;
     }
@@ -1784,6 +1969,14 @@ void InoxisParser::AllocateContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitAllocate(this);
 }
 
+
+std::any InoxisParser::AllocateContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitAllocate(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::AllocateContext* InoxisParser::allocate() {
   AllocateContext *_localctx = _tracker.createInstance<AllocateContext>(_ctx, getState());
   enterRule(_localctx, 44, InoxisParser::RuleAllocate);
@@ -1797,11 +1990,11 @@ InoxisParser::AllocateContext* InoxisParser::allocate() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(192);
-    match(InoxisParser::T__15);
     setState(193);
-    match(InoxisParser::T__0);
+    match(InoxisParser::T__15);
     setState(194);
+    match(InoxisParser::T__0);
+    setState(195);
     array();
    
   }
@@ -1841,6 +2034,14 @@ void InoxisParser::VarDecRHSContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitVarDecRHS(this);
 }
 
+
+std::any InoxisParser::VarDecRHSContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitVarDecRHS(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::VarDecRHSContext* InoxisParser::varDecRHS() {
   VarDecRHSContext *_localctx = _tracker.createInstance<VarDecRHSContext>(_ctx, getState());
   enterRule(_localctx, 46, InoxisParser::RuleVarDecRHS);
@@ -1855,14 +2056,14 @@ InoxisParser::VarDecRHSContext* InoxisParser::varDecRHS() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(198);
+    setState(199);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__7) {
-      setState(196);
-      match(InoxisParser::T__7);
       setState(197);
+      match(InoxisParser::T__7);
+      setState(198);
       assignRHS();
     }
    
@@ -1907,6 +2108,14 @@ void InoxisParser::AssignRHSContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitAssignRHS(this);
 }
 
+
+std::any InoxisParser::AssignRHSContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitAssignRHS(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::AssignRHSContext* InoxisParser::assignRHS() {
   AssignRHSContext *_localctx = _tracker.createInstance<AssignRHSContext>(_ctx, getState());
   enterRule(_localctx, 48, InoxisParser::RuleAssignRHS);
@@ -1919,23 +2128,24 @@ InoxisParser::AssignRHSContext* InoxisParser::assignRHS() {
     exitRule();
   });
   try {
-    setState(202);
+    setState(203);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case InoxisParser::T__2:
+      case InoxisParser::T__9:
       case InoxisParser::T__10:
       case InoxisParser::T__11:
       case InoxisParser::ID:
       case InoxisParser::INT: {
         enterOuterAlt(_localctx, 1);
-        setState(200);
+        setState(201);
         expression(0);
         break;
       }
 
       case InoxisParser::T__15: {
         enterOuterAlt(_localctx, 2);
-        setState(201);
+        setState(202);
         allocate();
         break;
       }
@@ -1990,6 +2200,14 @@ void InoxisParser::ExpressionContext::exitRule(tree::ParseTreeListener *listener
 }
 
 
+std::any InoxisParser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 InoxisParser::ExpressionContext* InoxisParser::expression() {
    return expression(0);
 }
@@ -2015,10 +2233,10 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(205);
+    setState(206);
     factor();
     _ctx->stop = _input->LT(-1);
-    setState(215);
+    setState(216);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
@@ -2026,18 +2244,18 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(213);
+        setState(214);
         _errHandler->sync(this);
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
         case 1: {
           _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(207);
+          setState(208);
 
           if (!(precpred(_ctx, 3))) throw FailedPredicateException(this, "precpred(_ctx, 3)");
-          setState(208);
-          match(InoxisParser::T__16);
           setState(209);
+          match(InoxisParser::T__16);
+          setState(210);
           expression(4);
           break;
         }
@@ -2045,12 +2263,12 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
         case 2: {
           _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(210);
+          setState(211);
 
           if (!(precpred(_ctx, 2))) throw FailedPredicateException(this, "precpred(_ctx, 2)");
-          setState(211);
-          match(InoxisParser::T__17);
           setState(212);
+          match(InoxisParser::T__17);
+          setState(213);
           expression(3);
           break;
         }
@@ -2059,7 +2277,7 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
           break;
         } 
       }
-      setState(217);
+      setState(218);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx);
     }
@@ -2111,6 +2329,14 @@ void InoxisParser::FactorContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitFactor(this);
 }
 
+
+std::any InoxisParser::FactorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitFactor(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::FactorContext* InoxisParser::factor() {
   FactorContext *_localctx = _tracker.createInstance<FactorContext>(_ctx, getState());
   enterRule(_localctx, 52, InoxisParser::RuleFactor);
@@ -2123,37 +2349,37 @@ InoxisParser::FactorContext* InoxisParser::factor() {
     exitRule();
   });
   try {
-    setState(225);
+    setState(226);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 14, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(218);
+      setState(219);
       var();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(219);
+      setState(220);
       match(InoxisParser::INT);
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(220);
-      match(InoxisParser::T__2);
       setState(221);
-      expression(0);
+      match(InoxisParser::T__2);
       setState(222);
+      expression(0);
+      setState(223);
       match(InoxisParser::T__3);
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(224);
+      setState(225);
       funcCallFactor();
       break;
     }
@@ -2203,6 +2429,14 @@ void InoxisParser::WhileContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitWhile(this);
 }
 
+
+std::any InoxisParser::WhileContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitWhile(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::WhileContext* InoxisParser::while_() {
   WhileContext *_localctx = _tracker.createInstance<WhileContext>(_ctx, getState());
   enterRule(_localctx, 54, InoxisParser::RuleWhile);
@@ -2216,19 +2450,19 @@ InoxisParser::WhileContext* InoxisParser::while_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(227);
-    match(InoxisParser::T__18);
     setState(228);
-    match(InoxisParser::T__2);
+    match(InoxisParser::T__18);
     setState(229);
-    condition();
+    match(InoxisParser::T__2);
     setState(230);
-    match(InoxisParser::T__3);
+    condition();
     setState(231);
-    match(InoxisParser::T__4);
+    match(InoxisParser::T__3);
     setState(232);
-    statList();
+    match(InoxisParser::T__4);
     setState(233);
+    statList();
+    setState(234);
     match(InoxisParser::T__5);
    
   }
@@ -2280,6 +2514,14 @@ void InoxisParser::IfElseBlockContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitIfElseBlock(this);
 }
 
+
+std::any InoxisParser::IfElseBlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitIfElseBlock(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::IfElseBlockContext* InoxisParser::ifElseBlock() {
   IfElseBlockContext *_localctx = _tracker.createInstance<IfElseBlockContext>(_ctx, getState());
   enterRule(_localctx, 56, InoxisParser::RuleIfElseBlock);
@@ -2293,23 +2535,23 @@ InoxisParser::IfElseBlockContext* InoxisParser::ifElseBlock() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(235);
-    match(InoxisParser::T__19);
     setState(236);
-    match(InoxisParser::T__2);
+    match(InoxisParser::T__19);
     setState(237);
-    condition();
+    match(InoxisParser::T__2);
     setState(238);
-    match(InoxisParser::T__3);
+    condition();
     setState(239);
-    match(InoxisParser::T__4);
+    match(InoxisParser::T__3);
     setState(240);
-    statList();
+    match(InoxisParser::T__4);
     setState(241);
-    match(InoxisParser::T__5);
+    statList();
     setState(242);
-    elif();
+    match(InoxisParser::T__5);
     setState(243);
+    elif();
+    setState(244);
     else_();
    
   }
@@ -2361,6 +2603,14 @@ void InoxisParser::ElifContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitElif(this);
 }
 
+
+std::any InoxisParser::ElifContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitElif(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ElifContext* InoxisParser::elif() {
   ElifContext *_localctx = _tracker.createInstance<ElifContext>(_ctx, getState());
   enterRule(_localctx, 58, InoxisParser::RuleElif);
@@ -2375,25 +2625,25 @@ InoxisParser::ElifContext* InoxisParser::elif() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(255);
+    setState(256);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == InoxisParser::T__20) {
-      setState(245);
-      match(InoxisParser::T__20);
       setState(246);
-      match(InoxisParser::T__2);
+      match(InoxisParser::T__20);
       setState(247);
-      condition();
+      match(InoxisParser::T__2);
       setState(248);
-      match(InoxisParser::T__3);
+      condition();
       setState(249);
-      match(InoxisParser::T__4);
+      match(InoxisParser::T__3);
       setState(250);
-      statList();
+      match(InoxisParser::T__4);
       setState(251);
+      statList();
+      setState(252);
       match(InoxisParser::T__5);
-      setState(257);
+      setState(258);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -2439,6 +2689,14 @@ void InoxisParser::ElseContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitElse(this);
 }
 
+
+std::any InoxisParser::ElseContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitElse(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ElseContext* InoxisParser::else_() {
   ElseContext *_localctx = _tracker.createInstance<ElseContext>(_ctx, getState());
   enterRule(_localctx, 60, InoxisParser::RuleElse);
@@ -2453,24 +2711,24 @@ InoxisParser::ElseContext* InoxisParser::else_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(266);
+    setState(267);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__21) {
-      setState(258);
-      match(InoxisParser::T__21);
       setState(259);
-      match(InoxisParser::T__2);
+      match(InoxisParser::T__21);
       setState(260);
-      condition();
+      match(InoxisParser::T__2);
       setState(261);
-      match(InoxisParser::T__3);
+      condition();
       setState(262);
-      match(InoxisParser::T__4);
+      match(InoxisParser::T__3);
       setState(263);
-      statList();
+      match(InoxisParser::T__4);
       setState(264);
+      statList();
+      setState(265);
       match(InoxisParser::T__5);
     }
    
@@ -2523,6 +2781,14 @@ void InoxisParser::ConditionContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitCondition(this);
 }
 
+
+std::any InoxisParser::ConditionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitCondition(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::ConditionContext* InoxisParser::condition() {
   ConditionContext *_localctx = _tracker.createInstance<ConditionContext>(_ctx, getState());
   enterRule(_localctx, 62, InoxisParser::RuleCondition);
@@ -2536,13 +2802,13 @@ InoxisParser::ConditionContext* InoxisParser::condition() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(268);
-    not_();
     setState(269);
-    match(InoxisParser::ID);
+    not_();
     setState(270);
-    condOp();
+    match(InoxisParser::ID);
     setState(271);
+    condOp();
+    setState(272);
     condRHS();
    
   }
@@ -2578,6 +2844,14 @@ void InoxisParser::NotContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitNot(this);
 }
 
+
+std::any InoxisParser::NotContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitNot(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::NotContext* InoxisParser::not_() {
   NotContext *_localctx = _tracker.createInstance<NotContext>(_ctx, getState());
   enterRule(_localctx, 64, InoxisParser::RuleNot);
@@ -2592,12 +2866,12 @@ InoxisParser::NotContext* InoxisParser::not_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(274);
+    setState(275);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__22) {
-      setState(273);
+      setState(274);
       match(InoxisParser::T__22);
     }
    
@@ -2634,6 +2908,14 @@ void InoxisParser::CondOpContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitCondOp(this);
 }
 
+
+std::any InoxisParser::CondOpContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitCondOp(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::CondOpContext* InoxisParser::condOp() {
   CondOpContext *_localctx = _tracker.createInstance<CondOpContext>(_ctx, getState());
   enterRule(_localctx, 66, InoxisParser::RuleCondOp);
@@ -2648,7 +2930,7 @@ InoxisParser::CondOpContext* InoxisParser::condOp() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(276);
+    setState(277);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 1056964608) != 0))) {
@@ -2700,6 +2982,14 @@ void InoxisParser::CondRHSContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitCondRHS(this);
 }
 
+
+std::any InoxisParser::CondRHSContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitCondRHS(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 InoxisParser::CondRHSContext* InoxisParser::condRHS() {
   CondRHSContext *_localctx = _tracker.createInstance<CondRHSContext>(_ctx, getState());
   enterRule(_localctx, 68, InoxisParser::RuleCondRHS);
@@ -2714,7 +3004,7 @@ InoxisParser::CondRHSContext* InoxisParser::condRHS() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(278);
+    setState(279);
     _la = _input->LA(1);
     if (!(_la == InoxisParser::ID
 
