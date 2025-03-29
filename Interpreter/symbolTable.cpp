@@ -308,7 +308,7 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 	{
 		string paramName = calledFunc._paramName;
 
-		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none);
+		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none, none, false);
 
 		funcSymbols[funcName].locals[paramName] = param;
 	}
@@ -424,7 +424,7 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 		return;
 	}
 
-	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType, none);
+	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType, none, none, false);
 
 	funcSymbols[parentFunc.getName()].locals[name] = newVar;
 

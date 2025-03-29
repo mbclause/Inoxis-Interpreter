@@ -1,43 +1,30 @@
 
 
-int func1(int *param);
-
-int*  func2(int &param2);
+int func1(int param);
 
 int main()
 {
-	int *var;
+	int var;
 
 	int var2;
 
 	func1(var);
 
-	func2(&var2);
-
 	return 0;
 }
 
-int func1(int *param)
+int func1(int param)
 {
 	int var1;
 
-	int var2;
+	int mut var2;
 
 	var2 = 5;
 
 	int *var3;
 
+	var2 = param + 6;
+
 	return 0;
 }
-
-
-int*  func2(int &param2)
-{
-	int one;
-
-	int two;
-
-	return &one;
-}
-
 

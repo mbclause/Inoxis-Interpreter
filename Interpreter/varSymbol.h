@@ -15,9 +15,16 @@ enum MemFlags {
 };
 
 // code taken from StackOverflow user eidolon
+// set flags with |
 inline MemFlags operator|(MemFlags a, MemFlags b)
 {
 	return static_cast<MemFlags>(static_cast<int>(a) | static_cast<int>(b));
+};
+
+// use & to check if flag is set
+inline MemFlags operator&(MemFlags a, MemFlags b)
+{
+	return static_cast<MemFlags>(static_cast<int>(a) & static_cast<int>(b));
 };
 
 
@@ -40,16 +47,52 @@ public:
 
 	MemFlags memPermissions;
 
-	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
-		memPermissions(none) {};
+	// permissions for the heap data itself, only used if isBorrow = true
+	MemFlags placeMemPermissions;
 
-	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data, MemFlags memflags) :
-		_name(name), _isMutable(mut), _needsMemSafety(memSafety), _isArray(isArray), dataType(data), memPermissions(memflags)
+	bool isBorrow;
+
+	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
+		memPermissions(none), placeMemPermissions(none), isBorrow(false) {};
+
+	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data, 
+		MemFlags memflags, MemFlags place, bool borrow) :
+		_name(name), _isMutable(mut), _needsMemSafety(memSafety), _isArray(isArray), 
+		dataType(data), memPermissions(memflags), placeMemPermissions(place), isBorrow(borrow)
 	{};
 
 	void printVarSymbol();
 
-	void setPermissions(MemFlags permissions) { memPermissions = permissions; };
+	void setPermissions(MemFlags permissions, bool forPlace) { 
+		if (forPlace)
+			placeMemPermissions = permissions;
+
+		else
+			memPermissions = permissions; 
+	};
+
+	// functions to check which flags are set
+	// need to test these
+	bool  hasReadPermissions(bool place) {
+		if (place)
+			return placeMemPermissions & read;
+		else
+			return memPermissions & read;
+	}
+
+	bool  hasWritePermissions(bool place) {
+		if (place)
+			return placeMemPermissions & write;
+		else
+			return memPermissions & write;
+	}
+
+	bool  hasOwnPermissions(bool place) {
+		if (place)
+			return placeMemPermissions & own;
+		else
+			return memPermissions & own;
+	}
 };
 
 
