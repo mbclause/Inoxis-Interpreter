@@ -6,6 +6,8 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 {
 	currentFunction = functions.get(ctx);
 
+	inFuncDef = true;
+
 	cout << "MAIN\n";
 
 	// sentinel drops permissions for borower and regains for borowee
@@ -67,7 +69,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 		}
 
 
-		for (int k = 0; k < anotatedStatements.size(); k++)
+		/*for (int k = 0; k < anotatedStatements.size(); k++)
 		{
 			if (holds_alternative<sentinal>(anotatedStatements[k]))
 			{
@@ -82,7 +84,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 				cout << statement->getText() << endl;
 			}
-		}
+		}*/
 
 		// now we save the anotated statements so that we can keep track of when 
 		// variables are dropped while we walk the rest of the parse tree for this function
@@ -99,9 +101,11 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx) 
 {
+	inFuncDef = true;
+
 	currentFunction = functions.get(ctx);
 
-	cout << currentFunction.getName() << endl;
+	cout << endl << currentFunction.getName() << endl;
 
 	// sentinel drops permissions for borower and regains for borowee
 
@@ -175,7 +179,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		}
 
 
-		for (int k = 0; k < anotatedStatements.size(); k++)
+		/*for (int k = 0; k < anotatedStatements.size(); k++)
 		{
 			if (holds_alternative<sentinal>(anotatedStatements[k]))
 			{
@@ -190,7 +194,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 				cout << statement->getText() << endl;
 			}
-		}
+		}*/
 
 		// now we save the anotated statements so that we can keep track of when 
 		// variables are dropped while we walk the rest of the parse tree for this function
@@ -331,5 +335,68 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 		reportMemError();
 
 		cout << varName << " is IMMUTABLE. You cannot change it's value.\n";
+	}
+}
+
+
+
+
+// increment statList index, make sure we're in bounds
+// while the current statement is a sentinal, call dropPermissions()
+void  MemSafetyPass::incrementStatements()
+{
+	if(statementIndex == 0)
+		cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
+
+	statementIndex++;
+
+	// make sure we haven't reached the end of the list
+	// this will happen if we've reached the end of the function and there are no sentinals left
+	if (statementIndex < currentStatList.size())
+	{
+		// while the current statment is a sentinel...
+		while (true)
+		{
+			if (statementIndex >= currentStatList.size())
+				break;
+
+			if(!holds_alternative<sentinal>(currentStatList[statementIndex]))
+				break;
+
+			try
+			{
+				// get the name of the dropped var and then drop its permissions
+				sentinal currentSentinal = get<sentinal>(currentStatList[statementIndex]);
+
+				// dropPermissions(currentSentinal.varName);
+
+				cout << currentSentinal.varName << " dropped \n";
+			}
+
+			catch (std::bad_variant_access const& ex)
+			{
+				cout << "bad variant access\n";
+			}
+
+			// go to next statement
+			statementIndex++;
+		}
+
+		// otherwise print the next statement
+		if (statementIndex < currentStatList.size())
+		{
+			if (holds_alternative<InoxisParser::StatementContext*>(currentStatList[statementIndex]))
+			{
+				try
+				{
+					cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
+				}
+
+				catch (std::bad_variant_access const& ex)
+				{
+					cout << "bad variant access\n";
+				}
+			}
+		}
 	}
 }

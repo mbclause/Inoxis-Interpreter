@@ -25,6 +25,11 @@ int func1(int param)
 
 	var2 = param + 6;
 
+	if(var2 < 7)
+	{
+		var2 = 2;
+	}
+
 	return 0;
 }
 

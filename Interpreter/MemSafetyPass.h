@@ -26,9 +26,10 @@ class MemSafetyPass : public InoxisBaseListener
 {
 public:
 	// ctors
-	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0) {};
+	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0), 
+		inFuncDef(false), statementIndex(0) {};
 
-	MemSafetyPass() : _numErrors(0) {};
+	MemSafetyPass() : _numErrors(0), inFuncDef(false), statementIndex(0) {};
 
 
 	//void enterFuncDef(InoxisParser::FuncDefContext* ctx);
@@ -38,7 +39,14 @@ public:
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 
+	void exitFuncDef(InoxisParser::FuncDefContext* ctx) { inFuncDef = false; resetStatList(); };
+
 	void enterMain(InoxisParser::MainContext* ctx);
+
+	void exitMain(InoxisParser::MainContext* ctx) { inFuncDef = false; resetStatList(); };
+
+	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
+
 
 	void reportMemError() { _numErrors++; };
 
@@ -55,6 +63,11 @@ public:
 	// for anotatedStatements, add anotatedStatements to class?? but I need a new one for each function
 	// have a vector of anotatedStatemts, or a currentStatList data member
 	// when we hit a sentinal, we drop the relevant permissions and then advance until we get a statement
+	// need to call this when we enter any of the statement types: varDec | assign | while | ifElseBlock | funcCall
+	// or should we do it on exiting them??
+	void  incrementStatements();
+
+	void  resetStatList() { statementIndex = 0; };
 
 
 	// data members
@@ -62,7 +75,11 @@ public:
 
 	vector<variant<InoxisParser::StatementContext*, sentinal>> currentStatList;
 
+	int  statementIndex;
+
 	int _numErrors;
 
 	funcSymbol currentFunction;
+
+	bool   inFuncDef;
 };
