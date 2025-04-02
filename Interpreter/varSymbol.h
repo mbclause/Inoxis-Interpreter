@@ -52,8 +52,13 @@ public:
 
 	bool isBorrow;
 
+	// the name of the variable that is borrowed from (if isBorrow is set)
+	string  borrowee;
+
+
+
 	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
-		memPermissions(none), placeMemPermissions(none), isBorrow(false) {};
+		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee("") {};
 
 	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data, 
 		MemFlags memflags, MemFlags place, bool borrow) :
@@ -62,6 +67,21 @@ public:
 	{};
 
 	void printVarSymbol();
+
+	// drop all of variables permissions, including its place's if applicable
+	void dropPermissions() {
+		setPermissions(none, false);
+
+		if (isBorrow)
+			setPermissions(none, true);
+	}
+
+
+
+
+
+
+	void  regainPermissions();
 
 	void setPermissions(MemFlags permissions, bool forPlace) { 
 		if (forPlace)

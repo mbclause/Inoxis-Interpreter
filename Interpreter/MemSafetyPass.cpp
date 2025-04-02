@@ -368,9 +368,9 @@ void  MemSafetyPass::incrementStatements()
 				// get the name of the dropped var and then drop its permissions
 				sentinal currentSentinal = get<sentinal>(currentStatList[statementIndex]);
 
-				// dropPermissions(currentSentinal.varName);
+				dropVar(currentSentinal.varName);
 
-				cout << currentSentinal.varName << " dropped \n";
+				//cout << currentSentinal.varName << " dropped \n";
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -396,6 +396,45 @@ void  MemSafetyPass::incrementStatements()
 				{
 					cout << "bad variant access\n";
 				}
+			}
+		}
+	}
+}
+
+
+
+/*
+Function: dropVar
+Returns: None
+Param: varName - the name of the variable to be dropped
+Description: Called when a sentinel for the variable with name varName is hit when looping through statements
+all varName's permissions are dropped as well as it's place (if applicable)
+if varName is a borrow, then regainPermissions is called, passing the varName's borowee
+*/
+void  MemSafetyPass::dropVar(string varName)
+{
+	// check that the var is in the current functions locals
+	if (currentFunction.locals.count(varName) == 1)
+	{
+		// drop the variables permissions
+		currentFunction.locals[varName].dropPermissions();
+
+		cout << "after dropping, " << varName << "s permissions are now: " << 
+			currentFunction.locals[varName].memPermissions << endl;
+
+		//currentFunction.locals[varName].isBorrow = true;
+
+		//currentFunction.locals[varName].borrowee = "var";
+
+		// if the dropped var is a borrow
+		if (currentFunction.locals[varName].isBorrow)
+		{
+			string borroweeName = currentFunction.locals[varName].borrowee;
+
+			// its borrowee now regains its permissions
+			if (currentFunction.locals.count(borroweeName) == 1)
+			{
+				currentFunction.locals[borroweeName].regainPermissions();
 			}
 		}
 	}

@@ -4,7 +4,7 @@ int func1(int param);
 
 int main()
 {
-	int var;
+	int mut var;
 
 	int var2;
 
@@ -16,6 +16,8 @@ int main()
 int func1(int param)
 {
 	int var1;
+
+	int mut var;
 
 	int mut var2;
 
