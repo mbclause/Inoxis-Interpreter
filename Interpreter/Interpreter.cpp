@@ -29,6 +29,10 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 	if (numLexErrors + numParseErrors == 0)
 	{
+		//auto s = tree->toStringTree(&parser);
+
+		//cout << "Parse Tree: " << s << endl;
+
 		antlr4::tree::ParseTreeWalker walker;
 
 		walker.walk(&symTable, tree);
@@ -38,10 +42,6 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 			MemSafetyPass  memPass(symTable.treeFuncSymbols);
 
 			walker.walk(&memPass, tree);
-
-			//auto s = tree->toStringTree(&parser);
-
-			//cout << "Parse Tree: " << s << endl;
 		}
 	}
 }

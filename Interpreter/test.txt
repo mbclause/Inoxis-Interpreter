@@ -1,36 +1,33 @@
 
 
-int func1(int param);
+int func1(int *param);
 
 int main()
 {
-	int mut var;
 
-	int var2;
+	int *point = new int;
 
-	func1(var);
+	func1(point);
+
+	int mut var = 7;
+
+	int var2 = var;
 
 	return 0;
 }
 
-int func1(int param)
+int func1(int *param)
 {
-	int var1;
 
-	int mut var;
+	int *mut var2 = new int;
 
-	int mut var2;
+	*var2 = 7;
 
-	var2 = 5;
+	int *mut newPointer;
 
-	int *var3;
+	newPointer = var2;
 
-	var2 = param + 6;
-
-	if(var2 < 7)
-	{
-		var2 = 2;
-	}
+	newPointer = 8;
 
 	return 0;
 }

@@ -34,8 +34,10 @@ public:
 
 
 
-	//assign: var '=' assignRHS ';';
+	// overloaded InoxisListener functions
 	void enterAssign(InoxisParser::AssignContext* ctx);
+
+	void enterFuncCall(InoxisParser::FuncCallContext* ctx);
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 
@@ -47,6 +49,10 @@ public:
 
 	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
 
+	void exitReturn(InoxisParser::ReturnContext* ctx) { incrementStatements(); };
+
+	void enterVarDec(InoxisParser::VarDecContext* ctx);
+
 
 
 
@@ -54,21 +60,25 @@ public:
 
 	vector<string>  getVars(string statement);
 
-	bool   checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal>>  statements, int start, string var);
+	bool   checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>
+		statements, int start, string var);
 
-	bool   isFinalUse(vector<InoxisParser::StatementContext*>  statements, int start, string var);
+	bool   isFinalUse(vector<InoxisParser::StatementContext*>  statements, InoxisParser::ReturnContext* returnStatement, 
+		int start, string var);
 
 	void  incrementStatements();
 
 	void  resetStatList() { statementIndex = 0; };
 
 	void  dropVar(string varName);
+	
+	//bool  assignType(string lhsVar, InoxisParser::AssignRHSContext* ctx, string error);
 
 
 	// data members
 	ParseTreeProperty<funcSymbol> functions;
 
-	vector<variant<InoxisParser::StatementContext*, sentinal>> currentStatList;
+	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>> currentStatList;
 
 	int  statementIndex;
 

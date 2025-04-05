@@ -314,6 +314,9 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 	}
 
 	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
+
+	// save the called function's info in the parse tree
+	treeFuncSymbols.put(ctx, calledFunc);
 }
 
 

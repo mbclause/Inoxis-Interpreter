@@ -1,7 +1,302 @@
 #include "MemSafetyPass.h"
 
+using namespace DataType;
 
 
+
+/*
+Function: enterAssign
+Description: First, check that immutable vars are not being assigned new values
+second, drop pointer vars that are assigned to other pointer vars
+*/
+void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
+{
+	// mutability check
+	// get name of variable being assigned
+	string  varName = ctx->var()->ID()->getText();
+
+	// get variable
+	varSymbol var = currentFunction.locals[varName];
+
+	// check if the variable's mutable
+	bool lhsMut = var._isMutable;
+
+	// if it's not, then you can't assign a new value to it
+	if (!lhsMut)
+	{
+		reportMemError();
+
+		cout << varName << " is IMMUTABLE. You cannot change it's value.\n";
+	}
+
+
+	// drop assigned pointers
+	DATA_TYPE  lhsType = currentFunction.locals[varName].dataType;
+
+	string rhsText = ctx->assignRHS()->getText();
+
+	vector<string> rhsVars = getVars(rhsText);
+
+	int numRHSVars = rhsVars.size();
+
+	if (lhsType == POINTER)
+	{
+		if (lhsMut)
+		{
+			currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+			cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+		}
+
+		else
+		{
+			currentFunction.locals[varName].setPermissions(read | own, false);
+
+			cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+		}
+
+		// if the lhs is initialized with another pointer, the rhs pointer is dropped
+		if (numRHSVars == 1)
+		{
+			string rhsVar = rhsVars[0];
+
+			DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
+
+			if (rhsDataType == POINTER)
+			{
+				dropVar(rhsVar);
+			}
+		}
+	}
+
+}
+
+
+
+
+
+
+
+
+/*
+function: enterVarDec
+Description: init memory permissions for the declared variable
+if that var is a borrow, then init it and its paths permissions and changer permissions
+for the borrowee, maybe create another function that does the borrowing, since assignment can do the same thing
+*/
+void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
+{
+	string funcName = currentFunction.getName();
+
+	string varName = ctx->ID()->getText();
+
+	DATA_TYPE  lhsType = currentFunction.locals[varName].dataType;
+
+	bool  lhsMut = currentFunction.locals[varName]._isMutable;
+
+
+
+	// if we initialize the variable
+	if (ctx->varDecRHS() != NULL)
+	{
+		if (ctx->varDecRHS()->assignRHS() != NULL)
+		{
+			string rhsText = ctx->varDecRHS()->assignRHS()->getText();
+
+			vector<string> rhsVars = getVars(rhsText);
+
+			int numRHSVars = rhsVars.size();
+
+			// integer init 
+			// int x = 7;
+			// int y = x;
+			if (lhsType == INT)
+			{
+				// check that the rhs is an expression
+				// we would do this recursively, expressions are made up of smaller expressions
+
+				if (lhsMut)
+				{
+					currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				}
+
+				else
+				{
+					currentFunction.locals[varName].setPermissions(read | own, false);
+
+					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				}
+			}
+
+			// pointer init with variable
+			// int *y = &x;
+			// int *z = new int;  *z = 7; int *y = z;
+			// pointer init with allocation
+			// int *x = new int;
+			else if (lhsType == POINTER)
+			{
+
+				if (lhsMut)
+				{
+					currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				}
+
+				else
+				{
+					currentFunction.locals[varName].setPermissions(read | own, false);
+
+					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				}
+
+				// if the lhs is initialized with another pointer, the rhs pointer is dropped
+				if (numRHSVars == 1)
+				{
+					string rhsVar = rhsVars[0];
+
+					DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
+
+					if (rhsDataType == POINTER)
+					{
+						dropVar(rhsVar);
+					}
+				}
+			}
+
+			// lhs has type reference
+			else
+			{
+				// make sure there's just a variable on the RHS
+				if (numRHSVars == 1)
+				{
+					bool mutRef = false;
+
+					bool rhsRefSymbol = false;
+
+					string rhsVar = rhsVars[0];
+
+					// check if the rhs is mut
+					if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut() != NULL)
+						mutRef = true;
+
+					if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef() != NULL)
+						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef()->getText() == "&")
+							rhsRefSymbol = true;
+
+					if (lhsMut)
+					{
+						// report error, not allowed in C++
+					}
+
+					// can't change address
+					else
+					{
+						// mutable reference, syntax is "int &var1 = &mut var2;
+						if (mutRef)
+						{
+							// check that the rhs has &
+							if (!rhsRefSymbol)
+							{
+								reportMemError();
+								cout << "invalid mutable reference syntax: usage - int &var1 = mut& var2;\n";
+							}
+
+							// drop all permissions for borrowee
+							currentFunction.locals[rhsVar].setPermissions(none, false);
+
+							// lhs is a borrow now
+							currentFunction.locals[varName].isBorrow = true;
+
+							// set lhs's borrowee
+							currentFunction.locals[varName].borrowee = rhsVar;
+
+							// borrower reference gains r/o
+							currentFunction.locals[varName].setPermissions(read | own, false);
+
+							// borrower data gains r/w/o
+							currentFunction.locals[varName].setPermissions(read | write | own, true);
+
+							cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions
+								<< ". Place permissions: " << currentFunction.locals[varName].placeMemPermissions << endl;
+						}
+
+						else
+						{
+
+						}
+					}
+				}
+
+				else
+				{
+					cout << "error line: " << "can only have one variable on rhs\n";
+
+					reportMemError();
+
+					return;
+				}
+			}
+
+
+		}
+	}
+}
+
+
+
+
+
+/*
+function: enterFuncCall
+Description: if a pointer is passed as a function argument, then it is dropped
+*/
+void MemSafetyPass::enterFuncCall(InoxisParser::FuncCallContext* ctx)
+{
+	// get the function signature of the called function
+	string calledFuncName = ctx->ID()->getText();
+
+	funcSymbol calledFunc = functions.get(ctx);
+
+	string  argName = ctx->arg()->var()->ID()->getText();
+
+	// if the paramemter is a pointer
+	if (calledFunc._paramType == POINTER)
+	{
+		//make sure that the dereference operator * is not in the function call
+		if (ctx->getText().find("*") != string::npos)
+		{
+			reportMemError();
+
+			cout << "data type of parameter and argument do not match in func call\n";
+		}
+
+		// no * in call, drop all of the argument's permissions
+		else
+		{
+			if (currentFunction.locals[argName].dataType != POINTER)
+			{
+				reportMemError();
+
+				cout << "data type of parameter and argument do not match in func call\n";
+			}
+
+			else
+			{
+				dropVar(argName);
+			}
+		}
+	}
+}
+
+
+
+/*
+function: enterMain
+Description: same as for enterFuncDef
+*/
 void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 {
 	currentFunction = functions.get(ctx);
@@ -13,7 +308,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 	// sentinel drops permissions for borower and regains for borowee
 
 	// create new vector of variants (either parse tree node, or sentinal) called anotatedStatements
-	vector<variant<InoxisParser::StatementContext*, sentinal>>  anotatedStatements;
+	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>  anotatedStatements;
 
 
 	// make sure the function contains statements
@@ -54,7 +349,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 					else
 					{
-						if (isFinalUse(statements, i + 1, varName))
+						if (isFinalUse(statements, NULL, i + 1, varName))
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
@@ -99,6 +394,11 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 
 
+/*
+function: enterFuncDef
+Description: loop through all statements in the function, adding them to annotatedStatements.
+for each local variable, after the last time it's used, add a sentinal for it to annotatedStatements
+*/
 void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx) 
 {
 	inFuncDef = true;
@@ -110,8 +410,9 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	// sentinel drops permissions for borower and regains for borowee
 
 	// create new vector of variants (either parse tree node, or sentinal) called anotatedStatements
-	vector<variant<InoxisParser::StatementContext*, sentinal>>  anotatedStatements;
+	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>  anotatedStatements;
 
+	int i = 0;
 
 	// make sure the function contains statements
 	if (ctx->statList() != NULL)
@@ -119,13 +420,13 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		// get the statements vector
 		auto statements = ctx->statList()->statement();
 
-		// first need to add the sentinal for the parameter
+		// first need to add the sentinal for the parameter if it's not used
 		string paramName = ctx->param()->ID()->getText();
 
 		// check if there's a sentinal value for the variable
 		if (!checkIfSentinal(anotatedStatements, 0, paramName))
 		{
-			if (isFinalUse(statements, 0, paramName))
+			if (isFinalUse(statements, ctx->return_(), 0, paramName))
 			{
 				// add sentinal for var to anotatedStatements
 				sentinal newSentinal{ paramName, false };
@@ -166,7 +467,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 					else
 					{
-						if (isFinalUse(statements, i + 1, varName))
+						if (isFinalUse(statements, ctx->return_(), i + 1, varName))
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
@@ -176,6 +477,23 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 					}
 				}
 			}
+		}
+
+		auto returnStatement = ctx->return_();
+
+		vector<string> vars = getVars(returnStatement->getText());
+
+		//copy statement into anotatedStatements
+		anotatedStatements.push_back(returnStatement);
+
+		// loop through all vars in return statement and add a sentinal for each
+		for (int j = 0; j < vars.size(); j++)
+		{
+			string varName = vars[j];
+
+			sentinal newSentinal{ varName, false };
+
+			anotatedStatements.push_back(newSentinal);
 		}
 
 
@@ -237,8 +555,8 @@ vector<string>  MemSafetyPass::getVars(string statement)
 
 // loop through rest of the anotated statements starting from 'start' index
 // check if there's a sentinal value for var
-bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal>>  statements, 
-	int start, string var)
+bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>
+	statements, int start, string var)
 {
 	for (int i = start; i < statements.size(); i++)
 	{
@@ -254,6 +572,8 @@ bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContex
 
 			catch (std::bad_variant_access const& ex)
 			{
+
+
 				cout << "bad variant access\n";
 			}
 		}
@@ -267,7 +587,8 @@ bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContex
 
 // given a variable name, and the index of current statement + 1, check if the variable is used in the 
 // remaining statements
-bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statements, int start, string var)
+bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statements, InoxisParser::ReturnContext* returnStatement, 
+	int start, string var)
 {
 	// loop through statements
 	for (int i = start; i < statements.size(); i++)
@@ -293,6 +614,23 @@ bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statem
 		}
 	}
 
+	// check return statement as well
+	if (returnStatement != NULL)
+	{
+		vector<string> vars = getVars(returnStatement->getText());
+
+		if (!vars.empty())
+		{
+			// loop through variable names
+			for (int j = 0; j < vars.size(); j++)
+			{
+				// if it matches the variable name we're checking, return false
+				if (vars[j] == var)
+					return false;
+			}
+		}
+	}
+
 	// if we reach the end, return true
 	return true;
 }
@@ -305,56 +643,59 @@ bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statem
 
 
 
-void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
-{
-	// get name of variable being assigned
-	string  varName = ctx->var()->ID()->getText();
-
-	// symbol has been validated in previous pass, get it from function locals
-
-	/*cout << currentFunction.getName() << endl;
-
-	for (auto x : currentFunction.locals)
-	{
-		varSymbol var = x.second;
-
-		var.printVarSymbol();
-	}*/
-
-	// get variable
-	varSymbol var = currentFunction.locals[varName];
-
-	//var.printVarSymbol();
-
-	// check if the variable's mutable
-	bool isMut = var._isMutable;
-
-	// if it's not, then you can't assign a new value to it
-	if (!isMut)
-	{
-		reportMemError();
-
-		cout << varName << " is IMMUTABLE. You cannot change it's value.\n";
-	}
-}
 
 
 
 
-// increment statList index, make sure we're in bounds
-// while the current statement is a sentinal, call dropPermissions()
+// every time this is called by exitStatement, we need to print that statement, then loop through any following
+// sentinels, dropping all of those permissions
 void  MemSafetyPass::incrementStatements()
 {
-	if(statementIndex == 0)
-		cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
-
-	statementIndex++;
+	bool statementPrinted = false;
 
 	// make sure we haven't reached the end of the list
 	// this will happen if we've reached the end of the function and there are no sentinals left
 	if (statementIndex < currentStatList.size())
 	{
-		// while the current statment is a sentinel...
+
+		// if the variant holds a statement, print it
+		if (holds_alternative<InoxisParser::StatementContext*>(currentStatList[statementIndex]))
+		{
+			try
+			{
+				cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
+			}
+
+			catch (std::bad_variant_access const& ex)
+			{
+				cout << "bad variant access\n";
+			}
+
+			// go to next variant to check if it's a sentinal
+			statementIndex++;
+
+			statementPrinted = true;
+		}
+
+		else if (holds_alternative<InoxisParser::ReturnContext*>(currentStatList[statementIndex]))
+		{
+			try
+			{
+				cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+			}
+
+			catch (std::bad_variant_access const& ex)
+			{
+				cout << "bad variant access\n";
+			}
+
+			// go to next variant to check if it's a sentinal
+			statementIndex++;
+
+			statementPrinted = true;
+		}
+
+		// while the current variant is a sentinel...
 		while (true)
 		{
 			if (statementIndex >= currentStatList.size())
@@ -370,7 +711,7 @@ void  MemSafetyPass::incrementStatements()
 
 				dropVar(currentSentinal.varName);
 
-				//cout << currentSentinal.varName << " dropped \n";
+				cout << currentSentinal.varName << " dropped \n";
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -382,8 +723,7 @@ void  MemSafetyPass::incrementStatements()
 			statementIndex++;
 		}
 
-		// otherwise print the next statement
-		if (statementIndex < currentStatList.size())
+		if (statementIndex < currentStatList.size() && !statementPrinted)
 		{
 			if (holds_alternative<InoxisParser::StatementContext*>(currentStatList[statementIndex]))
 			{
@@ -396,6 +736,29 @@ void  MemSafetyPass::incrementStatements()
 				{
 					cout << "bad variant access\n";
 				}
+
+				// go to next variant to check if it's a sentinal
+				statementIndex++;
+
+				statementPrinted = true;
+			}
+
+			else if (holds_alternative<InoxisParser::ReturnContext*>(currentStatList[statementIndex]))
+			{
+				try
+				{
+					cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+				}
+
+				catch (std::bad_variant_access const& ex)
+				{
+					cout << "bad variant access\n";
+				}
+
+				// go to next variant to check if it's a sentinal
+				statementIndex++;
+
+				statementPrinted = true;
 			}
 		}
 	}
@@ -419,20 +782,23 @@ void  MemSafetyPass::dropVar(string varName)
 		// drop the variables permissions
 		currentFunction.locals[varName].dropPermissions();
 
-		cout << "after dropping, " << varName << "s permissions are now: " << 
-			currentFunction.locals[varName].memPermissions << endl;
+		currentFunction.locals[varName].hasBeenDropped = true;
+
+		//cout << "after dropping, " << varName << "s permissions are now: " << 
+			//currentFunction.locals[varName].memPermissions << endl;
 
 		//currentFunction.locals[varName].isBorrow = true;
 
 		//currentFunction.locals[varName].borrowee = "var";
 
 		// if the dropped var is a borrow
+		// what if both are dropped on the same line??
 		if (currentFunction.locals[varName].isBorrow)
 		{
 			string borroweeName = currentFunction.locals[varName].borrowee;
 
 			// its borrowee now regains its permissions
-			if (currentFunction.locals.count(borroweeName) == 1)
+			if (currentFunction.locals.count(borroweeName) == 1 && !currentFunction.locals[borroweeName].hasBeenDropped)
 			{
 				currentFunction.locals[borroweeName].regainPermissions();
 			}

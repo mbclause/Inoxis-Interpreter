@@ -41,6 +41,8 @@ public:
 
 	bool _isArray;
 
+	bool hasBeenDropped;
+
 	//funcSymbol parentFunction;
 
 	DataType::DATA_TYPE dataType;
@@ -58,12 +60,12 @@ public:
 
 
 	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
-		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee("") {};
+		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee(""), hasBeenDropped(false) {};
 
 	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data, 
 		MemFlags memflags, MemFlags place, bool borrow) :
 		_name(name), _isMutable(mut), _needsMemSafety(memSafety), _isArray(isArray), 
-		dataType(data), memPermissions(memflags), placeMemPermissions(place), isBorrow(borrow)
+		dataType(data), memPermissions(memflags), placeMemPermissions(place), isBorrow(borrow), hasBeenDropped(false)
 	{};
 
 	void printVarSymbol();
