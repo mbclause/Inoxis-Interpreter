@@ -64,6 +64,12 @@ public:
   virtual void enterAssign(InoxisParser::AssignContext * /*ctx*/) override { }
   virtual void exitAssign(InoxisParser::AssignContext * /*ctx*/) override { }
 
+  virtual void enterPrint(InoxisParser::PrintContext * /*ctx*/) override { }
+  virtual void exitPrint(InoxisParser::PrintContext * /*ctx*/) override { }
+
+  virtual void enterOut(InoxisParser::OutContext * /*ctx*/) override { }
+  virtual void exitOut(InoxisParser::OutContext * /*ctx*/) override { }
+
   virtual void enterReturn(InoxisParser::ReturnContext * /*ctx*/) override { }
   virtual void exitReturn(InoxisParser::ReturnContext * /*ctx*/) override { }
 

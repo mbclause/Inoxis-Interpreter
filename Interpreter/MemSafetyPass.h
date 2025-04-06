@@ -53,6 +53,10 @@ public:
 
 	void enterVarDec(InoxisParser::VarDecContext* ctx);
 
+	void enterPrint(InoxisParser::PrintContext* ctx);
+
+	void enterOut(InoxisParser::OutContext* ctx);
+
 
 
 
@@ -71,8 +75,10 @@ public:
 	void  resetStatList() { statementIndex = 0; };
 
 	void  dropVar(string varName);
+
+	bool  checkReadPermissions(vector<string> vars);
 	
-	//bool  assignType(string lhsVar, InoxisParser::AssignRHSContext* ctx, string error);
+	vector<string>  getPrintVars(InoxisParser::PrintContext* ctx);
 
 
 	// data members

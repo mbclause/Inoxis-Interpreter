@@ -2,16 +2,10 @@
 
 int func1(int *param);
 
+int func2(int *param);
+
 int main()
 {
-
-	int *point = new int;
-
-	func1(point);
-
-	int mut var = 7;
-
-	int var2 = var;
 
 	return 0;
 }
@@ -19,16 +13,21 @@ int main()
 int func1(int *param)
 {
 
-	int *mut var2 = new int;
+	int mut var = 7;
 
-	*var2 = 7;
+	int &ref = &mut var;
 
-	int *mut newPointer;
+	*ref = 8;
 
-	newPointer = var2;
+	cout << "stuffaasdf" << var << ref;
 
-	newPointer = 8;
+	return 0;
+}
 
+
+
+int func2(int *param)
+{
 	return 0;
 }
 

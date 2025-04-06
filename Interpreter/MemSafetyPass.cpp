@@ -3,6 +3,124 @@
 using namespace DataType;
 
 
+vector<string>  MemSafetyPass::getPrintVars(InoxisParser::PrintContext* ctx)
+{
+	vector<string> vars;
+
+	if (ctx->var() != NULL)
+	{
+		// check it's read permissions
+		string var = ctx->var()->ID()->getText();
+
+		vars.push_back(var);
+	}
+
+	// if there's more to the print statement
+	if(ctx->out() != NULL)
+		if (ctx->out()->var().size() > 0)
+		{
+			for (int i = 0; i < ctx->out()->var().size(); i++)
+			{
+				vars.push_back(ctx->out()->var()[i]->ID()->getText());
+			}
+		}
+
+	for (int j = 0; j < vars.size(); j++)
+		cout << vars[j] << " ";
+
+	cout << endl;
+
+	return vars;
+}
+
+
+
+/*
+Function: enterOut
+Description: this rule is entered if there is more than one use of the extraction operator in a print statement
+check all of the variable's read permissions in the rest of the print statement
+*/
+void MemSafetyPass::enterOut(InoxisParser::OutContext* ctx)
+{
+	vector<string>  varNames;
+
+	// if there are any vars in the output
+	if (ctx->var().size() > 0)
+	{
+		// loop through them and add their names to the string vector
+		for (int i = 0; i < ctx->var().size(); i++)
+		{
+			varNames.push_back(ctx->var()[i]->ID()->getText());
+		}
+
+		// check the vars read permissions
+		if (!checkReadPermissions(varNames))
+		{
+			reportMemError();
+		}
+	}
+}
+
+
+/*
+Function: enterPrint
+Description: if the first output in the statement is a variable: check it's read permissions
+*/
+void MemSafetyPass::enterPrint(InoxisParser::PrintContext* ctx)
+{
+	// if the first output is a variable...
+	if (ctx->var() != NULL)
+	{
+		// check it's read permissions
+		string var = ctx->var()->ID()->getText();
+
+		vector<string> varVec{ var };
+
+		if (!checkReadPermissions(varVec))
+		{
+			reportMemError();
+		}
+	}
+}
+
+
+
+/*
+Function: checkReadPermissions
+Description: checks all the variable names passed to it for read permissions
+Returns true if all vars have them and false otherwise
+*/
+bool  MemSafetyPass::checkReadPermissions(vector<string> vars)
+{
+	// loop through all variables
+	for (int i = 0; i < vars.size(); i++)
+	{
+		// get current variable
+		varSymbol  var = currentFunction.locals[vars[i]];
+
+		// check the permissions for the place as well if var is borrow
+		if (var.isBorrow)
+		{
+			if (!var.hasReadPermissions(true))
+			{
+				cout << "*" << var._name << " does not have required Read permissions\n";
+
+				return false;
+			}
+		}
+
+		if (!var.hasReadPermissions(false))
+		{
+			cout << var._name << " does not have required Read permissions\n";
+
+			return false;
+		}
+	}
+
+	return true;
+} // end checkReadPermissions
+
+
 
 /*
 Function: enterAssign
@@ -21,13 +139,46 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 	// check if the variable's mutable
 	bool lhsMut = var._isMutable;
 
-	// if it's not, then you can't assign a new value to it
-	if (!lhsMut)
+	// check that the lhs var has proper write permissions
+	// first check the place permissions if the var is a borrow
+	if (var.isBorrow)
 	{
-		reportMemError();
+		if (ctx->var()->pointRef() != NULL)
+		{
+			if (ctx->var()->pointRef()->getText() == "*")
+			{
+				if (!var.hasWritePermissions(true))
+				{
+					reportMemError();
 
-		cout << varName << " is IMMUTABLE. You cannot change it's value.\n";
+					cout << var._name << "s place does not have write permissions\n";
+				}
+			}
+		}
+
+		else
+		{
+			if (!var.hasWritePermissions(false))
+			{
+				reportMemError();
+
+				cout << var._name << "s place does not have write permissions\n";
+			}
+		}
 	}
+
+	// for non-borrows just check regular permissions
+	else
+	{
+		if (!var.hasWritePermissions(false))
+		{
+			reportMemError();
+
+			cout << var._name << " does not have write permissions\n";
+		}
+	}
+
+			
 
 
 	// drop assigned pointers
@@ -39,32 +190,42 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 
 	int numRHSVars = rhsVars.size();
 
-	if (lhsType == POINTER)
+	// first, check the read permissions for any variables on the right hand side
+	if (!checkReadPermissions(rhsVars))
 	{
-		if (lhsMut)
+		reportMemError();
+	}
+
+	else
+	{
+
+		if (lhsType == POINTER)
 		{
-			currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-			cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-		}
-
-		else
-		{
-			currentFunction.locals[varName].setPermissions(read | own, false);
-
-			cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-		}
-
-		// if the lhs is initialized with another pointer, the rhs pointer is dropped
-		if (numRHSVars == 1)
-		{
-			string rhsVar = rhsVars[0];
-
-			DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
-
-			if (rhsDataType == POINTER)
+			if (lhsMut)
 			{
-				dropVar(rhsVar);
+				currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+				cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+			}
+
+			else
+			{
+				currentFunction.locals[varName].setPermissions(read | own, false);
+
+				cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+			}
+
+			// if the lhs is initialized with another pointer, the rhs pointer is dropped
+			if (numRHSVars == 1)
+			{
+				string rhsVar = rhsVars[0];
+
+				DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
+
+				if (rhsDataType == POINTER)
+				{
+					dropVar(rhsVar);
+				}
 			}
 		}
 	}
@@ -107,137 +268,173 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 			int numRHSVars = rhsVars.size();
 
-			// integer init 
-			// int x = 7;
-			// int y = x;
-			if (lhsType == INT)
+			// first, check the read permissions for any variables on the right hand side
+			if (!checkReadPermissions(rhsVars))
 			{
-				// check that the rhs is an expression
-				// we would do this recursively, expressions are made up of smaller expressions
-
-				if (lhsMut)
-				{
-					currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-				}
-
-				else
-				{
-					currentFunction.locals[varName].setPermissions(read | own, false);
-
-					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-				}
+				reportMemError();
 			}
 
-			// pointer init with variable
-			// int *y = &x;
-			// int *z = new int;  *z = 7; int *y = z;
-			// pointer init with allocation
-			// int *x = new int;
-			else if (lhsType == POINTER)
-			{
-
-				if (lhsMut)
-				{
-					currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-				}
-
-				else
-				{
-					currentFunction.locals[varName].setPermissions(read | own, false);
-
-					cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
-				}
-
-				// if the lhs is initialized with another pointer, the rhs pointer is dropped
-				if (numRHSVars == 1)
-				{
-					string rhsVar = rhsVars[0];
-
-					DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
-
-					if (rhsDataType == POINTER)
-					{
-						dropVar(rhsVar);
-					}
-				}
-			}
-
-			// lhs has type reference
 			else
 			{
-				// make sure there's just a variable on the RHS
-				if (numRHSVars == 1)
+
+				// integer init 
+				// int x = 7;
+				// int y = x;
+				if (lhsType == INT)
 				{
-					bool mutRef = false;
-
-					bool rhsRefSymbol = false;
-
-					string rhsVar = rhsVars[0];
-
-					// check if the rhs is mut
-					if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut() != NULL)
-						mutRef = true;
-
-					if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef() != NULL)
-						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef()->getText() == "&")
-							rhsRefSymbol = true;
+					// check that the rhs is an expression
+					// we would do this recursively, expressions are made up of smaller expressions
 
 					if (lhsMut)
 					{
-						// report error, not allowed in C++
+						currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+						cout << "init: " << varName << ". Permissions: " << 
+							currentFunction.locals[varName].memPermissions << endl;
 					}
 
-					// can't change address
 					else
 					{
-						// mutable reference, syntax is "int &var1 = &mut var2;
-						if (mutRef)
+						currentFunction.locals[varName].setPermissions(read | own, false);
+
+						cout << "init: " << varName << ". Permissions: " << 
+							currentFunction.locals[varName].memPermissions << endl;
+					}
+				}
+
+				// pointer init with variable
+				// int *y = &x;
+				// int *z = new int;  *z = 7; int *y = z;
+				// pointer init with allocation
+				// int *x = new int;
+				else if (lhsType == POINTER)
+				{
+
+					if (lhsMut)
+					{
+						currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+						cout << "init: " << varName << ". Permissions: " << 
+							currentFunction.locals[varName].memPermissions << endl;
+					}
+
+					else
+					{
+						currentFunction.locals[varName].setPermissions(read | own, false);
+
+						cout << "init: " << varName << ". Permissions: " << 
+							currentFunction.locals[varName].memPermissions << endl;
+					}
+
+					// if the lhs is initialized with another pointer, the rhs pointer is dropped
+					if (numRHSVars == 1)
+					{
+						string rhsVar = rhsVars[0];
+
+						DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
+
+						if (rhsDataType == POINTER)
 						{
-							// check that the rhs has &
-							if (!rhsRefSymbol)
-							{
-								reportMemError();
-								cout << "invalid mutable reference syntax: usage - int &var1 = mut& var2;\n";
-							}
-
-							// drop all permissions for borrowee
-							currentFunction.locals[rhsVar].setPermissions(none, false);
-
-							// lhs is a borrow now
-							currentFunction.locals[varName].isBorrow = true;
-
-							// set lhs's borrowee
-							currentFunction.locals[varName].borrowee = rhsVar;
-
-							// borrower reference gains r/o
-							currentFunction.locals[varName].setPermissions(read | own, false);
-
-							// borrower data gains r/w/o
-							currentFunction.locals[varName].setPermissions(read | write | own, true);
-
-							cout << "init: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions
-								<< ". Place permissions: " << currentFunction.locals[varName].placeMemPermissions << endl;
-						}
-
-						else
-						{
-
+							dropVar(rhsVar);
 						}
 					}
 				}
 
+				// lhs has type reference
 				else
 				{
-					cout << "error line: " << "can only have one variable on rhs\n";
+					// make sure there's just a variable on the RHS
+					if (numRHSVars == 1)
+					{
+						bool mutRef = false;
 
-					reportMemError();
+						bool rhsRefSymbol = false;
 
-					return;
+						string rhsVar = rhsVars[0];
+
+						// check if the rhs is mut
+						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut() != NULL)
+							if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut()->getText() == "mut")
+								mutRef = true;
+
+						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef() != NULL)
+							if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef()->getText() == "&")
+								rhsRefSymbol = true;
+
+						if (lhsMut)
+						{
+							// report error, not allowed in C++
+						}
+
+						// can't change address
+						else
+						{
+							// mutable reference, syntax is "int &var1 = &mut var2;
+							if (mutRef)
+							{
+								// check that the rhs has &
+								if (!rhsRefSymbol)
+								{
+									reportMemError();
+									cout << "invalid mutable reference syntax: usage - int &var1 = mut& var2;\n";
+								}
+
+								// drop all permissions for borrowee
+								currentFunction.locals[rhsVar].setPermissions(none, false);
+
+								// lhs is a borrow now
+								currentFunction.locals[varName].isBorrow = true;
+
+								// set lhs's borrowee
+								currentFunction.locals[varName].borrowee = rhsVar;
+
+								// borrower reference gains r/o
+								currentFunction.locals[varName].setPermissions(read | own, false);
+
+								// borrower data gains r/w/o
+								currentFunction.locals[varName].setPermissions(read | write | own, true);
+
+								cout << "init: " << varName << ". Permissions: " << 
+									currentFunction.locals[varName].memPermissions
+									<< ". Place permissions: " << 
+									currentFunction.locals[varName].placeMemPermissions << endl;
+							}
+
+							else
+							{
+								// drop write and own permissions for borrowee
+								currentFunction.locals[rhsVar].setPermissions(read, false);
+
+								// lhs is a borrow now
+								currentFunction.locals[varName].isBorrow = true;
+
+								// set lhs's borrowee
+								currentFunction.locals[varName].borrowee = rhsVar;
+
+								// borrower reference gains r/o
+								currentFunction.locals[varName].setPermissions(read | own, false);
+
+								// borrower data gains r
+								currentFunction.locals[varName].setPermissions(read, true);
+
+								cout << "init: " << varName << ". Permissions: " <<
+									currentFunction.locals[varName].memPermissions
+									<< ". Place permissions: " <<
+									currentFunction.locals[varName].placeMemPermissions << endl;
+							}
+						}
+					}
+
+					else
+					{
+						cout << "error line: " << "can only have one variable on rhs\n";
+
+						reportMemError();
+
+						return;
+					}
 				}
+
 			}
 
 
@@ -262,30 +459,42 @@ void MemSafetyPass::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 	string  argName = ctx->arg()->var()->ID()->getText();
 
-	// if the paramemter is a pointer
-	if (calledFunc._paramType == POINTER)
+	vector<string>  argVec{ argName };
+
+	// check that the argument has read permissions
+	if (!checkReadPermissions(argVec))
 	{
-		//make sure that the dereference operator * is not in the function call
-		if (ctx->getText().find("*") != string::npos)
-		{
-			reportMemError();
+		reportMemError();
+	}
 
-			cout << "data type of parameter and argument do not match in func call\n";
-		}
+	else
+	{
 
-		// no * in call, drop all of the argument's permissions
-		else
+		// if the paramemter is a pointer
+		if (calledFunc._paramType == POINTER)
 		{
-			if (currentFunction.locals[argName].dataType != POINTER)
+			//make sure that the dereference operator * is not in the function call
+			if (ctx->getText().find("*") != string::npos)
 			{
 				reportMemError();
 
 				cout << "data type of parameter and argument do not match in func call\n";
 			}
 
+			// no * in call, drop all of the argument's permissions
 			else
 			{
-				dropVar(argName);
+				if (currentFunction.locals[argName].dataType != POINTER)
+				{
+					reportMemError();
+
+					cout << "data type of parameter and argument do not match in func call\n";
+				}
+
+				else
+				{
+					dropVar(argName);
+				}
 			}
 		}
 	}
@@ -322,9 +531,17 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 		{
 			auto statement = statements[i];
 
-			//cout << statement->getText() << endl;
+			vector<string> vars;
 
-			vector<string> vars = getVars(statement->getText());
+			// if the current statement is a print statement, need special case
+			if (statement->print() != NULL)
+			{
+				// get vars a differene way
+				vars = getPrintVars(statement->print());
+			}
+
+			else
+				vars = getVars(statement->getText());
 
 			//copy statement into anotatedStatements
 			anotatedStatements.push_back(statement);
@@ -440,9 +657,17 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		{
 			auto statement = statements[i];
 
-			//cout << statement->getText() << endl;
+			vector<string> vars;
 
-			vector<string> vars = getVars(statement->getText());
+			// if the current statement is a print statement, need special case
+			if (statement->print() != NULL)
+			{
+				// get vars a differene way
+				vars = getPrintVars(statement->print());
+			}
+
+			else
+				vars = getVars(statement->getText());
 
 			//copy statement into anotatedStatements
 			anotatedStatements.push_back(statement);
@@ -596,10 +821,21 @@ bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statem
 		// get current statement
 		auto statement = statements[i];
 
+		vector<string> vars;
+
+		if (statement->print() != NULL)
+		{
+			// get vars a differene way
+			vars = getPrintVars(statement->print());
+		}
+
+		else
+			vars = getVars(statement->getText());
+
 		//cout << statement->getText() << endl;
 
 		// get all the variable names in statement
-		vector<string> vars = getVars(statement->getText());
+		vars = getVars(statement->getText());
 
 		if (!vars.empty())
 		{

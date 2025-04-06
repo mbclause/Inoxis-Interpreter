@@ -214,7 +214,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 					validToken = true;
 				} // end if
 
-				// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=
+				// could be single or double : =, [, !, <, >, ==, [], !=, <=, >=, <<
 				// check next char to see if it's single or double token
 				else if (c == "=" || c == "[" || c == "!" || c == "<" || c == ">")
 				{
@@ -283,6 +283,15 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 							text = "<=";
 
 							type = LESS_EQUAL;
+						}
+
+						else if (nextChar == '<')
+						{
+							isDouble = true;
+
+							text = "<<";
+
+							type = EXTRACT_OP;
 						}
 
 						else
@@ -409,6 +418,11 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 						type = MUT;
 					}
 
+					else if (text == "cout")
+					{
+						type = COUT;
+					}
+
 					else if (text == "new")
 					{
 						type = NEW;
@@ -427,6 +441,11 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 					else if (text == "elif")
 					{
 						type = ELIF;
+					}
+
+					else if (text == "endl")
+					{
+						type = END_LINE;
 					}
 
 					else if (text == "else")
@@ -455,6 +474,33 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 					text = input.getText(antlr4::misc::Interval(start, stop));
 
 					type = NUMBER;
+
+					validToken = true;
+				}
+
+				// if token is ", it's the start of a string literal
+				// consume the rest of the string literal
+				else if (c == "\"")
+				{
+					// consume starting "
+					outerConsume();
+
+					// start of literal is after "
+					//start++;
+
+					// consume until we hit the end "
+					while (char(input.LA(1)) != '\"')
+						outerConsume();
+
+					// consume end "
+					outerConsume();
+
+					// set stop to end of literal
+					stop = input.index() - 1;
+
+					text = input.getText(antlr4::misc::Interval(start, stop));
+
+					type = STR_LITERAL;
 
 					validToken = true;
 				}

@@ -41,11 +41,17 @@ index: INT | ID;
 
 
 // statement types
-statement: varDec | assign | while | ifElseBlock | funcCall;
+statement: varDec | assign | while | ifElseBlock | funcCall | print;
 
 
 // assignment
 assign: var '=' assignRHS ';';
+
+
+// print
+print: 'cout' '<<' (STRING_LITERAL | var | 'endl') out ';';
+
+out: ('<<' (STRING_LITERAL | var | 'endl'))*;
 
 
 // return statement

@@ -10,5 +10,6 @@ COMMENT: '//' .*? '\n' -> skip;
 
 INT: SIGN [0-9]+;
 
-fragment SIGN: ('-')?;
+STRING_LITERAL: '"' [ a-zA-Z0-9_*]* '"';
 
+fragment SIGN: ('-')?;

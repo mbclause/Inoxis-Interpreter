@@ -79,6 +79,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitPrint(InoxisParser::PrintContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitOut(InoxisParser::OutContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitReturn(InoxisParser::ReturnContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -29,9 +29,9 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 	if (numLexErrors + numParseErrors == 0)
 	{
-		//auto s = tree->toStringTree(&parser);
+		auto s = tree->toStringTree(&parser);
 
-		//cout << "Parse Tree: " << s << endl;
+		cout << "Parse Tree: " << s << endl;
 
 		antlr4::tree::ParseTreeWalker walker;
 
