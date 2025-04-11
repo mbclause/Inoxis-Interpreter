@@ -41,11 +41,11 @@ public:
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 
-	void exitFuncDef(InoxisParser::FuncDefContext* ctx) { inFuncDef = false; resetStatList(); };
+	void exitFuncDef(InoxisParser::FuncDefContext* ctx) { statLists.put(ctx, currentStatList); resetStatList(); };
 
 	void enterMain(InoxisParser::MainContext* ctx);
 
-	void exitMain(InoxisParser::MainContext* ctx) { inFuncDef = false; resetStatList(); };
+	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); resetStatList(); };
 
 	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
 
@@ -83,6 +83,8 @@ public:
 
 	// data members
 	ParseTreeProperty<funcSymbol> functions;
+
+	ParseTreeProperty<vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>> statLists;
 
 	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>> currentStatList;
 

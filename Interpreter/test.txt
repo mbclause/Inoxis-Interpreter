@@ -18,8 +18,8 @@ int func1(int *param)
 	int &ref = &mut var;
 
 	*ref = 8;
-
-	cout << "stuffaasdf" << var << ref;
+	
+	cout << "stuffaasdf" << var;
 
 	return 0;
 }

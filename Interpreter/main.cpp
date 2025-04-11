@@ -11,6 +11,7 @@ Description: Reads the Inoxis file name/path from the command line and then call
 #include ".antlr/InoxisLexer.h"
 #include ".antlr/InoxisParser.h"
 #include "misc/interval.h"
+#include "test.c"
 
 #include "myLexer.h"
 #include "Interpreter.h"
@@ -63,6 +64,8 @@ int main(int argc, char* argv[])
 	antlr4::ANTLRInputStream input(in);
 
 	Interpreter newInterpreter(input);
+
+	func();
 
 
 	return 0;

@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\vcpkg\vcpkg\installed\x64-windows\lib</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -103,9 +106,10 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ANTLR4CPP_STATIC
+;GLIB_STATIC_COMPILATION
 </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>"C:\Users\Michael\source\repos\Inoxis-Interpreter\antlr4-cpp-runtime-4.13.2-source\runtime\src"</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\vcpkg\vcpkg\installed\x64-windows-static\lib\glib-2.0\include;C:\vcpkg\vcpkg\installed\x64-windows-static\include\glib-2.0;C:\Users\Michael\source\repos\Inoxis-Interpreter\antlr4-cpp-runtime-4.13.2-source\runtime\src;C:\vcpkg\vcpkg\installed\x64-windows-static\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -113,10 +117,13 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);antlr4-runtime-static.lib
-</AdditionalDependencies>
+;glib-2.0.lib;
+gobject-2.0.lib;
+gthread-2.0.lib
+;intl.lib;Ws2_32.lib</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <AdditionalLibraryDirectories>C:\Users\Michael\source\repos\Inoxis-Interpreter\antlr4-cpp-runtime-4.13.2-source\dist
-</AdditionalLibraryDirectories>
+;C:\vcpkg\vcpkg\installed\x64-windows-static\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,7 +154,9 @@
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="symbolTable.cpp" />
+    <ClCompile Include="test.c" />
     <ClCompile Include="varSymbol.cpp" />
+    <ClCompile Include="VMInputPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt" />
@@ -168,6 +177,8 @@
     <ClInclude Include="myLexer.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="varSymbol.h" />
+    <ClInclude Include="VMInput.h" />
+    <ClInclude Include="VMInputPass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />

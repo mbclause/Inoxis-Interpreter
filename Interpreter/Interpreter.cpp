@@ -42,6 +42,15 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 			MemSafetyPass  memPass(symTable.treeFuncSymbols);
 
 			walker.walk(&memPass, tree);
+
+			if (memPass._numErrors == 0)
+			{
+				// output of this walk will be a GArray of function structs
+				// this will be passed to the VM
+				VMInputPass  vmInput(memPass.statLists, symTable.treeFuncSymbols);
+
+				walker.walk(&vmInput, tree);
+			}
 		}
 	}
 }

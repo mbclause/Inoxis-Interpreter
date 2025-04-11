@@ -13,6 +13,7 @@ File: Interpreter.h
 #include "misc/interval.h"
 #include "symbolTable.h"
 #include "MemSafetyPass.h"
+#include "VMInputPass.h"
 
 using namespace std;
 
