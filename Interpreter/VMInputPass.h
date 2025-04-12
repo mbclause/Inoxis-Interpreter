@@ -36,6 +36,8 @@ public:
 	// need to have similar incrementStatList function to see when we reach sentinal for pointer var
 	// then we would add a free statement for that var to the statements
 
+	void test();
+
 	ParseTreeProperty<vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>> statLists;
 
 	ParseTreeProperty<funcSymbol>  symbolTables;

@@ -156,6 +156,7 @@ gthread-2.0.lib
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="test.c" />
     <ClCompile Include="varSymbol.cpp" />
+    <ClCompile Include="VMInput.c" />
     <ClCompile Include="VMInputPass.cpp" />
   </ItemGroup>
   <ItemGroup>

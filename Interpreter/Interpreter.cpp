@@ -49,7 +49,9 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 				// this will be passed to the VM
 				VMInputPass  vmInput(memPass.statLists, symTable.treeFuncSymbols);
 
-				walker.walk(&vmInput, tree);
+				vmInput.test();
+
+				//walker.walk(&vmInput, tree);
 			}
 		}
 	}

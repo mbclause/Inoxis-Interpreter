@@ -63,6 +63,9 @@
     <ClCompile Include="VMInputPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VMInput.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt">

@@ -1,140 +1,277 @@
-#pragma once
+
+
 #include <glib.h>
+#include <stdbool.h>
 
-union expression;
+// Forward declare
+typedef struct expression expression;
 
-// statement types in Inoxis
-enum STAT_TYPE
+// OP - Operators
+typedef enum 
 {
-	VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT
-};
+    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, POINTER, REF, BRACKETS, NONE
+
+} OP;
 
 
-// operators in Inoxis
-enum OP
+
+// STAT_TYPE - Statement types
+typedef enum 
 {
-	ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, POINTER, REF, BRACKETS, NONE
-};
+    VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN
+
+} STAT_TYPE;
 
 
-
-// helper structs
-union literal
+typedef enum
 {
-	GString* string;
+    EXPR_BIN, EXPR_LIT, EXPR_UNARY, EXPR_CALL
+} EXPR_KIND;
 
-	int   number;
 
-	unsigned varIndex;
-};
 
-struct unaryOp
+// literal union - Literals
+typedef union 
 {
-	OP  op;
+    GString* string;
 
-	expression  *exp;
-};
+    int number;
 
-// binary expression
-struct  BinOp
+    unsigned varIndex;
+
+} literal;
+
+
+
+// Expressions
+// unaryOp
+typedef struct 
 {
-	OP  op;
+    OP op;
 
-	// dynamically allocated
-	expression *lhs;
+    expression* exp;
 
-	expression  *rhs;
-};
+} unaryOp;
 
-struct funcCall
+
+// BinOp
+typedef struct 
 {
-	unsigned  funcIndex;
+    OP op;
 
-	expression *arg;
-};
+    expression* lhs;
 
-union expression
+    expression* rhs;
+
+} BinOp;
+
+
+// funcCall
+typedef struct 
 {
-	BinOp  binaryOp;
+    unsigned funcIndex;
 
-	literal  litVal;
+    expression* arg;
 
-	unaryOp  unary;
-
-	funcCall  call;
-};
+} funcCall;
 
 
-// structs for each statement type
-struct controlFlow
+// expression
+struct expression 
 {
-	// has type statement
-	GArray*  statements;
+    // kind
+    EXPR_KIND kind;
 
-	expression condition;
-};
+    // val
+    union 
+    {
+        BinOp binaryOp;
 
-struct  assign
-{
-	expression lhs;
+        literal litVal;
 
-	expression rhs;
-};
+        unaryOp unary;
 
-struct Return
-{
-	expression retVal;
-};
-
-struct freeType
-{
-	unsigned  varIndex;
-};
-
-struct varDec
-{
-	bool heapAlloc;
-
-	size_t  allocSize;
-
-	expression lhs;
-
-	expression rhs;
-};
-
-struct print
-{
-	// has type literal
-	GArray* literals;
+        funcCall call;
+    } val;
 };
 
 
 
-// values of the statement
-union values
+// Statements
+// controlFlow
+typedef struct 
 {
-	controlFlow ctrlFlowVals;
-	assign   assginVals;
-	print  printVals;
-	varDec  varDecVals;
-	freeType   freeVal;
-};
+    GArray* statements;
+
+    expression condition;
+
+} controlFlow;
 
 
-// statement struct
-struct  statement
+// assign
+typedef struct 
 {
-	STAT_TYPE  statType;
+    expression lhs;
 
-	values  vals;
-};
+    expression rhs;
 
-// function struct
-struct function
+} assign;
+
+
+// Return
+typedef struct
 {
-	// has type statement
-	GArray* statements;
+    expression retVal;
 
-	// has type int
-	GArray* symbols;
-};
+} Return;
+
+
+// freeType
+typedef struct 
+{
+    unsigned varIndex;
+
+} freeType;
+
+
+// varDec
+typedef struct 
+{
+    bool heapAlloc;
+
+    size_t allocSize;
+
+    expression lhs;
+
+    expression rhs;
+
+} varDec;
+
+
+// print
+typedef struct 
+{
+    // of type literal
+    GArray* literals; 
+} print;
+
+
+// values union
+typedef union 
+{
+    controlFlow ctrlFlowVals;
+
+    assign assignVals;
+
+    print printVals;
+
+    varDec varDecVals;
+
+    freeType freeVal;
+
+    Return  retVal;
+
+} values;
+
+
+// statement
+typedef struct 
+{
+    enum STAT_TYPE statType;
+
+    values vals;
+
+} statement;
+
+
+
+// function
+typedef struct 
+{
+    // type statement
+    GArray* statements; 
+
+    // of type int
+    GArray* symbols; 
+
+} function;
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// function declarations
+// make functions for dynamically allocated structs
+//makeUnaryOp
+unaryOp* makeUnaryOp(OP _op, expression* _exp);
+
+//makeBinaryOp
+BinOp* makeBinOp(OP _op, expression* _lhs, expression* _rhs);
+
+// makeFuncCall
+funcCall* makeFuncCall(unsigned  index, expression* _arg);
+
+// makeControlFlow
+controlFlow* makeControlFlow(GArray* stats, expression condExp);
+
+// makePrint
+print* makePrint(GArray* literalArray);
+
+// makeFunction
+function* makeFunction(GArray* stats, GArray* syms);
+
+
+
+
+// corresponding free functions for each
+// freeUnaryOp
+bool  freeUnaryOp(unaryOp* uo);
+
+// freeBinaryOp
+bool  freeBinOp(BinOp* bo);
+
+// freeFuncCall
+bool  freeFuncCall(funcCall* _funcCall);
+
+// freeControlFlow
+bool  freeControlFlow(controlFlow* cf);
+
+// freePrint
+bool  freePrint(print* p);
+
+// freeFunction
+bool freeFunction(function* func);
+
+
+
+// init functions for complex stack based structs
+// initExpression for each possible union type
+expression  initBinOpExpression(BinOp*  bo);
+
+expression  initUnaryOpExpression(unaryOp*  uo);
+
+expression  initLiteralExpression(literal  lit);
+
+expression  initFuncCallExpression(funcCall* call);
+
+
+
+// initStatement for each statement type
+statement  initVarDecStatement(varDec  dec);
+
+statement  initAssignStatement(assign  _assign);
+
+statement  initControlFlowStatement(controlFlow  flow, STAT_TYPE controlType);
+
+statement  initPrintStatement(print  _print);
+
+statement  initFreeStatement(freeType  _free);
+
+statement  initReturnStatement(Return  ret);
+
+#ifdef __cplusplus
+}
+#endif
+
