@@ -123,11 +123,31 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitExpression(InoxisParser::ExpressionContext *ctx) override {
+  virtual std::any visitRhsRef(InoxisParser::RhsRefContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFactor(InoxisParser::FactorContext *ctx) override {
+  virtual std::any visitAdd(InoxisParser::AddContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitSubtract(InoxisParser::SubtractContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFactorSubRule(InoxisParser::FactorSubRuleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitVarLiteral(InoxisParser::VarLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitNumLiteral(InoxisParser::NumLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFuncCallSubRule(InoxisParser::FuncCallSubRuleContext *ctx) override {
     return visitChildren(ctx);
   }
 

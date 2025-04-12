@@ -65,8 +65,6 @@ int main(int argc, char* argv[])
 
 	Interpreter newInterpreter(input);
 
-	func();
-
 
 	return 0;
 }

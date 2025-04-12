@@ -9,7 +9,7 @@ typedef struct expression expression;
 // OP - Operators
 typedef enum 
 {
-    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, POINTER, REF, BRACKETS, NONE
+    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, POINTER, REF, MUT_REF, BRACKETS, NONE
 
 } OP;
 
@@ -244,20 +244,23 @@ bool  freePrint(print* p);
 // freeFunction
 bool freeFunction(function* func);
 
+bool freeExpression(expression* exp);
+
+
+
+
+
+// makeExpression for each possible union type
+expression*  makeBinOpExpression(BinOp*  bo);
+
+expression*  makeUnaryOpExpression(unaryOp*  uo);
+
+expression*  makeLiteralExpression(literal  lit);
+
+expression*  makeFuncCallExpression(funcCall* call);
 
 
 // init functions for complex stack based structs
-// initExpression for each possible union type
-expression  initBinOpExpression(BinOp*  bo);
-
-expression  initUnaryOpExpression(unaryOp*  uo);
-
-expression  initLiteralExpression(literal  lit);
-
-expression  initFuncCallExpression(funcCall* call);
-
-
-
 // initStatement for each statement type
 statement  initVarDecStatement(varDec  dec);
 

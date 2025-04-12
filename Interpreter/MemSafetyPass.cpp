@@ -353,13 +353,22 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 						string rhsVar = rhsVars[0];
 
 						// check if the rhs is mut
-						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut() != NULL)
-							if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->mut()->getText() == "mut")
+						if (ctx->varDecRHS()->assignRHS()->rhsRef()->mut() != NULL)
+						{
+							if (ctx->varDecRHS()->assignRHS()->rhsRef()->mut()->getText() == "mut")
+							{
 								mutRef = true;
 
-						if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef() != NULL)
-							if (ctx->varDecRHS()->assignRHS()->expression()->factor()->var()->pointRef()->getText() == "&")
-								rhsRefSymbol = true;
+								//cout << "mutable reference\n";
+							}
+						}
+
+						if (ctx->varDecRHS()->getText().find("&") != string::npos)
+						{
+							rhsRefSymbol = true;
+
+							//cout << "rhs reference\n";
+						}
 
 						if (lhsMut)
 						{
@@ -899,11 +908,13 @@ void  MemSafetyPass::incrementStatements()
 		{
 			try
 			{
-				cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
+				//cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
 			}
 
 			catch (std::bad_variant_access const& ex)
 			{
+				(void)ex;
+
 				cout << "bad variant access\n";
 			}
 
@@ -917,12 +928,13 @@ void  MemSafetyPass::incrementStatements()
 		{
 			try
 			{
-				cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+				//cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
 			}
 
 			catch (std::bad_variant_access const& ex)
 			{
-				cout << "bad variant access\n";
+
+				cout << "Exception: " << ex.what() << endl;
 			}
 
 			// go to next variant to check if it's a sentinal
@@ -952,7 +964,7 @@ void  MemSafetyPass::incrementStatements()
 
 			catch (std::bad_variant_access const& ex)
 			{
-				cout << "bad variant access\n";
+				cout << "Exception: " << ex.what() << endl;
 			}
 
 			// go to next statement
@@ -965,12 +977,12 @@ void  MemSafetyPass::incrementStatements()
 			{
 				try
 				{
-					cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
+					//cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
 				}
 
 				catch (std::bad_variant_access const& ex)
 				{
-					cout << "bad variant access\n";
+					cout << "Exception: " << ex.what() << endl;
 				}
 
 				// go to next variant to check if it's a sentinal
@@ -983,12 +995,12 @@ void  MemSafetyPass::incrementStatements()
 			{
 				try
 				{
-					cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+					//cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
 				}
 
 				catch (std::bad_variant_access const& ex)
 				{
-					cout << "bad variant access\n";
+					cout << "Exception: " << ex.what() << endl;
 				}
 
 				// go to next variant to check if it's a sentinal

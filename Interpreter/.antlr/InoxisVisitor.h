@@ -73,9 +73,19 @@ public:
 
     virtual std::any visitAssignRHS(InoxisParser::AssignRHSContext *context) = 0;
 
-    virtual std::any visitExpression(InoxisParser::ExpressionContext *context) = 0;
+    virtual std::any visitRhsRef(InoxisParser::RhsRefContext *context) = 0;
 
-    virtual std::any visitFactor(InoxisParser::FactorContext *context) = 0;
+    virtual std::any visitAdd(InoxisParser::AddContext *context) = 0;
+
+    virtual std::any visitSubtract(InoxisParser::SubtractContext *context) = 0;
+
+    virtual std::any visitFactorSubRule(InoxisParser::FactorSubRuleContext *context) = 0;
+
+    virtual std::any visitVarLiteral(InoxisParser::VarLiteralContext *context) = 0;
+
+    virtual std::any visitNumLiteral(InoxisParser::NumLiteralContext *context) = 0;
+
+    virtual std::any visitFuncCallSubRule(InoxisParser::FuncCallSubRuleContext *context) = 0;
 
     virtual std::any visitWhile(InoxisParser::WhileContext *context) = 0;
 

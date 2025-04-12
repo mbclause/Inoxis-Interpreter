@@ -13,7 +13,7 @@ int main()
 int func1(int *param)
 {
 
-	int mut var = 7;
+	int mut var = 7 + 10 - -5;
 
 	int &ref = &mut var;
 

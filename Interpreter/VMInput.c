@@ -142,14 +142,118 @@ function* makeFunction(GArray* stats, GArray* syms)
 
 
 
+
+
+
+
+// init functions for complex stack based structs
+// initExpression for each possible union type
+expression*  makeBinOpExpression(BinOp*  bo)
+{
+	expression* newExp = (expression*)malloc(sizeof(expression));
+
+	if (newExp)
+	{
+		newExp->kind = EXPR_BIN;
+
+		newExp->val.binaryOp = *bo;
+	}
+
+	else
+	{
+		printf("malloc failed\n");
+	}
+
+	return newExp;
+}
+
+
+
+expression*  makeUnaryOpExpression(unaryOp*  uo)
+{
+
+	expression* newExp = (expression*)malloc(sizeof(expression));
+
+	if (newExp)
+	{
+		newExp->kind = EXPR_UNARY;
+
+		newExp->val.unary = *uo;
+	}
+
+	else
+	{
+		printf("malloc failed\n");
+	}
+
+	return newExp;
+}
+
+
+
+expression*  makeLiteralExpression(literal  lit)
+{
+	expression* newExp = (expression*)malloc(sizeof(expression));
+
+	if (newExp)
+	{
+		newExp->kind = EXPR_LIT;
+
+		newExp->val.litVal = lit;
+	}
+
+	else
+	{
+		printf("malloc failed\n");
+	}
+
+	return newExp;
+}
+
+
+
+expression*  makeFuncCallExpression(funcCall* call)
+{
+	expression* newExp = (expression*)malloc(sizeof(expression));
+
+	if (newExp)
+	{
+		newExp->kind = EXPR_CALL;
+
+		newExp->val.call = *call;
+	}
+
+	else
+	{
+		printf("malloc failed\n");
+	}
+
+	return newExp;
+}
+
+
+
 // corresponding free functions for each
+
+// free expression
+bool freeExpression(expression* exp)
+{
+	if(exp)
+		free(exp);
+
+	return true;
+}
+
+
+
 // freeUnaryOp
 bool  freeUnaryOp(unaryOp* uo)
 {
-	if(uo->exp)
+	if (uo->exp)
 		free(uo->exp);
 
-	free(uo);
+	if(uo)
+		free(uo);
 
 	return true;
 }
@@ -159,13 +263,14 @@ bool  freeUnaryOp(unaryOp* uo)
 // freeBinaryOp
 bool  freeBinOp(BinOp* bo)
 {
-	if(bo->lhs)
+	if (bo->lhs)
 		free(bo->lhs);
 
-	if(bo->rhs)
+	if (bo->rhs)
 		free(bo->rhs);
 
-	free(bo);
+	if(bo)
+		free(bo);
 
 	return true;
 }
@@ -175,10 +280,11 @@ bool  freeBinOp(BinOp* bo)
 // freeFuncCall
 bool  freeFuncCall(funcCall* _funcCall)
 {
-	if(_funcCall->arg)
+	if (_funcCall->arg)
 		free(_funcCall->arg);
 
-	free(_funcCall);
+	if(_funcCall)
+		free(_funcCall);
 
 	return true;
 }
@@ -217,60 +323,6 @@ bool freeFunction(function* func)
 		g_array_free(func->symbols, true);
 
 	return true;
-}
-
-
-
-// init functions for complex stack based structs
-// initExpression for each possible union type
-expression  initBinOpExpression(BinOp*  bo)
-{
-	expression newExp;
-
-	newExp.kind = EXPR_BIN;
-
-	newExp.val.binaryOp = *bo;
-
-	return newExp;
-}
-
-
-
-expression  initUnaryOpExpression(unaryOp*  uo)
-{
-	expression newExp;
-
-	newExp.kind = EXPR_UNARY;
-
-	newExp.val.unary = *uo;
-
-	return newExp;
-}
-
-
-
-expression  initLiteralExpression(literal  lit)
-{
-	expression newExp;
-
-	newExp.kind = EXPR_LIT;
-
-	newExp.val.litVal = lit;
-
-	return newExp;
-}
-
-
-
-expression  initFuncCallExpression(funcCall* call)
-{
-	expression newExp;
-
-	newExp.kind = EXPR_CALL;
-
-	newExp.val.call = *call;
-
-	return newExp;
 }
 
 

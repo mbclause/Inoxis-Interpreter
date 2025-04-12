@@ -97,11 +97,26 @@ public:
   virtual void enterAssignRHS(InoxisParser::AssignRHSContext * /*ctx*/) override { }
   virtual void exitAssignRHS(InoxisParser::AssignRHSContext * /*ctx*/) override { }
 
-  virtual void enterExpression(InoxisParser::ExpressionContext * /*ctx*/) override { }
-  virtual void exitExpression(InoxisParser::ExpressionContext * /*ctx*/) override { }
+  virtual void enterRhsRef(InoxisParser::RhsRefContext * /*ctx*/) override { }
+  virtual void exitRhsRef(InoxisParser::RhsRefContext * /*ctx*/) override { }
 
-  virtual void enterFactor(InoxisParser::FactorContext * /*ctx*/) override { }
-  virtual void exitFactor(InoxisParser::FactorContext * /*ctx*/) override { }
+  virtual void enterAdd(InoxisParser::AddContext * /*ctx*/) override { }
+  virtual void exitAdd(InoxisParser::AddContext * /*ctx*/) override { }
+
+  virtual void enterSubtract(InoxisParser::SubtractContext * /*ctx*/) override { }
+  virtual void exitSubtract(InoxisParser::SubtractContext * /*ctx*/) override { }
+
+  virtual void enterFactorSubRule(InoxisParser::FactorSubRuleContext * /*ctx*/) override { }
+  virtual void exitFactorSubRule(InoxisParser::FactorSubRuleContext * /*ctx*/) override { }
+
+  virtual void enterVarLiteral(InoxisParser::VarLiteralContext * /*ctx*/) override { }
+  virtual void exitVarLiteral(InoxisParser::VarLiteralContext * /*ctx*/) override { }
+
+  virtual void enterNumLiteral(InoxisParser::NumLiteralContext * /*ctx*/) override { }
+  virtual void exitNumLiteral(InoxisParser::NumLiteralContext * /*ctx*/) override { }
+
+  virtual void enterFuncCallSubRule(InoxisParser::FuncCallSubRuleContext * /*ctx*/) override { }
+  virtual void exitFuncCallSubRule(InoxisParser::FuncCallSubRuleContext * /*ctx*/) override { }
 
   virtual void enterWhile(InoxisParser::WhileContext * /*ctx*/) override { }
   virtual void exitWhile(InoxisParser::WhileContext * /*ctx*/) override { }

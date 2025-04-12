@@ -16,10 +16,12 @@ struct sentinal
 {
 	string varName;
 
-	bool   isBorrow;
+	bool   heapAllocation;
 };
 
 
+
+// need to actually set heapAllocation in sentinal 
 
 // Class Definition: MemSafetyPass
 class MemSafetyPass : public InoxisBaseListener

@@ -31,7 +31,7 @@ funcCallFactor: ID '(' arg ')';
 // variable uses
 param: 'int' pointRef mut ID subscript;
 
-var: pointRef mut ID array;
+var: pointRef ID array;
 
 varDec: 'int' pointRef mut ID array varDecRHS ';';
 
@@ -57,7 +57,7 @@ out: ('<<' (STRING_LITERAL | var | 'endl'))*;
 // return statement
 return: 'return' retVal ';';
 
-retVal: INT | var | expression;
+retVal: expression;
 
 
 
@@ -76,13 +76,23 @@ allocate: 'new' 'int' array;
 // right hand side defs
 varDecRHS: ('=' assignRHS)?;
 
-assignRHS: expression | allocate;
+assignRHS: rhsRef | expression | allocate;
+
+rhsRef: '&' mut ID;
 
 
-// expressions
-expression: expression '+' expression | expression '-' expression | factor;
+// expressions 
+expression: 
+expression '+' expression       # Add
+| expression '-' expression     # Subtract
+| factor                        # factorSubRule               
+;
 
-factor: var | INT | '(' expression ')' | funcCallFactor;
+factor: 
+var                 # VarLiteral          
+| INT               # NumLiteral
+| funcCallFactor    # funcCallSubRule
+;
 
 
 // control flow blocks

@@ -27,9 +27,9 @@ public:
     RuleStatement = 14, RuleAssign = 15, RulePrint = 16, RuleOut = 17, RuleReturn = 18, 
     RuleRetVal = 19, RuleMut = 20, RulePointRef = 21, RuleSubscript = 22, 
     RuleArray = 23, RuleAllocate = 24, RuleVarDecRHS = 25, RuleAssignRHS = 26, 
-    RuleExpression = 27, RuleFactor = 28, RuleWhile = 29, RuleIfElseBlock = 30, 
-    RuleElif = 31, RuleElse = 32, RuleCondition = 33, RuleNot = 34, RuleCondOp = 35, 
-    RuleCondRHS = 36
+    RuleRhsRef = 27, RuleExpression = 28, RuleFactor = 29, RuleWhile = 30, 
+    RuleIfElseBlock = 31, RuleElif = 32, RuleElse = 33, RuleCondition = 34, 
+    RuleNot = 35, RuleCondOp = 36, RuleCondRHS = 37
   };
 
   explicit InoxisParser(antlr4::TokenStream *input);
@@ -76,6 +76,7 @@ public:
   class AllocateContext;
   class VarDecRHSContext;
   class AssignRHSContext;
+  class RhsRefContext;
   class ExpressionContext;
   class FactorContext;
   class WhileContext;
@@ -260,7 +261,6 @@ public:
     VarContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     PointRefContext *pointRef();
-    MutContext *mut();
     antlr4::tree::TerminalNode *ID();
     ArrayContext *array();
 
@@ -414,8 +414,6 @@ public:
   public:
     RetValContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *INT();
-    VarContext *var();
     ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -518,6 +516,7 @@ public:
   public:
     AssignRHSContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    RhsRefContext *rhsRef();
     ExpressionContext *expression();
     AllocateContext *allocate();
 
@@ -530,13 +529,12 @@ public:
 
   AssignRHSContext* assignRHS();
 
-  class  ExpressionContext : public antlr4::ParserRuleContext {
+  class  RhsRefContext : public antlr4::ParserRuleContext {
   public:
-    ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    RhsRefContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    FactorContext *factor();
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
+    MutContext *mut();
+    antlr4::tree::TerminalNode *ID();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -545,22 +543,102 @@ public:
    
   };
 
+  RhsRefContext* rhsRef();
+
+  class  ExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    ExpressionContext() = default;
+    void copyFrom(ExpressionContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  AddContext : public ExpressionContext {
+  public:
+    AddContext(ExpressionContext *ctx);
+
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  SubtractContext : public ExpressionContext {
+  public:
+    SubtractContext(ExpressionContext *ctx);
+
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  FactorSubRuleContext : public ExpressionContext {
+  public:
+    FactorSubRuleContext(ExpressionContext *ctx);
+
+    FactorContext *factor();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   ExpressionContext* expression();
   ExpressionContext* expression(int precedence);
   class  FactorContext : public antlr4::ParserRuleContext {
   public:
     FactorContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    VarContext *var();
-    antlr4::tree::TerminalNode *INT();
-    ExpressionContext *expression();
-    FuncCallFactorContext *funcCallFactor();
+   
+    FactorContext() = default;
+    void copyFrom(FactorContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
 
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  VarLiteralContext : public FactorContext {
+  public:
+    VarLiteralContext(FactorContext *ctx);
+
+    VarContext *var();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
+  };
+
+  class  FuncCallSubRuleContext : public FactorContext {
+  public:
+    FuncCallSubRuleContext(FactorContext *ctx);
+
+    FuncCallFactorContext *funcCallFactor();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NumLiteralContext : public FactorContext {
+  public:
+    NumLiteralContext(FactorContext *ctx);
+
+    antlr4::tree::TerminalNode *INT();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   FactorContext* factor();

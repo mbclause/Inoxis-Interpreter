@@ -31,7 +31,7 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 	{
 		auto s = tree->toStringTree(&parser);
 
-		cout << "Parse Tree: " << s << endl;
+		//cout << "Parse Tree: " << s << endl;
 
 		antlr4::tree::ParseTreeWalker walker;
 
@@ -45,13 +45,15 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 			if (memPass._numErrors == 0)
 			{
+				cout << "\n\nvm input pass\n";
+
 				// output of this walk will be a GArray of function structs
 				// this will be passed to the VM
 				VMInputPass  vmInput(memPass.statLists, symTable.treeFuncSymbols);
 
-				vmInput.test();
+				//vmInput.test();
 
-				//walker.walk(&vmInput, tree);
+				walker.walk(&vmInput, tree);
 			}
 		}
 	}
