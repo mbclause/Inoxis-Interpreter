@@ -25,10 +25,6 @@ vector<string>  MemSafetyPass::getPrintVars(InoxisParser::PrintContext* ctx)
 			}
 		}
 
-	for (int j = 0; j < vars.size(); j++)
-		cout << vars[j] << " ";
-
-	cout << endl;
 
 	return vars;
 }
@@ -188,7 +184,7 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 
 	vector<string> rhsVars = getVars(rhsText);
 
-	int numRHSVars = rhsVars.size();
+	size_t numRHSVars = rhsVars.size();
 
 	// first, check the read permissions for any variables on the right hand side
 	if (!checkReadPermissions(rhsVars))
@@ -205,14 +201,14 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 			{
 				currentFunction.locals[varName].setPermissions(read | write | own, false);
 
-				cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				//cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
 			}
 
 			else
 			{
 				currentFunction.locals[varName].setPermissions(read | own, false);
 
-				cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
+				//cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
 			}
 
 			// if the lhs is initialized with another pointer, the rhs pointer is dropped
@@ -266,7 +262,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 			vector<string> rhsVars = getVars(rhsText);
 
-			int numRHSVars = rhsVars.size();
+			size_t numRHSVars = rhsVars.size();
 
 			// first, check the read permissions for any variables on the right hand side
 			if (!checkReadPermissions(rhsVars))
@@ -289,16 +285,16 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					{
 						currentFunction.locals[varName].setPermissions(read | write | own, false);
 
-						cout << "init: " << varName << ". Permissions: " << 
-							currentFunction.locals[varName].memPermissions << endl;
+						//cout << "init: " << varName << ". Permissions: " << 
+							//currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					else
 					{
 						currentFunction.locals[varName].setPermissions(read | own, false);
 
-						cout << "init: " << varName << ". Permissions: " << 
-							currentFunction.locals[varName].memPermissions << endl;
+						//cout << "init: " << varName << ". Permissions: " << 
+							//currentFunction.locals[varName].memPermissions << endl;
 					}
 				}
 
@@ -314,16 +310,16 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					{
 						currentFunction.locals[varName].setPermissions(read | write | own, false);
 
-						cout << "init: " << varName << ". Permissions: " << 
-							currentFunction.locals[varName].memPermissions << endl;
+						//cout << "init: " << varName << ". Permissions: " << 
+							//currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					else
 					{
 						currentFunction.locals[varName].setPermissions(read | own, false);
 
-						cout << "init: " << varName << ". Permissions: " << 
-							currentFunction.locals[varName].memPermissions << endl;
+						//cout << "init: " << varName << ". Permissions: " << 
+							//currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					// if the lhs is initialized with another pointer, the rhs pointer is dropped
@@ -403,10 +399,10 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 								// borrower data gains r/w/o
 								currentFunction.locals[varName].setPermissions(read | write | own, true);
 
-								cout << "init: " << varName << ". Permissions: " << 
+								/*cout << "init: " << varName << ". Permissions: " <<
 									currentFunction.locals[varName].memPermissions
 									<< ". Place permissions: " << 
-									currentFunction.locals[varName].placeMemPermissions << endl;
+									currentFunction.locals[varName].placeMemPermissions << endl;*/
 							}
 
 							else
@@ -426,10 +422,10 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 								// borrower data gains r
 								currentFunction.locals[varName].setPermissions(read, true);
 
-								cout << "init: " << varName << ". Permissions: " <<
+								/*cout << "init: " << varName << ". Permissions: " <<
 									currentFunction.locals[varName].memPermissions
 									<< ". Place permissions: " <<
-									currentFunction.locals[varName].placeMemPermissions << endl;
+									currentFunction.locals[varName].placeMemPermissions << endl;*/
 							}
 						}
 					}
@@ -521,7 +517,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 	inFuncDef = true;
 
-	cout << "MAIN\n";
+	//cout << "MAIN\n";
 
 	// sentinel drops permissions for borower and regains for borowee
 
@@ -631,7 +627,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	currentFunction = functions.get(ctx);
 
-	cout << endl << currentFunction.getName() << endl;
+	//cout << endl << currentFunction.getName() << endl;
 
 	// sentinel drops permissions for borower and regains for borowee
 
@@ -807,8 +803,7 @@ bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContex
 			catch (std::bad_variant_access const& ex)
 			{
 
-
-				cout << "bad variant access\n";
+				cout << "Exception: " << ex.what() << endl;
 			}
 		}
 	}
@@ -913,9 +908,8 @@ void  MemSafetyPass::incrementStatements()
 
 			catch (std::bad_variant_access const& ex)
 			{
-				(void)ex;
 
-				cout << "bad variant access\n";
+				cout << "Exception: " << ex.what() << endl;
 			}
 
 			// go to next variant to check if it's a sentinal
@@ -959,7 +953,7 @@ void  MemSafetyPass::incrementStatements()
 
 				dropVar(currentSentinal.varName);
 
-				cout << currentSentinal.varName << " dropped \n";
+				//cout << currentSentinal.varName << " dropped \n";
 			}
 
 			catch (std::bad_variant_access const& ex)

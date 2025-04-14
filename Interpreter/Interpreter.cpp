@@ -25,7 +25,7 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 	int numLexErrors = lexer.getErrorCount();
 
-	int numParseErrors = parser.getNumberOfSyntaxErrors();
+	size_t numParseErrors = parser.getNumberOfSyntaxErrors();
 
 	if (numLexErrors + numParseErrors == 0)
 	{

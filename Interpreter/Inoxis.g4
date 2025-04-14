@@ -85,13 +85,9 @@ rhsRef: '&' mut ID;
 expression: 
 expression '+' expression       # Add
 | expression '-' expression     # Subtract
-| factor                        # factorSubRule               
-;
-
-factor: 
-var                 # VarLiteral          
-| INT               # NumLiteral
-| funcCallFactor    # funcCallSubRule
+| var                           # VarLiteral
+| INT                           # NumLiteral
+| funcCallFactor                # funcCallExp                               
 ;
 
 

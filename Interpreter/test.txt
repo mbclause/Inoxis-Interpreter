@@ -1,33 +1,22 @@
 
 
-int func1(int *param);
-
-int func2(int *param);
+int  func1(int param);
 
 int main()
 {
+	int mut var = 7 + 10;
 
 	return 0;
 }
 
-int func1(int *param)
+int  func1(int param)
 {
+	int var1;
 
-	int mut var = 7 + 10 - -5;
+	int var2;
 
-	int &ref = &mut var;
+	int var3;
 
-	*ref = 8;
-	
-	cout << "stuffaasdf" << var;
-
-	return 0;
-}
-
-
-
-int func2(int *param)
-{
 	return 0;
 }
 

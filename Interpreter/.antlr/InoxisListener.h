@@ -98,23 +98,20 @@ public:
   virtual void enterRhsRef(InoxisParser::RhsRefContext *ctx) = 0;
   virtual void exitRhsRef(InoxisParser::RhsRefContext *ctx) = 0;
 
-  virtual void enterAdd(InoxisParser::AddContext *ctx) = 0;
-  virtual void exitAdd(InoxisParser::AddContext *ctx) = 0;
-
-  virtual void enterSubtract(InoxisParser::SubtractContext *ctx) = 0;
-  virtual void exitSubtract(InoxisParser::SubtractContext *ctx) = 0;
-
-  virtual void enterFactorSubRule(InoxisParser::FactorSubRuleContext *ctx) = 0;
-  virtual void exitFactorSubRule(InoxisParser::FactorSubRuleContext *ctx) = 0;
-
   virtual void enterVarLiteral(InoxisParser::VarLiteralContext *ctx) = 0;
   virtual void exitVarLiteral(InoxisParser::VarLiteralContext *ctx) = 0;
+
+  virtual void enterAdd(InoxisParser::AddContext *ctx) = 0;
+  virtual void exitAdd(InoxisParser::AddContext *ctx) = 0;
 
   virtual void enterNumLiteral(InoxisParser::NumLiteralContext *ctx) = 0;
   virtual void exitNumLiteral(InoxisParser::NumLiteralContext *ctx) = 0;
 
-  virtual void enterFuncCallSubRule(InoxisParser::FuncCallSubRuleContext *ctx) = 0;
-  virtual void exitFuncCallSubRule(InoxisParser::FuncCallSubRuleContext *ctx) = 0;
+  virtual void enterSubtract(InoxisParser::SubtractContext *ctx) = 0;
+  virtual void exitSubtract(InoxisParser::SubtractContext *ctx) = 0;
+
+  virtual void enterFuncCallExp(InoxisParser::FuncCallExpContext *ctx) = 0;
+  virtual void exitFuncCallExp(InoxisParser::FuncCallExpContext *ctx) = 0;
 
   virtual void enterWhile(InoxisParser::WhileContext *ctx) = 0;
   virtual void exitWhile(InoxisParser::WhileContext *ctx) = 0;

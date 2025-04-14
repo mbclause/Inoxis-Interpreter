@@ -1,10 +1,191 @@
 #include "VMInputPass.h"
 
 
+/*
+Function: exitNumLiteral
+Description: get the number and create a new literal struct with it, then add it to the rule context for it's parent
+*/
+void VMInputPass::exitNumLiteral(InoxisParser::NumLiteralContext* ctx)
+{
+	// get the number
+	int num = stoi(ctx->INT()->getText());
+
+	literal numLiteral;
+
+	numLiteral.number = num;
+
+	expression exp = initLiteralExpression(numLiteral);
+
+	//cout << exp.val.litVal.number << endl;
+
+	expProp.put(ctx, exp);
+}
+
+
+
+/*
+Function: exitVarLiteral
+Description: lookup index for variable in locals garray, use that to create an expression and pass it up
+*/
+void VMInputPass::exitVarLiteral(InoxisParser::VarLiteralContext* ctx)
+{
+	string varName = ctx->var()->ID()->getText();
+
+	unsigned varIndex = currentLocalsMap[varName];
+
+	literal varLiteral;
+
+	varLiteral.varIndex = varIndex;
+
+	expression exp = initLiteralExpression(varLiteral);
+
+	expProp.put(ctx, exp);
+}
+
+
+
+/*
+Function: exitAdd
+Description: get the two expression operands and store them in a new BinOp expression
+*/
+void VMInputPass::exitAdd(InoxisParser::AddContext* ctx)
+{
+	expression left = expProp.get(ctx->expression(0));
+
+	expression* leftPtr = makeExpression(left);
+
+	expression right = expProp.get(ctx->expression(1));
+
+	expression* rightPtr = makeExpression(right);
+
+	BinOp* newBinOp = makeBinOp(ADD, leftPtr, rightPtr);
+
+	// nestle data into ast
+	binaryOpProp.put(ctx, *newBinOp);
+
+	// free the binOp pointer
+	freeBinOp(newBinOp);
+
+	//cout << left.val.litVal.number << " + " << right.val.litVal.number << endl;
+}
+
+
+
+/*
+Function: exitSubtract
+Description: same as addition, just change OP
+*/
+void VMInputPass::exitSubtract(InoxisParser::SubtractContext* ctx)
+{
+	expression left = expProp.get(ctx->expression(0));
+
+	expression* leftPtr = makeExpression(left);
+
+	expression right = expProp.get(ctx->expression(1));
+
+	expression* rightPtr = makeExpression(right);
+
+	BinOp* newBinOp = makeBinOp(SUBTRACT, leftPtr, rightPtr);
+
+	// nestle data into ast
+	binaryOpProp.put(ctx, *newBinOp);
+
+	// free the binOp pointer
+	freeBinOp(newBinOp);
+}
+
+
+
+/*
+Function: enterFuncDef
+Description: 
+*/
+void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
+{
+	cout << endl << ctx->ID()->getText() << endl;
+
+	GArray*  localSymbols = g_array_new(false, false, sizeof(unsigned));
+
+	// get the function symbol
+	funcSymbol currentFunction = symbolTables.get(ctx);
+
+	// create a new map from var names to array indices
+	map<string, int>  locals;
+
+	// add parameter first
+	locals[currentFunction._paramName] = 0;
+
+	int i = 1;
+
+	// loop through the locals and make a new array from their names
+	for (auto item : currentFunction.locals)
+	{
+		locals[item.first] = i;
+
+		i++;
+	}
+
+	// push a zero to the garray for each locals
+	for (auto item : locals)
+	{
+		g_array_append_val(localSymbols, zero);
+	}
+
+	currentSymbolsGArray = localSymbols;
+
+	currentStatList = statLists.get(ctx); 
+
+	currentFuncIndex++;
+}
+
+
+
+/*
+Function: enterMain
+Description:
+*/
+void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
+{
+	cout << "\nmain\n"; 
+
+	funcSymbol currentFunction = symbolTables.get(ctx);
+
+	GArray* localSymbols = g_array_new(false, false, sizeof(unsigned));
+
+	// create a new map from var names to array indices
+	map<string, int>  locals;
+
+	int i = 0;
+
+	// loop through the locals and make a new array from their names
+	for (auto item : currentFunction.locals)
+	{
+		locals[item.first] = i;
+
+		i++;
+	}
+
+	// push a zero to the garray for each locals
+	for (auto item : locals)
+	{
+		g_array_append_val(localSymbols, zero);
+	}
+
+	currentSymbolsGArray = localSymbols;
+	
+	currentStatList = statLists.get(ctx);
+}
 
 
 
 
+
+
+
+
+// function: incrementStatements
+// every time this is called by exitStatement, we need to print that statement, then loop through any following
+// sentinels, dropping all of those permissions
 void  VMInputPass::incrementStatements()
 {
 	bool statementPrinted = false;
@@ -128,75 +309,3 @@ void  VMInputPass::incrementStatements()
 
 
 
-void  VMInputPass::test()
-{
-	// create statements array
-	GArray* statements = g_array_new(false, false, sizeof(statement));
-
-	// create symbols array
-	GArray* symbols = g_array_new(false, false, sizeof(int));
-
-	// create functions array
-	GArray* functions = g_array_new(false, false, sizeof(function));
-
-	int zero = 0;
-
-	// make expression 6 + 7
-	literal a;
-
-	a.number = 6;
-
-	expression* aExp = makeLiteralExpression(a);
-
-	literal b;
-
-	b.number = 7;
-
-	expression* bExp = makeLiteralExpression(b);
-
-	BinOp* result = makeBinOp(ADD, aExp, bExp);
-
-	expression* res = makeBinOpExpression(result);
-
-
-	// now create a variable to assign res to
-	// var = 6 + 7
-	literal var;
-
-	var.varIndex = 0;
-
-	// create a new entry in the symbol table (0 by default)
-	g_array_append_val(symbols, zero);
-
-	// use that to create a literal expression
-	expression* lhs = makeLiteralExpression(var);
-
-	// create new variable declaration statement with the expressions
-	varDec  newVarDec{ false, 0, *lhs, *res };
-
-	// create a new statement using that
-	statement newStatement = initVarDecStatement(newVarDec);
-
-	g_array_append_val(statements, newStatement);
-
-	// create new function
-	function* newFunc = makeFunction(statements, symbols);
-
-	g_array_append_val(functions, newFunc);
-
-
-	if (res->kind == EXPR_BIN)
-		cout << res->val.binaryOp.lhs->val.litVal.number << " + " << res->val.binaryOp.rhs->val.litVal.number << endl;
-
-	// this free aExp and bExp as well
-	freeBinOp(result);
-
-	free(res);
-
-	free(lhs);
-
-	freeFunction(newFunc);
-
-	g_array_free(functions, true);
-
-}

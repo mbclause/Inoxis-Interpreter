@@ -167,6 +167,17 @@ expression*  makeBinOpExpression(BinOp*  bo)
 	return newExp;
 }
 
+expression   initBinOpExpression(BinOp* bo)
+{
+	expression newExp;
+
+	newExp.kind = EXPR_BIN;
+
+	newExp.val.binaryOp = *bo;
+
+	return  newExp;
+}
+
 
 
 expression*  makeUnaryOpExpression(unaryOp*  uo)
@@ -187,6 +198,18 @@ expression*  makeUnaryOpExpression(unaryOp*  uo)
 	}
 
 	return newExp;
+}
+
+
+expression   initUnaryOpExpression(unaryOp* uo)
+{
+	expression newExp;
+
+	newExp.kind = EXPR_UNARY;
+
+	newExp.val.unary = *uo;
+
+	return  newExp;
 }
 
 
@@ -212,6 +235,19 @@ expression*  makeLiteralExpression(literal  lit)
 
 
 
+expression   initLiteralExpression(literal lit)
+{
+	expression newExp;
+
+	newExp.kind = EXPR_LIT;
+
+	newExp.val.litVal = lit;
+
+	return  newExp;
+}
+
+
+
 expression*  makeFuncCallExpression(funcCall* call)
 {
 	expression* newExp = (expression*)malloc(sizeof(expression));
@@ -221,6 +257,35 @@ expression*  makeFuncCallExpression(funcCall* call)
 		newExp->kind = EXPR_CALL;
 
 		newExp->val.call = *call;
+	}
+
+	else
+	{
+		printf("malloc failed\n");
+	}
+
+	return newExp;
+}
+
+expression  initFuncCallExpression(funcCall* call)
+{
+	expression newExp;
+
+	newExp.kind = EXPR_CALL;
+
+	newExp.val.call = *call;
+
+	return  newExp;
+}
+
+
+expression* makeExpression(expression exp)
+{
+	expression* newExp = (expression*)malloc(sizeof(expression));
+
+	if (newExp)
+	{
+		*newExp = exp;
 	}
 
 	else

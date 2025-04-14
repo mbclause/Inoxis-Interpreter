@@ -250,14 +250,25 @@ bool freeExpression(expression* exp);
 
 
 
-// makeExpression for each possible union type
+// makeExpression and initExpression for each possible union type
 expression*  makeBinOpExpression(BinOp*  bo);
+
+expression   initBinOpExpression(BinOp* bo);
 
 expression*  makeUnaryOpExpression(unaryOp*  uo);
 
+expression   initUnaryOpExpression(unaryOp* uo);
+
 expression*  makeLiteralExpression(literal  lit);
 
+expression   initLiteralExpression(literal lit);
+
 expression*  makeFuncCallExpression(funcCall* call);
+
+expression  initFuncCallExpression(funcCall* call);
+
+// initialize a pointer to an expression with another (local) expression
+expression* makeExpression(expression exp);
 
 
 // init functions for complex stack based structs

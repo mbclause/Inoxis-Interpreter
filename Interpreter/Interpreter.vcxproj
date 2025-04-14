@@ -149,6 +149,7 @@ gthread-2.0.lib
     <ClCompile Include=".antlr\InoxisListener.cpp" />
     <ClCompile Include=".antlr\InoxisParser.cpp" />
     <ClCompile Include=".antlr\InoxisVisitor.cpp" />
+    <ClCompile Include="c_practice.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="MemSafetyPass.cpp" />
     <ClCompile Include="myLexer.cpp" />
