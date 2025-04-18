@@ -87,6 +87,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitPrintLiteral(InoxisParser::PrintLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitReturn(InoxisParser::ReturnContext *ctx) override {
     return visitChildren(ctx);
   }

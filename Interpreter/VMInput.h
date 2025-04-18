@@ -9,7 +9,8 @@ typedef struct expression expression;
 // OP - Operators
 typedef enum 
 {
-    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, POINTER, REF, MUT_REF, BRACKETS, NONE
+    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, 
+    POINTER, REF, MUT_REF, BRACKETS, NOT_EQUAL, NEW, EQUALS, NONE
 
 } OP;
 
@@ -18,26 +19,37 @@ typedef enum
 // STAT_TYPE - Statement types
 typedef enum 
 {
-    VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN
+    VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE
 
 } STAT_TYPE;
 
 
 typedef enum
 {
-    EXPR_BIN, EXPR_LIT, EXPR_UNARY, EXPR_CALL
+    EXPR_BIN, EXPR_LIT, EXPR_UNARY, EXPR_CALL, EXPR_NONE
 } EXPR_KIND;
+
+
+typedef enum
+{
+    STRING_LIT, NUMBER_LIT, VARIABLE_LIT
+} LIT_KIND;
 
 
 
 // literal union - Literals
-typedef union 
+typedef struct 
 {
-    GString* string;
+    LIT_KIND kind;
 
-    int number;
+    union
+    {
+        GString* string;
 
-    unsigned varIndex;
+        int number;
+
+        unsigned varIndex;
+    } val;
 
 } literal;
 
@@ -101,6 +113,7 @@ struct expression
 // controlFlow
 typedef struct 
 {
+    // of type statement
     GArray* statements;
 
     expression condition;
@@ -111,6 +124,10 @@ typedef struct
 // assign
 typedef struct 
 {
+    bool heapAlloc;
+
+    size_t allocSize;
+
     expression lhs;
 
     expression rhs;
@@ -139,6 +156,8 @@ typedef struct
 {
     bool heapAlloc;
 
+    bool hasRHS;
+
     size_t allocSize;
 
     expression lhs;
@@ -151,7 +170,7 @@ typedef struct
 // print
 typedef struct 
 {
-    // of type literal
+    // of type expression
     GArray* literals; 
 } print;
 
@@ -171,13 +190,15 @@ typedef union
 
     Return  retVal;
 
+    funcCall  call;
+
 } values;
 
 
 // statement
 typedef struct 
 {
-    enum STAT_TYPE statType;
+    STAT_TYPE statType;
 
     values vals;
 
@@ -246,6 +267,8 @@ bool freeFunction(function* func);
 
 bool freeExpression(expression* exp);
 
+bool freeStringLiteral(literal lit);
+
 
 
 
@@ -271,6 +294,9 @@ expression  initFuncCallExpression(funcCall* call);
 expression* makeExpression(expression exp);
 
 
+expression  initEmptyExpression();
+
+
 // init functions for complex stack based structs
 // initStatement for each statement type
 statement  initVarDecStatement(varDec  dec);
@@ -284,6 +310,52 @@ statement  initPrintStatement(print  _print);
 statement  initFreeStatement(freeType  _free);
 
 statement  initReturnStatement(Return  ret);
+
+statement  initFuncCallStatement(funcCall* call);
+
+
+// init literal types
+literal  initNumberLiteral(int num);
+
+
+literal  initStringLiteral(GString* newString);
+
+
+literal  initVarLiteral(unsigned  index);
+
+
+
+// functions for printing expression and statement structs
+void  printExpression(expression exp);
+
+void  printStatement(statement stat);
+
+// expression types
+void printBinOp(BinOp bo);
+
+void printUnary(unaryOp uo);
+
+void PrintLiteral(literal  lit);
+
+void printFuncCall(funcCall func);
+
+
+// statement types
+void printAssign(assign  a);
+
+void printVarDec(varDec  vd);
+
+void printControlFlow(controlFlow  cf);
+
+void  printFree(freeType f);
+
+void  printPrintStat(print p);
+
+void  printReturn(Return r);
+
+
+// print the operator
+void  printOperator(OP op);
 
 #ifdef __cplusplus
 }

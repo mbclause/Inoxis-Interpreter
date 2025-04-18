@@ -48,6 +48,9 @@
     <ClCompile Include="VMInput.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="c_practice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include=".antlr\InoxisBaseListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,9 +67,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisVisitor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="c_practice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

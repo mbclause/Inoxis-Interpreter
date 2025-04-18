@@ -43,6 +43,8 @@ public:
 
 	bool hasBeenDropped;
 
+	bool ownsHeapData;
+
 	//funcSymbol parentFunction;
 
 	DataType::DATA_TYPE dataType;
@@ -57,15 +59,20 @@ public:
 	// the name of the variable that is borrowed from (if isBorrow is set)
 	string  borrowee;
 
+	int arraySize;
+
 
 
 	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
-		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee(""), hasBeenDropped(false) {};
+		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee(""), hasBeenDropped(false), arraySize(0),
+		ownsHeapData(false)
+	{};
 
 	varSymbol(string name, bool mut, bool memSafety, bool isArray, DataType::DATA_TYPE data, 
-		MemFlags memflags, MemFlags place, bool borrow) :
+		MemFlags memflags, MemFlags place, bool borrow, int size) :
 		_name(name), _isMutable(mut), _needsMemSafety(memSafety), _isArray(isArray), 
-		dataType(data), memPermissions(memflags), placeMemPermissions(place), isBorrow(borrow), hasBeenDropped(false)
+		dataType(data), memPermissions(memflags), placeMemPermissions(place), isBorrow(borrow), 
+		hasBeenDropped(false), arraySize(size), ownsHeapData(false)
 	{};
 
 	void printVarSymbol();

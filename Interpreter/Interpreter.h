@@ -38,4 +38,6 @@ public:
 	void run(antlr4::ANTLRInputStream input);
 
 	void report_error(ERROR_TYPE type, int line);
+
+	void printVMInput(GArray* input);
 };

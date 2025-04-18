@@ -55,6 +55,8 @@ public:
 
     virtual std::any visitOut(InoxisParser::OutContext *context) = 0;
 
+    virtual std::any visitPrintLiteral(InoxisParser::PrintLiteralContext *context) = 0;
+
     virtual std::any visitReturn(InoxisParser::ReturnContext *context) = 0;
 
     virtual std::any visitRetVal(InoxisParser::RetValContext *context) = 0;

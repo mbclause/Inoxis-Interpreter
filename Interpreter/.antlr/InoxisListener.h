@@ -68,6 +68,9 @@ public:
   virtual void enterOut(InoxisParser::OutContext *ctx) = 0;
   virtual void exitOut(InoxisParser::OutContext *ctx) = 0;
 
+  virtual void enterPrintLiteral(InoxisParser::PrintLiteralContext *ctx) = 0;
+  virtual void exitPrintLiteral(InoxisParser::PrintLiteralContext *ctx) = 0;
+
   virtual void enterReturn(InoxisParser::ReturnContext *ctx) = 0;
   virtual void exitReturn(InoxisParser::ReturnContext *ctx) = 0;
 

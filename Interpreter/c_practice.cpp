@@ -9,7 +9,7 @@ void test();
 void  test()
 {
 	// create statements array
-	GArray* statements = g_array_new(false, false, sizeof(statement));
+	/*GArray* statements = g_array_new(false, false, sizeof(statement));
 
 	// create symbols array
 	GArray* symbols = g_array_new(false, false, sizeof(int));
@@ -76,5 +76,5 @@ void  test()
 	freeFunction(newFunc);
 
 	g_array_free(functions, true);
-
+	*/
 }

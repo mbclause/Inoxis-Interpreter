@@ -55,10 +55,10 @@ void inoxisParserInitialize() {
     std::vector<std::string>{
       "program", "funcDecs", "main", "funcDefs", "statList", "funcDec", 
       "funcDef", "funcCall", "funcCallFactor", "param", "var", "varDec", 
-      "arg", "index", "statement", "assign", "print", "out", "return", "retVal", 
-      "mut", "pointRef", "subscript", "array", "allocate", "varDecRHS", 
-      "assignRHS", "rhsRef", "expression", "while", "ifElseBlock", "elif", 
-      "else", "condition", "not", "condOp", "condRHS"
+      "arg", "index", "statement", "assign", "print", "out", "printLiteral", 
+      "return", "retVal", "mut", "pointRef", "subscript", "array", "allocate", 
+      "varDecRHS", "assignRHS", "rhsRef", "expression", "while", "ifElseBlock", 
+      "elif", "else", "condition", "not", "condOp", "condRHS"
     },
     std::vector<std::string>{
       "", "'int'", "'main'", "'('", "')'", "'{'", "'}'", "';'", "'='", "'cout'", 
@@ -73,99 +73,97 @@ void inoxisParserInitialize() {
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,37,303,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,37,299,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
   	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
   	28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,7,33,2,34,7,34,2,35,7,
-  	35,2,36,7,36,1,0,1,0,1,0,1,0,1,0,1,1,5,1,81,8,1,10,1,12,1,84,9,1,1,2,
-  	1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,3,5,3,96,8,3,10,3,12,3,99,9,3,1,4,5,
-  	4,102,8,4,10,4,12,4,105,9,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,6,1,6,1,
-  	6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,1,7,1,8,1,8,1,8,
-  	1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,
-  	11,1,11,1,11,1,11,1,11,1,12,1,12,3,12,157,8,12,1,13,1,13,1,14,1,14,1,
-  	14,1,14,1,14,1,14,3,14,167,8,14,1,15,1,15,1,15,1,15,1,15,1,16,1,16,1,
-  	16,1,16,1,16,3,16,179,8,16,1,16,1,16,1,16,1,17,1,17,1,17,1,17,3,17,188,
-  	8,17,5,17,190,8,17,10,17,12,17,193,9,17,1,18,1,18,1,18,1,18,1,19,1,19,
-  	1,20,3,20,202,8,20,1,21,3,21,205,8,21,1,22,3,22,208,8,22,1,23,1,23,1,
-  	23,1,23,3,23,214,8,23,1,24,1,24,1,24,1,24,1,25,1,25,3,25,222,8,25,1,26,
-  	1,26,1,26,3,26,227,8,26,1,27,1,27,1,27,1,27,1,28,1,28,1,28,1,28,3,28,
-  	237,8,28,1,28,1,28,1,28,1,28,1,28,1,28,5,28,245,8,28,10,28,12,28,248,
-  	9,28,1,29,1,29,1,29,1,29,1,29,1,29,1,29,1,29,1,30,1,30,1,30,1,30,1,30,
-  	1,30,1,30,1,30,1,30,1,30,1,31,1,31,1,31,1,31,1,31,1,31,1,31,1,31,5,31,
-  	276,8,31,10,31,12,31,279,9,31,1,32,1,32,1,32,1,32,1,32,1,32,1,32,1,32,
-  	3,32,289,8,32,1,33,1,33,1,33,1,33,1,33,1,34,3,34,297,8,34,1,35,1,35,1,
-  	36,1,36,1,36,0,1,56,37,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,
-  	34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,0,3,2,0,34,
-  	34,36,36,1,0,14,15,1,0,27,32,293,0,74,1,0,0,0,2,82,1,0,0,0,4,85,1,0,0,
-  	0,6,97,1,0,0,0,8,103,1,0,0,0,10,106,1,0,0,0,12,114,1,0,0,0,14,125,1,0,
-  	0,0,16,131,1,0,0,0,18,136,1,0,0,0,20,142,1,0,0,0,22,146,1,0,0,0,24,156,
-  	1,0,0,0,26,158,1,0,0,0,28,166,1,0,0,0,30,168,1,0,0,0,32,173,1,0,0,0,34,
-  	191,1,0,0,0,36,194,1,0,0,0,38,198,1,0,0,0,40,201,1,0,0,0,42,204,1,0,0,
-  	0,44,207,1,0,0,0,46,213,1,0,0,0,48,215,1,0,0,0,50,221,1,0,0,0,52,226,
-  	1,0,0,0,54,228,1,0,0,0,56,236,1,0,0,0,58,249,1,0,0,0,60,257,1,0,0,0,62,
-  	277,1,0,0,0,64,288,1,0,0,0,66,290,1,0,0,0,68,296,1,0,0,0,70,298,1,0,0,
-  	0,72,300,1,0,0,0,74,75,3,2,1,0,75,76,3,4,2,0,76,77,3,6,3,0,77,78,5,0,
-  	0,1,78,1,1,0,0,0,79,81,3,10,5,0,80,79,1,0,0,0,81,84,1,0,0,0,82,80,1,0,
-  	0,0,82,83,1,0,0,0,83,3,1,0,0,0,84,82,1,0,0,0,85,86,5,1,0,0,86,87,5,2,
-  	0,0,87,88,5,3,0,0,88,89,5,4,0,0,89,90,5,5,0,0,90,91,3,8,4,0,91,92,3,36,
-  	18,0,92,93,5,6,0,0,93,5,1,0,0,0,94,96,3,12,6,0,95,94,1,0,0,0,96,99,1,
-  	0,0,0,97,95,1,0,0,0,97,98,1,0,0,0,98,7,1,0,0,0,99,97,1,0,0,0,100,102,
-  	3,28,14,0,101,100,1,0,0,0,102,105,1,0,0,0,103,101,1,0,0,0,103,104,1,0,
-  	0,0,104,9,1,0,0,0,105,103,1,0,0,0,106,107,5,1,0,0,107,108,3,42,21,0,108,
-  	109,5,34,0,0,109,110,5,3,0,0,110,111,3,18,9,0,111,112,5,4,0,0,112,113,
-  	5,7,0,0,113,11,1,0,0,0,114,115,5,1,0,0,115,116,3,42,21,0,116,117,5,34,
-  	0,0,117,118,5,3,0,0,118,119,3,18,9,0,119,120,5,4,0,0,120,121,5,5,0,0,
-  	121,122,3,8,4,0,122,123,3,36,18,0,123,124,5,6,0,0,124,13,1,0,0,0,125,
-  	126,5,34,0,0,126,127,5,3,0,0,127,128,3,24,12,0,128,129,5,4,0,0,129,130,
-  	5,7,0,0,130,15,1,0,0,0,131,132,5,34,0,0,132,133,5,3,0,0,133,134,3,24,
-  	12,0,134,135,5,4,0,0,135,17,1,0,0,0,136,137,5,1,0,0,137,138,3,42,21,0,
-  	138,139,3,40,20,0,139,140,5,34,0,0,140,141,3,44,22,0,141,19,1,0,0,0,142,
-  	143,3,42,21,0,143,144,5,34,0,0,144,145,3,46,23,0,145,21,1,0,0,0,146,147,
-  	5,1,0,0,147,148,3,42,21,0,148,149,3,40,20,0,149,150,5,34,0,0,150,151,
-  	3,46,23,0,151,152,3,50,25,0,152,153,5,7,0,0,153,23,1,0,0,0,154,157,5,
-  	36,0,0,155,157,3,20,10,0,156,154,1,0,0,0,156,155,1,0,0,0,157,25,1,0,0,
-  	0,158,159,7,0,0,0,159,27,1,0,0,0,160,167,3,22,11,0,161,167,3,30,15,0,
-  	162,167,3,58,29,0,163,167,3,60,30,0,164,167,3,14,7,0,165,167,3,32,16,
-  	0,166,160,1,0,0,0,166,161,1,0,0,0,166,162,1,0,0,0,166,163,1,0,0,0,166,
-  	164,1,0,0,0,166,165,1,0,0,0,167,29,1,0,0,0,168,169,3,20,10,0,169,170,
-  	5,8,0,0,170,171,3,52,26,0,171,172,5,7,0,0,172,31,1,0,0,0,173,174,5,9,
-  	0,0,174,178,5,10,0,0,175,179,5,37,0,0,176,179,3,20,10,0,177,179,5,11,
-  	0,0,178,175,1,0,0,0,178,176,1,0,0,0,178,177,1,0,0,0,179,180,1,0,0,0,180,
-  	181,3,34,17,0,181,182,5,7,0,0,182,33,1,0,0,0,183,187,5,10,0,0,184,188,
-  	5,37,0,0,185,188,3,20,10,0,186,188,5,11,0,0,187,184,1,0,0,0,187,185,1,
-  	0,0,0,187,186,1,0,0,0,188,190,1,0,0,0,189,183,1,0,0,0,190,193,1,0,0,0,
-  	191,189,1,0,0,0,191,192,1,0,0,0,192,35,1,0,0,0,193,191,1,0,0,0,194,195,
-  	5,12,0,0,195,196,3,38,19,0,196,197,5,7,0,0,197,37,1,0,0,0,198,199,3,56,
-  	28,0,199,39,1,0,0,0,200,202,5,13,0,0,201,200,1,0,0,0,201,202,1,0,0,0,
-  	202,41,1,0,0,0,203,205,7,1,0,0,204,203,1,0,0,0,204,205,1,0,0,0,205,43,
-  	1,0,0,0,206,208,5,16,0,0,207,206,1,0,0,0,207,208,1,0,0,0,208,45,1,0,0,
-  	0,209,210,5,17,0,0,210,211,3,26,13,0,211,212,5,18,0,0,212,214,1,0,0,0,
-  	213,209,1,0,0,0,213,214,1,0,0,0,214,47,1,0,0,0,215,216,5,19,0,0,216,217,
-  	5,1,0,0,217,218,3,46,23,0,218,49,1,0,0,0,219,220,5,8,0,0,220,222,3,52,
-  	26,0,221,219,1,0,0,0,221,222,1,0,0,0,222,51,1,0,0,0,223,227,3,54,27,0,
-  	224,227,3,56,28,0,225,227,3,48,24,0,226,223,1,0,0,0,226,224,1,0,0,0,226,
-  	225,1,0,0,0,227,53,1,0,0,0,228,229,5,15,0,0,229,230,3,40,20,0,230,231,
-  	5,34,0,0,231,55,1,0,0,0,232,233,6,28,-1,0,233,237,3,20,10,0,234,237,5,
-  	36,0,0,235,237,3,16,8,0,236,232,1,0,0,0,236,234,1,0,0,0,236,235,1,0,0,
-  	0,237,246,1,0,0,0,238,239,10,5,0,0,239,240,5,20,0,0,240,245,3,56,28,6,
-  	241,242,10,4,0,0,242,243,5,21,0,0,243,245,3,56,28,5,244,238,1,0,0,0,244,
-  	241,1,0,0,0,245,248,1,0,0,0,246,244,1,0,0,0,246,247,1,0,0,0,247,57,1,
-  	0,0,0,248,246,1,0,0,0,249,250,5,22,0,0,250,251,5,3,0,0,251,252,3,66,33,
-  	0,252,253,5,4,0,0,253,254,5,5,0,0,254,255,3,8,4,0,255,256,5,6,0,0,256,
-  	59,1,0,0,0,257,258,5,23,0,0,258,259,5,3,0,0,259,260,3,66,33,0,260,261,
-  	5,4,0,0,261,262,5,5,0,0,262,263,3,8,4,0,263,264,5,6,0,0,264,265,3,62,
-  	31,0,265,266,3,64,32,0,266,61,1,0,0,0,267,268,5,24,0,0,268,269,5,3,0,
-  	0,269,270,3,66,33,0,270,271,5,4,0,0,271,272,5,5,0,0,272,273,3,8,4,0,273,
-  	274,5,6,0,0,274,276,1,0,0,0,275,267,1,0,0,0,276,279,1,0,0,0,277,275,1,
-  	0,0,0,277,278,1,0,0,0,278,63,1,0,0,0,279,277,1,0,0,0,280,281,5,25,0,0,
-  	281,282,5,3,0,0,282,283,3,66,33,0,283,284,5,4,0,0,284,285,5,5,0,0,285,
-  	286,3,8,4,0,286,287,5,6,0,0,287,289,1,0,0,0,288,280,1,0,0,0,288,289,1,
-  	0,0,0,289,65,1,0,0,0,290,291,3,68,34,0,291,292,5,34,0,0,292,293,3,70,
-  	35,0,293,294,3,72,36,0,294,67,1,0,0,0,295,297,5,26,0,0,296,295,1,0,0,
-  	0,296,297,1,0,0,0,297,69,1,0,0,0,298,299,7,2,0,0,299,71,1,0,0,0,300,301,
-  	7,0,0,0,301,73,1,0,0,0,20,82,97,103,156,166,178,187,191,201,204,207,213,
-  	221,226,236,244,246,277,288,296
+  	35,2,36,7,36,2,37,7,37,1,0,1,0,1,0,1,0,1,0,1,1,5,1,83,8,1,10,1,12,1,86,
+  	9,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,3,5,3,98,8,3,10,3,12,3,101,
+  	9,3,1,4,5,4,104,8,4,10,4,12,4,107,9,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,
+  	1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,1,7,1,
+  	8,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,
+  	11,1,11,1,11,1,11,1,11,1,11,1,11,1,12,1,12,3,12,159,8,12,1,13,1,13,1,
+  	14,1,14,1,14,1,14,1,14,1,14,3,14,169,8,14,1,15,1,15,1,15,1,15,1,15,1,
+  	16,1,16,1,16,1,16,1,16,1,16,1,17,1,17,5,17,184,8,17,10,17,12,17,187,9,
+  	17,1,18,1,18,1,18,3,18,192,8,18,1,19,1,19,1,19,1,19,1,20,1,20,1,21,3,
+  	21,201,8,21,1,22,3,22,204,8,22,1,23,3,23,207,8,23,1,24,1,24,1,24,1,24,
+  	3,24,213,8,24,1,25,1,25,1,25,1,25,1,26,1,26,3,26,221,8,26,1,27,1,27,1,
+  	27,3,27,226,8,27,1,28,1,28,1,28,1,28,1,29,1,29,1,29,1,29,3,29,236,8,29,
+  	1,29,1,29,1,29,1,29,1,29,1,29,5,29,244,8,29,10,29,12,29,247,9,29,1,30,
+  	1,30,1,30,1,30,1,30,1,30,1,30,1,30,1,31,1,31,1,31,1,31,1,31,1,31,1,31,
+  	1,31,1,31,1,31,1,32,1,32,1,32,1,32,1,32,1,32,1,32,1,32,5,32,275,8,32,
+  	10,32,12,32,278,9,32,1,33,1,33,1,33,1,33,1,33,3,33,285,8,33,1,34,1,34,
+  	1,34,1,34,1,34,1,35,3,35,293,8,35,1,36,1,36,1,37,1,37,1,37,0,1,58,38,
+  	0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,
+  	50,52,54,56,58,60,62,64,66,68,70,72,74,0,3,2,0,34,34,36,36,1,0,14,15,
+  	1,0,27,32,286,0,76,1,0,0,0,2,84,1,0,0,0,4,87,1,0,0,0,6,99,1,0,0,0,8,105,
+  	1,0,0,0,10,108,1,0,0,0,12,116,1,0,0,0,14,127,1,0,0,0,16,133,1,0,0,0,18,
+  	138,1,0,0,0,20,144,1,0,0,0,22,148,1,0,0,0,24,158,1,0,0,0,26,160,1,0,0,
+  	0,28,168,1,0,0,0,30,170,1,0,0,0,32,175,1,0,0,0,34,185,1,0,0,0,36,191,
+  	1,0,0,0,38,193,1,0,0,0,40,197,1,0,0,0,42,200,1,0,0,0,44,203,1,0,0,0,46,
+  	206,1,0,0,0,48,212,1,0,0,0,50,214,1,0,0,0,52,220,1,0,0,0,54,225,1,0,0,
+  	0,56,227,1,0,0,0,58,235,1,0,0,0,60,248,1,0,0,0,62,256,1,0,0,0,64,276,
+  	1,0,0,0,66,284,1,0,0,0,68,286,1,0,0,0,70,292,1,0,0,0,72,294,1,0,0,0,74,
+  	296,1,0,0,0,76,77,3,2,1,0,77,78,3,4,2,0,78,79,3,6,3,0,79,80,5,0,0,1,80,
+  	1,1,0,0,0,81,83,3,10,5,0,82,81,1,0,0,0,83,86,1,0,0,0,84,82,1,0,0,0,84,
+  	85,1,0,0,0,85,3,1,0,0,0,86,84,1,0,0,0,87,88,5,1,0,0,88,89,5,2,0,0,89,
+  	90,5,3,0,0,90,91,5,4,0,0,91,92,5,5,0,0,92,93,3,8,4,0,93,94,3,38,19,0,
+  	94,95,5,6,0,0,95,5,1,0,0,0,96,98,3,12,6,0,97,96,1,0,0,0,98,101,1,0,0,
+  	0,99,97,1,0,0,0,99,100,1,0,0,0,100,7,1,0,0,0,101,99,1,0,0,0,102,104,3,
+  	28,14,0,103,102,1,0,0,0,104,107,1,0,0,0,105,103,1,0,0,0,105,106,1,0,0,
+  	0,106,9,1,0,0,0,107,105,1,0,0,0,108,109,5,1,0,0,109,110,3,44,22,0,110,
+  	111,5,34,0,0,111,112,5,3,0,0,112,113,3,18,9,0,113,114,5,4,0,0,114,115,
+  	5,7,0,0,115,11,1,0,0,0,116,117,5,1,0,0,117,118,3,44,22,0,118,119,5,34,
+  	0,0,119,120,5,3,0,0,120,121,3,18,9,0,121,122,5,4,0,0,122,123,5,5,0,0,
+  	123,124,3,8,4,0,124,125,3,38,19,0,125,126,5,6,0,0,126,13,1,0,0,0,127,
+  	128,5,34,0,0,128,129,5,3,0,0,129,130,3,24,12,0,130,131,5,4,0,0,131,132,
+  	5,7,0,0,132,15,1,0,0,0,133,134,5,34,0,0,134,135,5,3,0,0,135,136,3,24,
+  	12,0,136,137,5,4,0,0,137,17,1,0,0,0,138,139,5,1,0,0,139,140,3,44,22,0,
+  	140,141,3,42,21,0,141,142,5,34,0,0,142,143,3,46,23,0,143,19,1,0,0,0,144,
+  	145,3,44,22,0,145,146,5,34,0,0,146,147,3,48,24,0,147,21,1,0,0,0,148,149,
+  	5,1,0,0,149,150,3,42,21,0,150,151,3,44,22,0,151,152,5,34,0,0,152,153,
+  	3,48,24,0,153,154,3,52,26,0,154,155,5,7,0,0,155,23,1,0,0,0,156,159,5,
+  	36,0,0,157,159,3,20,10,0,158,156,1,0,0,0,158,157,1,0,0,0,159,25,1,0,0,
+  	0,160,161,7,0,0,0,161,27,1,0,0,0,162,169,3,22,11,0,163,169,3,30,15,0,
+  	164,169,3,60,30,0,165,169,3,62,31,0,166,169,3,14,7,0,167,169,3,32,16,
+  	0,168,162,1,0,0,0,168,163,1,0,0,0,168,164,1,0,0,0,168,165,1,0,0,0,168,
+  	166,1,0,0,0,168,167,1,0,0,0,169,29,1,0,0,0,170,171,3,20,10,0,171,172,
+  	5,8,0,0,172,173,3,54,27,0,173,174,5,7,0,0,174,31,1,0,0,0,175,176,5,9,
+  	0,0,176,177,5,10,0,0,177,178,3,36,18,0,178,179,3,34,17,0,179,180,5,7,
+  	0,0,180,33,1,0,0,0,181,182,5,10,0,0,182,184,3,36,18,0,183,181,1,0,0,0,
+  	184,187,1,0,0,0,185,183,1,0,0,0,185,186,1,0,0,0,186,35,1,0,0,0,187,185,
+  	1,0,0,0,188,192,5,37,0,0,189,192,3,20,10,0,190,192,5,11,0,0,191,188,1,
+  	0,0,0,191,189,1,0,0,0,191,190,1,0,0,0,192,37,1,0,0,0,193,194,5,12,0,0,
+  	194,195,3,40,20,0,195,196,5,7,0,0,196,39,1,0,0,0,197,198,3,58,29,0,198,
+  	41,1,0,0,0,199,201,5,13,0,0,200,199,1,0,0,0,200,201,1,0,0,0,201,43,1,
+  	0,0,0,202,204,7,1,0,0,203,202,1,0,0,0,203,204,1,0,0,0,204,45,1,0,0,0,
+  	205,207,5,16,0,0,206,205,1,0,0,0,206,207,1,0,0,0,207,47,1,0,0,0,208,209,
+  	5,17,0,0,209,210,3,26,13,0,210,211,5,18,0,0,211,213,1,0,0,0,212,208,1,
+  	0,0,0,212,213,1,0,0,0,213,49,1,0,0,0,214,215,5,19,0,0,215,216,5,1,0,0,
+  	216,217,3,48,24,0,217,51,1,0,0,0,218,219,5,8,0,0,219,221,3,54,27,0,220,
+  	218,1,0,0,0,220,221,1,0,0,0,221,53,1,0,0,0,222,226,3,56,28,0,223,226,
+  	3,58,29,0,224,226,3,50,25,0,225,222,1,0,0,0,225,223,1,0,0,0,225,224,1,
+  	0,0,0,226,55,1,0,0,0,227,228,5,15,0,0,228,229,3,42,21,0,229,230,5,34,
+  	0,0,230,57,1,0,0,0,231,232,6,29,-1,0,232,236,3,20,10,0,233,236,5,36,0,
+  	0,234,236,3,16,8,0,235,231,1,0,0,0,235,233,1,0,0,0,235,234,1,0,0,0,236,
+  	245,1,0,0,0,237,238,10,5,0,0,238,239,5,20,0,0,239,244,3,58,29,6,240,241,
+  	10,4,0,0,241,242,5,21,0,0,242,244,3,58,29,5,243,237,1,0,0,0,243,240,1,
+  	0,0,0,244,247,1,0,0,0,245,243,1,0,0,0,245,246,1,0,0,0,246,59,1,0,0,0,
+  	247,245,1,0,0,0,248,249,5,22,0,0,249,250,5,3,0,0,250,251,3,68,34,0,251,
+  	252,5,4,0,0,252,253,5,5,0,0,253,254,3,8,4,0,254,255,5,6,0,0,255,61,1,
+  	0,0,0,256,257,5,23,0,0,257,258,5,3,0,0,258,259,3,68,34,0,259,260,5,4,
+  	0,0,260,261,5,5,0,0,261,262,3,8,4,0,262,263,5,6,0,0,263,264,3,64,32,0,
+  	264,265,3,66,33,0,265,63,1,0,0,0,266,267,5,24,0,0,267,268,5,3,0,0,268,
+  	269,3,68,34,0,269,270,5,4,0,0,270,271,5,5,0,0,271,272,3,8,4,0,272,273,
+  	5,6,0,0,273,275,1,0,0,0,274,266,1,0,0,0,275,278,1,0,0,0,276,274,1,0,0,
+  	0,276,277,1,0,0,0,277,65,1,0,0,0,278,276,1,0,0,0,279,280,5,25,0,0,280,
+  	281,5,5,0,0,281,282,3,8,4,0,282,283,5,6,0,0,283,285,1,0,0,0,284,279,1,
+  	0,0,0,284,285,1,0,0,0,285,67,1,0,0,0,286,287,3,70,35,0,287,288,5,34,0,
+  	0,288,289,3,72,36,0,289,290,3,74,37,0,290,69,1,0,0,0,291,293,5,26,0,0,
+  	292,291,1,0,0,0,292,293,1,0,0,0,293,71,1,0,0,0,294,295,7,2,0,0,295,73,
+  	1,0,0,0,296,297,7,0,0,0,297,75,1,0,0,0,19,84,99,105,158,168,185,191,200,
+  	203,206,212,220,225,235,243,245,276,284,292
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -274,13 +272,13 @@ InoxisParser::ProgramContext* InoxisParser::program() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(74);
-    funcDecs();
-    setState(75);
-    main();
     setState(76);
-    funcDefs();
+    funcDecs();
     setState(77);
+    main();
+    setState(78);
+    funcDefs();
+    setState(79);
     match(InoxisParser::EOF);
    
   }
@@ -346,15 +344,15 @@ InoxisParser::FuncDecsContext* InoxisParser::funcDecs() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(82);
+    setState(84);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 0, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(79);
+        setState(81);
         funcDec(); 
       }
-      setState(84);
+      setState(86);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 0, _ctx);
     }
@@ -421,21 +419,21 @@ InoxisParser::MainContext* InoxisParser::main() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(85);
-    match(InoxisParser::T__0);
-    setState(86);
-    match(InoxisParser::T__1);
     setState(87);
-    match(InoxisParser::T__2);
+    match(InoxisParser::T__0);
     setState(88);
-    match(InoxisParser::T__3);
+    match(InoxisParser::T__1);
     setState(89);
-    match(InoxisParser::T__4);
+    match(InoxisParser::T__2);
     setState(90);
-    statList();
+    match(InoxisParser::T__3);
     setState(91);
-    return_();
+    match(InoxisParser::T__4);
     setState(92);
+    statList();
+    setState(93);
+    return_();
+    setState(94);
     match(InoxisParser::T__5);
    
   }
@@ -501,13 +499,13 @@ InoxisParser::FuncDefsContext* InoxisParser::funcDefs() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(97);
+    setState(99);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == InoxisParser::T__0) {
-      setState(94);
+      setState(96);
       funcDef();
-      setState(99);
+      setState(101);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -575,14 +573,14 @@ InoxisParser::StatListContext* InoxisParser::statList() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(103);
+    setState(105);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 17192501762) != 0)) {
-      setState(100);
+      setState(102);
       statement();
-      setState(105);
+      setState(107);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -653,19 +651,19 @@ InoxisParser::FuncDecContext* InoxisParser::funcDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(106);
-    match(InoxisParser::T__0);
-    setState(107);
-    pointRef();
     setState(108);
-    match(InoxisParser::ID);
+    match(InoxisParser::T__0);
     setState(109);
-    match(InoxisParser::T__2);
+    pointRef();
     setState(110);
-    param();
+    match(InoxisParser::ID);
     setState(111);
-    match(InoxisParser::T__3);
+    match(InoxisParser::T__2);
     setState(112);
+    param();
+    setState(113);
+    match(InoxisParser::T__3);
+    setState(114);
     match(InoxisParser::T__6);
    
   }
@@ -742,25 +740,25 @@ InoxisParser::FuncDefContext* InoxisParser::funcDef() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(114);
-    match(InoxisParser::T__0);
-    setState(115);
-    pointRef();
     setState(116);
-    match(InoxisParser::ID);
+    match(InoxisParser::T__0);
     setState(117);
-    match(InoxisParser::T__2);
+    pointRef();
     setState(118);
-    param();
+    match(InoxisParser::ID);
     setState(119);
-    match(InoxisParser::T__3);
+    match(InoxisParser::T__2);
     setState(120);
-    match(InoxisParser::T__4);
+    param();
     setState(121);
-    statList();
+    match(InoxisParser::T__3);
     setState(122);
-    return_();
+    match(InoxisParser::T__4);
     setState(123);
+    statList();
+    setState(124);
+    return_();
+    setState(125);
     match(InoxisParser::T__5);
    
   }
@@ -825,15 +823,15 @@ InoxisParser::FuncCallContext* InoxisParser::funcCall() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(125);
-    match(InoxisParser::ID);
-    setState(126);
-    match(InoxisParser::T__2);
     setState(127);
-    arg();
+    match(InoxisParser::ID);
     setState(128);
-    match(InoxisParser::T__3);
+    match(InoxisParser::T__2);
     setState(129);
+    arg();
+    setState(130);
+    match(InoxisParser::T__3);
+    setState(131);
     match(InoxisParser::T__6);
    
   }
@@ -898,13 +896,13 @@ InoxisParser::FuncCallFactorContext* InoxisParser::funcCallFactor() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(131);
-    match(InoxisParser::ID);
-    setState(132);
-    match(InoxisParser::T__2);
     setState(133);
-    arg();
+    match(InoxisParser::ID);
     setState(134);
+    match(InoxisParser::T__2);
+    setState(135);
+    arg();
+    setState(136);
     match(InoxisParser::T__3);
    
   }
@@ -977,15 +975,15 @@ InoxisParser::ParamContext* InoxisParser::param() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(136);
-    match(InoxisParser::T__0);
-    setState(137);
-    pointRef();
     setState(138);
-    mut();
+    match(InoxisParser::T__0);
     setState(139);
-    match(InoxisParser::ID);
+    pointRef();
     setState(140);
+    mut();
+    setState(141);
+    match(InoxisParser::ID);
+    setState(142);
     subscript();
    
   }
@@ -1054,11 +1052,11 @@ InoxisParser::VarContext* InoxisParser::var() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(142);
-    pointRef();
-    setState(143);
-    match(InoxisParser::ID);
     setState(144);
+    pointRef();
+    setState(145);
+    match(InoxisParser::ID);
+    setState(146);
     array();
    
   }
@@ -1077,12 +1075,12 @@ InoxisParser::VarDecContext::VarDecContext(ParserRuleContext *parent, size_t inv
   : ParserRuleContext(parent, invokingState) {
 }
 
-InoxisParser::PointRefContext* InoxisParser::VarDecContext::pointRef() {
-  return getRuleContext<InoxisParser::PointRefContext>(0);
-}
-
 InoxisParser::MutContext* InoxisParser::VarDecContext::mut() {
   return getRuleContext<InoxisParser::MutContext>(0);
+}
+
+InoxisParser::PointRefContext* InoxisParser::VarDecContext::pointRef() {
+  return getRuleContext<InoxisParser::PointRefContext>(0);
 }
 
 tree::TerminalNode* InoxisParser::VarDecContext::ID() {
@@ -1135,19 +1133,19 @@ InoxisParser::VarDecContext* InoxisParser::varDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(146);
-    match(InoxisParser::T__0);
-    setState(147);
-    pointRef();
     setState(148);
-    mut();
+    match(InoxisParser::T__0);
     setState(149);
-    match(InoxisParser::ID);
+    mut();
     setState(150);
-    array();
+    pointRef();
     setState(151);
-    varDecRHS();
+    match(InoxisParser::ID);
     setState(152);
+    array();
+    setState(153);
+    varDecRHS();
+    setState(154);
     match(InoxisParser::T__6);
    
   }
@@ -1211,12 +1209,12 @@ InoxisParser::ArgContext* InoxisParser::arg() {
     exitRule();
   });
   try {
-    setState(156);
+    setState(158);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case InoxisParser::INT: {
         enterOuterAlt(_localctx, 1);
-        setState(154);
+        setState(156);
         match(InoxisParser::INT);
         break;
       }
@@ -1225,7 +1223,7 @@ InoxisParser::ArgContext* InoxisParser::arg() {
       case InoxisParser::T__14:
       case InoxisParser::ID: {
         enterOuterAlt(_localctx, 2);
-        setState(155);
+        setState(157);
         var();
         break;
       }
@@ -1297,7 +1295,7 @@ InoxisParser::IndexContext* InoxisParser::index() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(158);
+    setState(160);
     _la = _input->LA(1);
     if (!(_la == InoxisParser::ID
 
@@ -1386,47 +1384,47 @@ InoxisParser::StatementContext* InoxisParser::statement() {
     exitRule();
   });
   try {
-    setState(166);
+    setState(168);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(160);
+      setState(162);
       varDec();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(161);
+      setState(163);
       assign();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(162);
+      setState(164);
       while_();
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(163);
+      setState(165);
       ifElseBlock();
       break;
     }
 
     case 5: {
       enterOuterAlt(_localctx, 5);
-      setState(164);
+      setState(166);
       funcCall();
       break;
     }
 
     case 6: {
       enterOuterAlt(_localctx, 6);
-      setState(165);
+      setState(167);
       print();
       break;
     }
@@ -1497,13 +1495,13 @@ InoxisParser::AssignContext* InoxisParser::assign() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(168);
-    var();
-    setState(169);
-    match(InoxisParser::T__7);
     setState(170);
-    assignRHS();
+    var();
     setState(171);
+    match(InoxisParser::T__7);
+    setState(172);
+    assignRHS();
+    setState(173);
     match(InoxisParser::T__6);
    
   }
@@ -1522,16 +1520,12 @@ InoxisParser::PrintContext::PrintContext(ParserRuleContext *parent, size_t invok
   : ParserRuleContext(parent, invokingState) {
 }
 
+InoxisParser::PrintLiteralContext* InoxisParser::PrintContext::printLiteral() {
+  return getRuleContext<InoxisParser::PrintLiteralContext>(0);
+}
+
 InoxisParser::OutContext* InoxisParser::PrintContext::out() {
   return getRuleContext<InoxisParser::OutContext>(0);
-}
-
-tree::TerminalNode* InoxisParser::PrintContext::STRING_LITERAL() {
-  return getToken(InoxisParser::STRING_LITERAL, 0);
-}
-
-InoxisParser::VarContext* InoxisParser::PrintContext::var() {
-  return getRuleContext<InoxisParser::VarContext>(0);
 }
 
 
@@ -1572,39 +1566,15 @@ InoxisParser::PrintContext* InoxisParser::print() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(173);
+    setState(175);
     match(InoxisParser::T__8);
-    setState(174);
+    setState(176);
     match(InoxisParser::T__9);
+    setState(177);
+    printLiteral();
     setState(178);
-    _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case InoxisParser::STRING_LITERAL: {
-        setState(175);
-        match(InoxisParser::STRING_LITERAL);
-        break;
-      }
-
-      case InoxisParser::T__13:
-      case InoxisParser::T__14:
-      case InoxisParser::ID: {
-        setState(176);
-        var();
-        break;
-      }
-
-      case InoxisParser::T__10: {
-        setState(177);
-        match(InoxisParser::T__10);
-        break;
-      }
-
-    default:
-      throw NoViableAltException(this);
-    }
-    setState(180);
     out();
-    setState(181);
+    setState(179);
     match(InoxisParser::T__6);
    
   }
@@ -1623,20 +1593,12 @@ InoxisParser::OutContext::OutContext(ParserRuleContext *parent, size_t invokingS
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<tree::TerminalNode *> InoxisParser::OutContext::STRING_LITERAL() {
-  return getTokens(InoxisParser::STRING_LITERAL);
+std::vector<InoxisParser::PrintLiteralContext *> InoxisParser::OutContext::printLiteral() {
+  return getRuleContexts<InoxisParser::PrintLiteralContext>();
 }
 
-tree::TerminalNode* InoxisParser::OutContext::STRING_LITERAL(size_t i) {
-  return getToken(InoxisParser::STRING_LITERAL, i);
-}
-
-std::vector<InoxisParser::VarContext *> InoxisParser::OutContext::var() {
-  return getRuleContexts<InoxisParser::VarContext>();
-}
-
-InoxisParser::VarContext* InoxisParser::OutContext::var(size_t i) {
-  return getRuleContext<InoxisParser::VarContext>(i);
+InoxisParser::PrintLiteralContext* InoxisParser::OutContext::printLiteral(size_t i) {
+  return getRuleContext<InoxisParser::PrintLiteralContext>(i);
 }
 
 
@@ -1678,41 +1640,106 @@ InoxisParser::OutContext* InoxisParser::out() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(191);
+    setState(185);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == InoxisParser::T__9) {
-      setState(183);
+      setState(181);
       match(InoxisParser::T__9);
+      setState(182);
+      printLiteral();
       setState(187);
       _errHandler->sync(this);
-      switch (_input->LA(1)) {
-        case InoxisParser::STRING_LITERAL: {
-          setState(184);
-          match(InoxisParser::STRING_LITERAL);
-          break;
-        }
-
-        case InoxisParser::T__13:
-        case InoxisParser::T__14:
-        case InoxisParser::ID: {
-          setState(185);
-          var();
-          break;
-        }
-
-        case InoxisParser::T__10: {
-          setState(186);
-          match(InoxisParser::T__10);
-          break;
-        }
-
-      default:
-        throw NoViableAltException(this);
-      }
-      setState(193);
-      _errHandler->sync(this);
       _la = _input->LA(1);
+    }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- PrintLiteralContext ------------------------------------------------------------------
+
+InoxisParser::PrintLiteralContext::PrintLiteralContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* InoxisParser::PrintLiteralContext::STRING_LITERAL() {
+  return getToken(InoxisParser::STRING_LITERAL, 0);
+}
+
+InoxisParser::VarContext* InoxisParser::PrintLiteralContext::var() {
+  return getRuleContext<InoxisParser::VarContext>(0);
+}
+
+
+size_t InoxisParser::PrintLiteralContext::getRuleIndex() const {
+  return InoxisParser::RulePrintLiteral;
+}
+
+void InoxisParser::PrintLiteralContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<InoxisListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterPrintLiteral(this);
+}
+
+void InoxisParser::PrintLiteralContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<InoxisListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitPrintLiteral(this);
+}
+
+
+std::any InoxisParser::PrintLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<InoxisVisitor*>(visitor))
+    return parserVisitor->visitPrintLiteral(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+InoxisParser::PrintLiteralContext* InoxisParser::printLiteral() {
+  PrintLiteralContext *_localctx = _tracker.createInstance<PrintLiteralContext>(_ctx, getState());
+  enterRule(_localctx, 36, InoxisParser::RulePrintLiteral);
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(191);
+    _errHandler->sync(this);
+    switch (_input->LA(1)) {
+      case InoxisParser::STRING_LITERAL: {
+        setState(188);
+        match(InoxisParser::STRING_LITERAL);
+        break;
+      }
+
+      case InoxisParser::T__13:
+      case InoxisParser::T__14:
+      case InoxisParser::ID: {
+        setState(189);
+        var();
+        break;
+      }
+
+      case InoxisParser::T__10: {
+        setState(190);
+        match(InoxisParser::T__10);
+        break;
+      }
+
+    default:
+      throw NoViableAltException(this);
     }
    
   }
@@ -1762,7 +1789,7 @@ std::any InoxisParser::ReturnContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::ReturnContext* InoxisParser::return_() {
   ReturnContext *_localctx = _tracker.createInstance<ReturnContext>(_ctx, getState());
-  enterRule(_localctx, 36, InoxisParser::RuleReturn);
+  enterRule(_localctx, 38, InoxisParser::RuleReturn);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1773,11 +1800,11 @@ InoxisParser::ReturnContext* InoxisParser::return_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(194);
+    setState(193);
     match(InoxisParser::T__11);
-    setState(195);
+    setState(194);
     retVal();
-    setState(196);
+    setState(195);
     match(InoxisParser::T__6);
    
   }
@@ -1827,7 +1854,7 @@ std::any InoxisParser::RetValContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::RetValContext* InoxisParser::retVal() {
   RetValContext *_localctx = _tracker.createInstance<RetValContext>(_ctx, getState());
-  enterRule(_localctx, 38, InoxisParser::RuleRetVal);
+  enterRule(_localctx, 40, InoxisParser::RuleRetVal);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1838,7 +1865,7 @@ InoxisParser::RetValContext* InoxisParser::retVal() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(198);
+    setState(197);
     expression(0);
    
   }
@@ -1884,7 +1911,7 @@ std::any InoxisParser::MutContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::MutContext* InoxisParser::mut() {
   MutContext *_localctx = _tracker.createInstance<MutContext>(_ctx, getState());
-  enterRule(_localctx, 40, InoxisParser::RuleMut);
+  enterRule(_localctx, 42, InoxisParser::RuleMut);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1896,12 +1923,12 @@ InoxisParser::MutContext* InoxisParser::mut() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(201);
+    setState(200);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__12) {
-      setState(200);
+      setState(199);
       match(InoxisParser::T__12);
     }
    
@@ -1948,7 +1975,7 @@ std::any InoxisParser::PointRefContext::accept(tree::ParseTreeVisitor *visitor) 
 
 InoxisParser::PointRefContext* InoxisParser::pointRef() {
   PointRefContext *_localctx = _tracker.createInstance<PointRefContext>(_ctx, getState());
-  enterRule(_localctx, 42, InoxisParser::RulePointRef);
+  enterRule(_localctx, 44, InoxisParser::RulePointRef);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1960,14 +1987,14 @@ InoxisParser::PointRefContext* InoxisParser::pointRef() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(204);
+    setState(203);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__13
 
     || _la == InoxisParser::T__14) {
-      setState(203);
+      setState(202);
       _la = _input->LA(1);
       if (!(_la == InoxisParser::T__13
 
@@ -2023,7 +2050,7 @@ std::any InoxisParser::SubscriptContext::accept(tree::ParseTreeVisitor *visitor)
 
 InoxisParser::SubscriptContext* InoxisParser::subscript() {
   SubscriptContext *_localctx = _tracker.createInstance<SubscriptContext>(_ctx, getState());
-  enterRule(_localctx, 44, InoxisParser::RuleSubscript);
+  enterRule(_localctx, 46, InoxisParser::RuleSubscript);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2035,12 +2062,12 @@ InoxisParser::SubscriptContext* InoxisParser::subscript() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(207);
+    setState(206);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__15) {
-      setState(206);
+      setState(205);
       match(InoxisParser::T__15);
     }
    
@@ -2091,7 +2118,7 @@ std::any InoxisParser::ArrayContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::ArrayContext* InoxisParser::array() {
   ArrayContext *_localctx = _tracker.createInstance<ArrayContext>(_ctx, getState());
-  enterRule(_localctx, 46, InoxisParser::RuleArray);
+  enterRule(_localctx, 48, InoxisParser::RuleArray);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2102,16 +2129,16 @@ InoxisParser::ArrayContext* InoxisParser::array() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(213);
+    setState(212);
     _errHandler->sync(this);
 
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 11, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 10, _ctx)) {
     case 1: {
-      setState(209);
+      setState(208);
       match(InoxisParser::T__16);
-      setState(210);
+      setState(209);
       index();
-      setState(211);
+      setState(210);
       match(InoxisParser::T__17);
       break;
     }
@@ -2167,7 +2194,7 @@ std::any InoxisParser::AllocateContext::accept(tree::ParseTreeVisitor *visitor) 
 
 InoxisParser::AllocateContext* InoxisParser::allocate() {
   AllocateContext *_localctx = _tracker.createInstance<AllocateContext>(_ctx, getState());
-  enterRule(_localctx, 48, InoxisParser::RuleAllocate);
+  enterRule(_localctx, 50, InoxisParser::RuleAllocate);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2178,11 +2205,11 @@ InoxisParser::AllocateContext* InoxisParser::allocate() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(215);
+    setState(214);
     match(InoxisParser::T__18);
-    setState(216);
+    setState(215);
     match(InoxisParser::T__0);
-    setState(217);
+    setState(216);
     array();
    
   }
@@ -2232,7 +2259,7 @@ std::any InoxisParser::VarDecRHSContext::accept(tree::ParseTreeVisitor *visitor)
 
 InoxisParser::VarDecRHSContext* InoxisParser::varDecRHS() {
   VarDecRHSContext *_localctx = _tracker.createInstance<VarDecRHSContext>(_ctx, getState());
-  enterRule(_localctx, 50, InoxisParser::RuleVarDecRHS);
+  enterRule(_localctx, 52, InoxisParser::RuleVarDecRHS);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2244,14 +2271,14 @@ InoxisParser::VarDecRHSContext* InoxisParser::varDecRHS() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(221);
+    setState(220);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__7) {
-      setState(219);
+      setState(218);
       match(InoxisParser::T__7);
-      setState(220);
+      setState(219);
       assignRHS();
     }
    
@@ -2310,7 +2337,7 @@ std::any InoxisParser::AssignRHSContext::accept(tree::ParseTreeVisitor *visitor)
 
 InoxisParser::AssignRHSContext* InoxisParser::assignRHS() {
   AssignRHSContext *_localctx = _tracker.createInstance<AssignRHSContext>(_ctx, getState());
-  enterRule(_localctx, 52, InoxisParser::RuleAssignRHS);
+  enterRule(_localctx, 54, InoxisParser::RuleAssignRHS);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2320,26 +2347,26 @@ InoxisParser::AssignRHSContext* InoxisParser::assignRHS() {
     exitRule();
   });
   try {
-    setState(226);
+    setState(225);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(223);
+      setState(222);
       rhsRef();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(224);
+      setState(223);
       expression(0);
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(225);
+      setState(224);
       allocate();
       break;
     }
@@ -2399,7 +2426,7 @@ std::any InoxisParser::RhsRefContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::RhsRefContext* InoxisParser::rhsRef() {
   RhsRefContext *_localctx = _tracker.createInstance<RhsRefContext>(_ctx, getState());
-  enterRule(_localctx, 54, InoxisParser::RuleRhsRef);
+  enterRule(_localctx, 56, InoxisParser::RuleRhsRef);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2410,11 +2437,11 @@ InoxisParser::RhsRefContext* InoxisParser::rhsRef() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(228);
+    setState(227);
     match(InoxisParser::T__14);
-    setState(229);
+    setState(228);
     mut();
-    setState(230);
+    setState(229);
     match(InoxisParser::ID);
    
   }
@@ -2586,8 +2613,8 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
   InoxisParser::ExpressionContext *_localctx = _tracker.createInstance<ExpressionContext>(_ctx, parentState);
   InoxisParser::ExpressionContext *previousContext = _localctx;
   (void)previousContext; // Silence compiler, in case the context is not used by generated code.
-  size_t startState = 56;
-  enterRecursionRule(_localctx, 56, InoxisParser::RuleExpression, precedence);
+  size_t startState = 58;
+  enterRecursionRule(_localctx, 58, InoxisParser::RuleExpression, precedence);
 
     
 
@@ -2601,15 +2628,15 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(236);
+    setState(235);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 14, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx)) {
     case 1: {
       _localctx = _tracker.createInstance<VarLiteralContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
 
-      setState(233);
+      setState(232);
       var();
       break;
     }
@@ -2618,7 +2645,7 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
       _localctx = _tracker.createInstance<NumLiteralContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(234);
+      setState(233);
       match(InoxisParser::INT);
       break;
     }
@@ -2627,7 +2654,7 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
       _localctx = _tracker.createInstance<FuncCallExpContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(235);
+      setState(234);
       funcCallFactor();
       break;
     }
@@ -2636,27 +2663,27 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
       break;
     }
     _ctx->stop = _input->LT(-1);
-    setState(246);
+    setState(245);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(244);
+        setState(243);
         _errHandler->sync(this);
-        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx)) {
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 14, _ctx)) {
         case 1: {
           auto newContext = _tracker.createInstance<AddContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
-          setState(238);
+          setState(237);
 
           if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
-          setState(239);
+          setState(238);
           match(InoxisParser::T__19);
-          setState(240);
+          setState(239);
           expression(6);
           break;
         }
@@ -2665,12 +2692,12 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
           auto newContext = _tracker.createInstance<SubtractContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
-          setState(241);
+          setState(240);
 
           if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
-          setState(242);
+          setState(241);
           match(InoxisParser::T__20);
-          setState(243);
+          setState(242);
           expression(5);
           break;
         }
@@ -2679,9 +2706,9 @@ InoxisParser::ExpressionContext* InoxisParser::expression(int precedence) {
           break;
         } 
       }
-      setState(248);
+      setState(247);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -2733,7 +2760,7 @@ std::any InoxisParser::WhileContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::WhileContext* InoxisParser::while_() {
   WhileContext *_localctx = _tracker.createInstance<WhileContext>(_ctx, getState());
-  enterRule(_localctx, 58, InoxisParser::RuleWhile);
+  enterRule(_localctx, 60, InoxisParser::RuleWhile);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2744,19 +2771,19 @@ InoxisParser::WhileContext* InoxisParser::while_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(249);
+    setState(248);
     match(InoxisParser::T__21);
-    setState(250);
+    setState(249);
     match(InoxisParser::T__2);
-    setState(251);
+    setState(250);
     condition();
-    setState(252);
+    setState(251);
     match(InoxisParser::T__3);
-    setState(253);
+    setState(252);
     match(InoxisParser::T__4);
-    setState(254);
+    setState(253);
     statList();
-    setState(255);
+    setState(254);
     match(InoxisParser::T__5);
    
   }
@@ -2818,7 +2845,7 @@ std::any InoxisParser::IfElseBlockContext::accept(tree::ParseTreeVisitor *visito
 
 InoxisParser::IfElseBlockContext* InoxisParser::ifElseBlock() {
   IfElseBlockContext *_localctx = _tracker.createInstance<IfElseBlockContext>(_ctx, getState());
-  enterRule(_localctx, 60, InoxisParser::RuleIfElseBlock);
+  enterRule(_localctx, 62, InoxisParser::RuleIfElseBlock);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -2829,23 +2856,23 @@ InoxisParser::IfElseBlockContext* InoxisParser::ifElseBlock() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(257);
+    setState(256);
     match(InoxisParser::T__22);
-    setState(258);
+    setState(257);
     match(InoxisParser::T__2);
-    setState(259);
+    setState(258);
     condition();
-    setState(260);
+    setState(259);
     match(InoxisParser::T__3);
-    setState(261);
+    setState(260);
     match(InoxisParser::T__4);
-    setState(262);
+    setState(261);
     statList();
-    setState(263);
+    setState(262);
     match(InoxisParser::T__5);
-    setState(264);
+    setState(263);
     elif();
-    setState(265);
+    setState(264);
     else_();
    
   }
@@ -2907,7 +2934,7 @@ std::any InoxisParser::ElifContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::ElifContext* InoxisParser::elif() {
   ElifContext *_localctx = _tracker.createInstance<ElifContext>(_ctx, getState());
-  enterRule(_localctx, 62, InoxisParser::RuleElif);
+  enterRule(_localctx, 64, InoxisParser::RuleElif);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2919,25 +2946,25 @@ InoxisParser::ElifContext* InoxisParser::elif() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(277);
+    setState(276);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == InoxisParser::T__23) {
-      setState(267);
+      setState(266);
       match(InoxisParser::T__23);
-      setState(268);
+      setState(267);
       match(InoxisParser::T__2);
-      setState(269);
+      setState(268);
       condition();
-      setState(270);
+      setState(269);
       match(InoxisParser::T__3);
-      setState(271);
+      setState(270);
       match(InoxisParser::T__4);
-      setState(272);
+      setState(271);
       statList();
-      setState(273);
+      setState(272);
       match(InoxisParser::T__5);
-      setState(279);
+      setState(278);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -2956,10 +2983,6 @@ InoxisParser::ElifContext* InoxisParser::elif() {
 
 InoxisParser::ElseContext::ElseContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
-}
-
-InoxisParser::ConditionContext* InoxisParser::ElseContext::condition() {
-  return getRuleContext<InoxisParser::ConditionContext>(0);
 }
 
 InoxisParser::StatListContext* InoxisParser::ElseContext::statList() {
@@ -2993,7 +3016,7 @@ std::any InoxisParser::ElseContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::ElseContext* InoxisParser::else_() {
   ElseContext *_localctx = _tracker.createInstance<ElseContext>(_ctx, getState());
-  enterRule(_localctx, 64, InoxisParser::RuleElse);
+  enterRule(_localctx, 66, InoxisParser::RuleElse);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -3005,24 +3028,18 @@ InoxisParser::ElseContext* InoxisParser::else_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(288);
+    setState(284);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__24) {
-      setState(280);
+      setState(279);
       match(InoxisParser::T__24);
-      setState(281);
-      match(InoxisParser::T__2);
-      setState(282);
-      condition();
-      setState(283);
-      match(InoxisParser::T__3);
-      setState(284);
+      setState(280);
       match(InoxisParser::T__4);
-      setState(285);
+      setState(281);
       statList();
-      setState(286);
+      setState(282);
       match(InoxisParser::T__5);
     }
    
@@ -3085,7 +3102,7 @@ std::any InoxisParser::ConditionContext::accept(tree::ParseTreeVisitor *visitor)
 
 InoxisParser::ConditionContext* InoxisParser::condition() {
   ConditionContext *_localctx = _tracker.createInstance<ConditionContext>(_ctx, getState());
-  enterRule(_localctx, 66, InoxisParser::RuleCondition);
+  enterRule(_localctx, 68, InoxisParser::RuleCondition);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -3096,13 +3113,13 @@ InoxisParser::ConditionContext* InoxisParser::condition() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(290);
+    setState(286);
     not_();
-    setState(291);
+    setState(287);
     match(InoxisParser::ID);
-    setState(292);
+    setState(288);
     condOp();
-    setState(293);
+    setState(289);
     condRHS();
    
   }
@@ -3148,7 +3165,7 @@ std::any InoxisParser::NotContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::NotContext* InoxisParser::not_() {
   NotContext *_localctx = _tracker.createInstance<NotContext>(_ctx, getState());
-  enterRule(_localctx, 68, InoxisParser::RuleNot);
+  enterRule(_localctx, 70, InoxisParser::RuleNot);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -3160,12 +3177,12 @@ InoxisParser::NotContext* InoxisParser::not_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(296);
+    setState(292);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == InoxisParser::T__25) {
-      setState(295);
+      setState(291);
       match(InoxisParser::T__25);
     }
    
@@ -3212,7 +3229,7 @@ std::any InoxisParser::CondOpContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::CondOpContext* InoxisParser::condOp() {
   CondOpContext *_localctx = _tracker.createInstance<CondOpContext>(_ctx, getState());
-  enterRule(_localctx, 70, InoxisParser::RuleCondOp);
+  enterRule(_localctx, 72, InoxisParser::RuleCondOp);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -3224,7 +3241,7 @@ InoxisParser::CondOpContext* InoxisParser::condOp() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(298);
+    setState(294);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 8455716864) != 0))) {
@@ -3286,7 +3303,7 @@ std::any InoxisParser::CondRHSContext::accept(tree::ParseTreeVisitor *visitor) {
 
 InoxisParser::CondRHSContext* InoxisParser::condRHS() {
   CondRHSContext *_localctx = _tracker.createInstance<CondRHSContext>(_ctx, getState());
-  enterRule(_localctx, 72, InoxisParser::RuleCondRHS);
+  enterRule(_localctx, 74, InoxisParser::RuleCondRHS);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -3298,7 +3315,7 @@ InoxisParser::CondRHSContext* InoxisParser::condRHS() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(300);
+    setState(296);
     _la = _input->LA(1);
     if (!(_la == InoxisParser::ID
 
@@ -3322,7 +3339,7 @@ InoxisParser::CondRHSContext* InoxisParser::condRHS() {
 
 bool InoxisParser::sempred(RuleContext *context, size_t ruleIndex, size_t predicateIndex) {
   switch (ruleIndex) {
-    case 28: return expressionSempred(antlrcpp::downCast<ExpressionContext *>(context), predicateIndex);
+    case 29: return expressionSempred(antlrcpp::downCast<ExpressionContext *>(context), predicateIndex);
 
   default:
     break;

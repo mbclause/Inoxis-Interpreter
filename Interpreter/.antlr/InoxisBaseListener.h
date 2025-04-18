@@ -70,6 +70,9 @@ public:
   virtual void enterOut(InoxisParser::OutContext * /*ctx*/) override { }
   virtual void exitOut(InoxisParser::OutContext * /*ctx*/) override { }
 
+  virtual void enterPrintLiteral(InoxisParser::PrintLiteralContext * /*ctx*/) override { }
+  virtual void exitPrintLiteral(InoxisParser::PrintLiteralContext * /*ctx*/) override { }
+
   virtual void enterReturn(InoxisParser::ReturnContext * /*ctx*/) override { }
   virtual void exitReturn(InoxisParser::ReturnContext * /*ctx*/) override { }
 

@@ -3,25 +3,198 @@
 using namespace DataType;
 
 
+/*
+Function: addConditionalStatements
+Description: given a conditional statement, get all of the statements inside the block and add them to stringStatements
+*/
+void  MemSafetyPass::addConditionalStatements(InoxisParser::StatementContext* condStatement, 
+	vector<string>& stringStatements)
+{
+	// if the statement is an if/else block
+	if (condStatement->ifElseBlock() != NULL)
+	{
+		auto ifElse = condStatement->ifElseBlock();
+
+		// add the if condition to stringStatements
+		stringStatements.push_back(ifElse->condition()->getText());
+
+		// if there are any statements in the if block...
+		if (ifElse->statList() != NULL)
+		{
+			auto statements = ifElse->statList()->statement();
+
+			// get all the statements in the block
+			vector<string> ifStatements = convertStatementsToString(statements, NULL);
+
+			// concatenate to our vector
+			// from stackOverflow
+			stringStatements.insert(stringStatements.end(), ifStatements.begin(), ifStatements.end());
+		}
+
+		// if there's an elif in the block...
+		if (ifElse->elif() != NULL)
+		{
+			auto elif = ifElse->elif();
+
+			auto conditionsVector = elif->condition();
+
+			auto statListsVector = elif->statList();
+
+			// loop through each elif
+			for (int i = 0; i < conditionsVector.size(); i++)
+			{
+				// add the condition to stringStatements
+				stringStatements.push_back(conditionsVector[i]->getText());
+
+				// check if the current elif block has any statements...
+				if (statListsVector[i] != NULL)
+				{
+					auto statements = statListsVector[i]->statement();
+
+					// get all the statements in the block
+					vector<string> elifStatements = convertStatementsToString(statements, NULL);
+
+					// concatenate to our vector
+					// from stackOverflow
+					stringStatements.insert(stringStatements.end(), elifStatements.begin(), elifStatements.end());
+				}
+			}
+		}
+
+		if (ifElse->else_() != NULL)
+		{
+			auto elseStatement = ifElse->else_();
+
+			// if there are any statements in the else block...
+			if (elseStatement->statList() != NULL)
+			{
+				auto statements = elseStatement->statList()->statement();
+
+				// get all the statements in the block
+				vector<string> elseStatements = convertStatementsToString(statements, NULL);
+
+				// concatenate to our vector
+				// from stackOverflow
+				stringStatements.insert(stringStatements.end(), elseStatements.begin(), elseStatements.end());
+			}
+		}
+	}
+
+	// otherwise it's a while loop
+	else
+	{
+		auto whileStatement = condStatement->while_();
+
+		// add the if condition to stringStatements
+		stringStatements.push_back(whileStatement->condition()->getText());
+
+		// if there are any statements in the if block...
+		if (whileStatement->statList() != NULL)
+		{
+			auto statements = whileStatement->statList()->statement();
+
+			// get all the statements in the block
+			vector<string> whileStatements = convertStatementsToString(statements, NULL);
+
+			// concatenate to our vector
+			// from stackOverflow
+			stringStatements.insert(stringStatements.end(), whileStatements.begin(), whileStatements.end());
+		}
+	}
+}
+
+
+
+/*
+Function: convertStatementsToString
+Description: given a vector of inoxis statements, convert each to a string.
+*/
+vector<string>  MemSafetyPass::convertStatementsToString(vector<InoxisParser::StatementContext*>  statements, 
+	InoxisParser::ReturnContext* returnStatement)
+{
+	vector<string>  stringStatements;
+
+	// loop through statements
+	for (int i = 0; i < statements.size(); i++)
+	{
+		auto statement = statements[i];
+
+		vector<string> printVars;
+
+		// if it's a print statement, call getPrintVars, just make a comma separated
+		// string out of the returned variables
+		if (statement->print() != NULL)
+		{
+			printVars = getPrintVars(statement->print());
+
+			string printVarsString;
+
+			for (int j = 0; j < printVars.size(); j++)
+			{
+				printVarsString += printVars[j];
+
+				printVarsString += ", ";
+			}
+
+			stringStatements.push_back(printVarsString);
+		}
+
+		// if the statement is an if/else block or while loop, call addConditional statements to add all of the 
+		// statements in that block to the vector
+		else if (statement->ifElseBlock() != NULL)
+		{
+			//cout << statement->getText() << " is an if/else statement\n";
+
+			addConditionalStatements(statement, stringStatements);
+		}
+
+		else if (statement->while_() != NULL)
+		{
+			//cout << statement->getText() << " is an while statement\n";
+
+			addConditionalStatements(statement, stringStatements);
+		}
+
+		// otherwise just add the statement string
+		else
+		{
+			stringStatements.push_back(statement->getText());
+		}
+	}
+
+	// add the return statement last if there is one
+	if(returnStatement != NULL)
+		stringStatements.push_back(returnStatement->getText());
+
+	return stringStatements;
+}
+
+
+
+/*
+Function: getPrintVars
+Description: return all of the variables in the print statement as a string vector
+*/
 vector<string>  MemSafetyPass::getPrintVars(InoxisParser::PrintContext* ctx)
 {
 	vector<string> vars;
 
-	if (ctx->var() != NULL)
+	if (ctx->printLiteral()->var() != NULL)
 	{
 		// check it's read permissions
-		string var = ctx->var()->ID()->getText();
+		string var = ctx->printLiteral()->var()->ID()->getText();
 
 		vars.push_back(var);
 	}
 
 	// if there's more to the print statement
 	if(ctx->out() != NULL)
-		if (ctx->out()->var().size() > 0)
+		if (ctx->out()->printLiteral().size() > 0)
 		{
-			for (int i = 0; i < ctx->out()->var().size(); i++)
+			for (int i = 0; i < ctx->out()->printLiteral().size(); i++)
 			{
-				vars.push_back(ctx->out()->var()[i]->ID()->getText());
+				if(ctx->out()->printLiteral()[i]->var())
+					vars.push_back(ctx->out()->printLiteral()[i]->var()->ID()->getText());
 			}
 		}
 
@@ -41,18 +214,19 @@ void MemSafetyPass::enterOut(InoxisParser::OutContext* ctx)
 	vector<string>  varNames;
 
 	// if there are any vars in the output
-	if (ctx->var().size() > 0)
+	if (ctx->printLiteral().size() > 0)
 	{
 		// loop through them and add their names to the string vector
-		for (int i = 0; i < ctx->var().size(); i++)
+		for (int i = 0; i < ctx->printLiteral().size(); i++)
 		{
-			varNames.push_back(ctx->var()[i]->ID()->getText());
+			if(ctx->printLiteral()[i]->var())
+				varNames.push_back(ctx->printLiteral()[i]->var()->ID()->getText());
 		}
 
 		// check the vars read permissions
-		if (!checkReadPermissions(varNames))
+		if (!checkReadPermissions(varNames, ctx))
 		{
-			reportMemError();
+			//reportMemError(ctx);
 		}
 	}
 }
@@ -65,16 +239,16 @@ Description: if the first output in the statement is a variable: check it's read
 void MemSafetyPass::enterPrint(InoxisParser::PrintContext* ctx)
 {
 	// if the first output is a variable...
-	if (ctx->var() != NULL)
+	if (ctx->printLiteral()->var() != NULL)
 	{
 		// check it's read permissions
-		string var = ctx->var()->ID()->getText();
+		string var = ctx->printLiteral()->var()->ID()->getText();
 
 		vector<string> varVec{ var };
 
-		if (!checkReadPermissions(varVec))
+		if (!checkReadPermissions(varVec, ctx))
 		{
-			reportMemError();
+			//reportMemError(ctx);
 		}
 	}
 }
@@ -86,7 +260,7 @@ Function: checkReadPermissions
 Description: checks all the variable names passed to it for read permissions
 Returns true if all vars have them and false otherwise
 */
-bool  MemSafetyPass::checkReadPermissions(vector<string> vars)
+bool  MemSafetyPass::checkReadPermissions(vector<string> vars, antlr4::ParserRuleContext* ctx)
 {
 	// loop through all variables
 	for (int i = 0; i < vars.size(); i++)
@@ -99,6 +273,8 @@ bool  MemSafetyPass::checkReadPermissions(vector<string> vars)
 		{
 			if (!var.hasReadPermissions(true))
 			{
+				reportMemError(ctx);
+
 				cout << "*" << var._name << " does not have required Read permissions\n";
 
 				return false;
@@ -107,6 +283,8 @@ bool  MemSafetyPass::checkReadPermissions(vector<string> vars)
 
 		if (!var.hasReadPermissions(false))
 		{
+			reportMemError(ctx);
+
 			cout << var._name << " does not have required Read permissions\n";
 
 			return false;
@@ -145,7 +323,7 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 			{
 				if (!var.hasWritePermissions(true))
 				{
-					reportMemError();
+					reportMemError(ctx);
 
 					cout << var._name << "s place does not have write permissions\n";
 				}
@@ -156,7 +334,7 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 		{
 			if (!var.hasWritePermissions(false))
 			{
-				reportMemError();
+				reportMemError(ctx);
 
 				cout << var._name << "s place does not have write permissions\n";
 			}
@@ -168,7 +346,7 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 	{
 		if (!var.hasWritePermissions(false))
 		{
-			reportMemError();
+			reportMemError(ctx);
 
 			cout << var._name << " does not have write permissions\n";
 		}
@@ -187,9 +365,9 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 	size_t numRHSVars = rhsVars.size();
 
 	// first, check the read permissions for any variables on the right hand side
-	if (!checkReadPermissions(rhsVars))
+	if (!checkReadPermissions(rhsVars, ctx))
 	{
-		reportMemError();
+		//reportMemError(ctx);
 	}
 
 	else
@@ -220,8 +398,23 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 
 				if (rhsDataType == POINTER)
 				{
+					if (currentFunction.locals[rhsVar].ownsHeapData)
+					{
+						currentFunction.locals[varName].ownsHeapData = true;
+
+						cout << varName << " now owns heap data\n";
+					}
+
 					dropVar(rhsVar);
 				}
+			}
+
+			// if there's an allocation...
+			if (ctx->assignRHS()->allocate() != NULL)
+			{
+				currentFunction.locals[varName].ownsHeapData = true;
+
+				//cout << varName << " now owns heap data\n";
 			}
 		}
 	}
@@ -265,9 +458,9 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 			size_t numRHSVars = rhsVars.size();
 
 			// first, check the read permissions for any variables on the right hand side
-			if (!checkReadPermissions(rhsVars))
+			if (!checkReadPermissions(rhsVars, ctx))
 			{
-				reportMemError();
+				//reportMemError();
 			}
 
 			else
@@ -319,7 +512,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 						currentFunction.locals[varName].setPermissions(read | own, false);
 
 						//cout << "init: " << varName << ". Permissions: " << 
-							//currentFunction.locals[varName].memPermissions << endl;
+							// currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					// if the lhs is initialized with another pointer, the rhs pointer is dropped
@@ -331,8 +524,23 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 						if (rhsDataType == POINTER)
 						{
+							if (currentFunction.locals[rhsVar].ownsHeapData)
+							{
+								currentFunction.locals[varName].ownsHeapData = true;
+
+								//cout << varName << " now owns heap data\n";
+							}
+
 							dropVar(rhsVar);
 						}
+					}
+
+					// if there's an allocation...
+					if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
+					{
+						currentFunction.locals[varName].ownsHeapData = true;
+
+						//cout << varName << " now owns heap data\n";
 					}
 				}
 
@@ -355,6 +563,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 							{
 								mutRef = true;
 
+								//
 								//cout << "mutable reference\n";
 							}
 						}
@@ -380,7 +589,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 								// check that the rhs has &
 								if (!rhsRefSymbol)
 								{
-									reportMemError();
+									reportMemError(ctx);
 									cout << "invalid mutable reference syntax: usage - int &var1 = mut& var2;\n";
 								}
 
@@ -432,17 +641,35 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 					else
 					{
-						cout << "error line: " << "can only have one variable on rhs\n";
+						reportMemError(ctx);
 
-						reportMemError();
-
-						return;
+						cout << "can only have one variable on rhs when assigning initializing a reference\n";
 					}
 				}
 
 			}
 
 
+		}
+
+		// otherwise set normal read/write permissions depending on mutability
+		else
+		{
+			if (lhsMut)
+			{
+				currentFunction.locals[varName].setPermissions(read | write | own, false);
+
+				//cout << "init: " << varName << ". Permissions: " <<
+					//currentFunction.locals[varName].memPermissions << endl;
+			}
+
+			else
+			{
+				currentFunction.locals[varName].setPermissions(read | own, false);
+
+				//cout << "init: " << varName << ". Permissions: " <<
+					//currentFunction.locals[varName].memPermissions << endl;
+			}
 		}
 	}
 }
@@ -462,47 +689,51 @@ void MemSafetyPass::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 	funcSymbol calledFunc = functions.get(ctx);
 
-	string  argName = ctx->arg()->var()->ID()->getText();
-
-	vector<string>  argVec{ argName };
-
-	// check that the argument has read permissions
-	if (!checkReadPermissions(argVec))
+	if (ctx->arg()->var() != NULL)
 	{
-		reportMemError();
-	}
+		string  argName = ctx->arg()->var()->ID()->getText();
 
-	else
-	{
+		vector<string>  argVec{ argName };
 
-		// if the paramemter is a pointer
-		if (calledFunc._paramType == POINTER)
+		// check that the argument has read permissions
+		if (!checkReadPermissions(argVec, ctx))
 		{
-			//make sure that the dereference operator * is not in the function call
-			if (ctx->getText().find("*") != string::npos)
-			{
-				reportMemError();
+			//reportMemError();
+		}
 
-				cout << "data type of parameter and argument do not match in func call\n";
-			}
+		else
+		{
 
-			// no * in call, drop all of the argument's permissions
-			else
+			// if the paramemter is a pointer
+			if (calledFunc._paramType == POINTER)
 			{
-				if (currentFunction.locals[argName].dataType != POINTER)
+				//make sure that the dereference operator * is not in the function call
+				if (ctx->getText().find("*") != string::npos)
 				{
-					reportMemError();
+					reportMemError(ctx);
 
 					cout << "data type of parameter and argument do not match in func call\n";
 				}
 
+				// no * in call, drop all of the argument's permissions
 				else
 				{
-					dropVar(argName);
+					if (currentFunction.locals[argName].dataType != POINTER)
+					{
+						reportMemError(ctx);
+
+						cout << "data type of parameter and argument do not match in func call\n";
+					}
+
+					else
+					{
+						dropVar(argName);
+					}
 				}
 			}
 		}
 	}
+
 }
 
 
@@ -515,41 +746,31 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 {
 	currentFunction = functions.get(ctx);
 
-	inFuncDef = true;
-
 	//cout << "MAIN\n";
 
 	// sentinel drops permissions for borower and regains for borowee
 
 	// create new vector of variants (either parse tree node, or sentinal) called anotatedStatements
-	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>  anotatedStatements;
+	vector<variant<string, sentinal>>  anotatedStatements;
 
 
 	// make sure the function contains statements
 	if (ctx->statList() != NULL)
 	{
 		// get the statements vector
-		auto statements = ctx->statList()->statement();
+		auto s = ctx->statList()->statement();
+
+		// convert to strings
+		vector<string>  statements = convertStatementsToString(s, ctx->return_());
 
 		// for statement in statements
 		for (int i = 0; i < statements.size(); i++)
 		{
-			auto statement = statements[i];
+			string statement = statements[i];
 
-			vector<string> vars;
-
-			// if the current statement is a print statement, need special case
-			if (statement->print() != NULL)
-			{
-				// get vars a differene way
-				vars = getPrintVars(statement->print());
-			}
-
-			else
-				vars = getVars(statement->getText());
-
-			//copy statement into anotatedStatements
 			anotatedStatements.push_back(statement);
+
+			vector<string> vars = getVars(statement);
 
 			// loop through all vars in statement
 			for (int j = 0; j < vars.size(); j++)
@@ -571,7 +792,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 					else
 					{
-						if (isFinalUse(statements, NULL, i + 1, varName))
+						if (isFinalUse(statements, i + 1, varName))
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
@@ -586,32 +807,16 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 		}
 
 
-		/*for (int k = 0; k < anotatedStatements.size(); k++)
-		{
-			if (holds_alternative<sentinal>(anotatedStatements[k]))
-			{
-				auto mySentinal = get<sentinal>(anotatedStatements[k]);
 
-				cout << "Sentinel: " << mySentinal.varName << endl;
-			}
-
-			else
-			{
-				auto statement = get<InoxisParser::StatementContext*>(anotatedStatements[k]);
-
-				cout << statement->getText() << endl;
-			}
-		}*/
 
 		// now we save the anotated statements so that we can keep track of when 
 		// variables are dropped while we walk the rest of the parse tree for this function
 		currentStatList = anotatedStatements;
 
-		// for statement in anotatedStatements
-			// do memory safety checking
+
 	}
 
-	cout << endl;
+	//cout << endl;
 }
 
 
@@ -623,7 +828,6 @@ for each local variable, after the last time it's used, add a sentinal for it to
 */
 void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx) 
 {
-	inFuncDef = true;
 
 	currentFunction = functions.get(ctx);
 
@@ -632,7 +836,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	// sentinel drops permissions for borower and regains for borowee
 
 	// create new vector of variants (either parse tree node, or sentinal) called anotatedStatements
-	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>  anotatedStatements;
+	vector<variant<string, sentinal>>  anotatedStatements;
 
 	int i = 0;
 
@@ -640,7 +844,9 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	if (ctx->statList() != NULL)
 	{
 		// get the statements vector
-		auto statements = ctx->statList()->statement();
+		auto s = ctx->statList()->statement();
+
+		vector<string> statements = convertStatementsToString(s, ctx->return_());
 
 		// first need to add the sentinal for the parameter if it's not used
 		string paramName = ctx->param()->ID()->getText();
@@ -648,7 +854,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		// check if there's a sentinal value for the variable
 		if (!checkIfSentinal(anotatedStatements, 0, paramName))
 		{
-			if (isFinalUse(statements, ctx->return_(), 0, paramName))
+			if (isFinalUse(statements, 0, paramName))
 			{
 				// add sentinal for var to anotatedStatements
 				sentinal newSentinal{ paramName, false };
@@ -662,20 +868,9 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		{
 			auto statement = statements[i];
 
-			vector<string> vars;
-
-			// if the current statement is a print statement, need special case
-			if (statement->print() != NULL)
-			{
-				// get vars a differene way
-				vars = getPrintVars(statement->print());
-			}
-
-			else
-				vars = getVars(statement->getText());
-
-			//copy statement into anotatedStatements
 			anotatedStatements.push_back(statement);
+
+			vector<string> vars = getVars(statement);
 
 			// loop through all vars in statement
 			for (int j = 0; j < vars.size(); j++)
@@ -697,7 +892,7 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 					else
 					{
-						if (isFinalUse(statements, ctx->return_(), i + 1, varName))
+						if (isFinalUse(statements, i + 1, varName))
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
@@ -709,50 +904,16 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 			}
 		}
 
-		auto returnStatement = ctx->return_();
-
-		vector<string> vars = getVars(returnStatement->getText());
-
-		//copy statement into anotatedStatements
-		anotatedStatements.push_back(returnStatement);
-
-		// loop through all vars in return statement and add a sentinal for each
-		for (int j = 0; j < vars.size(); j++)
-		{
-			string varName = vars[j];
-
-			sentinal newSentinal{ varName, false };
-
-			anotatedStatements.push_back(newSentinal);
-		}
 
 
-		/*for (int k = 0; k < anotatedStatements.size(); k++)
-		{
-			if (holds_alternative<sentinal>(anotatedStatements[k]))
-			{
-				auto mySentinal = get<sentinal>(anotatedStatements[k]);
-
-				cout << "Sentinel: " << mySentinal.varName << endl;
-			}
-
-			else
-			{
-				auto statement = get<InoxisParser::StatementContext*>(anotatedStatements[k]);
-
-				cout << statement->getText() << endl;
-			}
-		}*/
 
 		// now we save the anotated statements so that we can keep track of when 
 		// variables are dropped while we walk the rest of the parse tree for this function
 		currentStatList = anotatedStatements;
 
-		// for statement in anotatedStatements
-			// do memory safety checking
 	}
 
-	cout << endl;
+	//cout << endl;
 }
 
 
@@ -785,7 +946,7 @@ vector<string>  MemSafetyPass::getVars(string statement)
 
 // loop through rest of the anotated statements starting from 'start' index
 // check if there's a sentinal value for var
-bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>
+bool MemSafetyPass::checkIfSentinal(vector<variant<string, sentinal>>
 	statements, int start, string var)
 {
 	for (int i = start; i < statements.size(); i++)
@@ -816,8 +977,7 @@ bool MemSafetyPass::checkIfSentinal(vector<variant<InoxisParser::StatementContex
 
 // given a variable name, and the index of current statement + 1, check if the variable is used in the 
 // remaining statements
-bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statements, InoxisParser::ReturnContext* returnStatement, 
-	int start, string var)
+bool   MemSafetyPass::isFinalUse(vector<string> statements, int start, string var)
 {
 	// loop through statements
 	for (int i = start; i < statements.size(); i++)
@@ -827,19 +987,10 @@ bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statem
 
 		vector<string> vars;
 
-		if (statement->print() != NULL)
-		{
-			// get vars a differene way
-			vars = getPrintVars(statement->print());
-		}
-
-		else
-			vars = getVars(statement->getText());
-
 		//cout << statement->getText() << endl;
 
 		// get all the variable names in statement
-		vars = getVars(statement->getText());
+		vars = getVars(statement);
 
 		if (!vars.empty())
 		{
@@ -847,23 +998,6 @@ bool   MemSafetyPass::isFinalUse(vector<InoxisParser::StatementContext*>  statem
 			for (int j = 0; j < vars.size(); j++)
 			{
 
-				// if it matches the variable name we're checking, return false
-				if (vars[j] == var)
-					return false;
-			}
-		}
-	}
-
-	// check return statement as well
-	if (returnStatement != NULL)
-	{
-		vector<string> vars = getVars(returnStatement->getText());
-
-		if (!vars.empty())
-		{
-			// loop through variable names
-			for (int j = 0; j < vars.size(); j++)
-			{
 				// if it matches the variable name we're checking, return false
 				if (vars[j] == var)
 					return false;
@@ -899,30 +1033,11 @@ void  MemSafetyPass::incrementStatements()
 	{
 
 		// if the variant holds a statement, print it
-		if (holds_alternative<InoxisParser::StatementContext*>(currentStatList[statementIndex]))
+		if (holds_alternative<string>(currentStatList[statementIndex]))
 		{
 			try
 			{
-				//cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
-			}
-
-			catch (std::bad_variant_access const& ex)
-			{
-
-				cout << "Exception: " << ex.what() << endl;
-			}
-
-			// go to next variant to check if it's a sentinal
-			statementIndex++;
-
-			statementPrinted = true;
-		}
-
-		else if (holds_alternative<InoxisParser::ReturnContext*>(currentStatList[statementIndex]))
-		{
-			try
-			{
-				//cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+				//cout << get<string>(currentStatList[statementIndex]) << endl;
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -951,6 +1066,13 @@ void  MemSafetyPass::incrementStatements()
 				// get the name of the dropped var and then drop its permissions
 				sentinal currentSentinal = get<sentinal>(currentStatList[statementIndex]);
 
+				if (currentFunction.locals[currentSentinal.varName].ownsHeapData)
+				{
+					currentSentinal.heapAllocation = true;
+
+					currentStatList[statementIndex].emplace<sentinal>(currentSentinal);
+				}
+
 				dropVar(currentSentinal.varName);
 
 				//cout << currentSentinal.varName << " dropped \n";
@@ -967,29 +1089,11 @@ void  MemSafetyPass::incrementStatements()
 
 		if (statementIndex < currentStatList.size() && !statementPrinted)
 		{
-			if (holds_alternative<InoxisParser::StatementContext*>(currentStatList[statementIndex]))
+			if (holds_alternative<string>(currentStatList[statementIndex]))
 			{
 				try
 				{
-					//cout << get<InoxisParser::StatementContext*>(currentStatList[statementIndex])->getText() << endl;
-				}
-
-				catch (std::bad_variant_access const& ex)
-				{
-					cout << "Exception: " << ex.what() << endl;
-				}
-
-				// go to next variant to check if it's a sentinal
-				statementIndex++;
-
-				statementPrinted = true;
-			}
-
-			else if (holds_alternative<InoxisParser::ReturnContext*>(currentStatList[statementIndex]))
-			{
-				try
-				{
-					//cout << get<InoxisParser::ReturnContext*>(currentStatList[statementIndex])->getText() << endl;
+					//cout << get<string>(currentStatList[statementIndex]) << endl;
 				}
 
 				catch (std::bad_variant_access const& ex)
@@ -1025,6 +1129,13 @@ void  MemSafetyPass::dropVar(string varName)
 		currentFunction.locals[varName].dropPermissions();
 
 		currentFunction.locals[varName].hasBeenDropped = true;
+
+		if (currentFunction.locals[varName].ownsHeapData == true)
+		{
+			currentFunction.locals[varName].ownsHeapData = false;
+
+			//cout << varName << " no longer owns heap data\n";
+		}
 
 		//cout << "after dropping, " << varName << "s permissions are now: " << 
 			//currentFunction.locals[varName].memPermissions << endl;

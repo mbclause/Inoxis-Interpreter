@@ -25,6 +25,8 @@ public:
 	
 	map<string, varSymbol> locals;
 
+	vector<varSymbol>  variablesList;
+
 
 
 	funcSymbol(string name, string paramName, bool mut, DataType::DATA_TYPE returnType, DataType::DATA_TYPE paramType) : 

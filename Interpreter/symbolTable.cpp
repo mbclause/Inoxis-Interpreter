@@ -14,9 +14,9 @@ void   symbolTable::enterFuncDec(InoxisParser::FuncDecContext* ctx)
 	// check that the function name isn't already in funcSymbols
 	if (funcSymbols.count(funcName) == 1)
 	{
-		reportError();
+		reportError(ctx);
 
-		cout << "Function name: " << funcName << " already declared.\n";
+		cout << funcName << " already declared.\n";
 
 		return;
 	}
@@ -144,6 +144,10 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	funcSymbol funcDef(funcName, paramName, isMut, returnType, paramType);
 
+	varSymbol param(paramName, isMut, false, false, paramType, none, none, false, 0);
+
+	//variablesList.push_back(param);
+
 
 
 	if (funcSymbols.count(funcName) == 1)
@@ -159,17 +163,17 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 		else
 		{
-			cout << funcName << " has NOT been declared\n";
+			reportError(ctx);
 
-			reportError();
+			cout << funcName << " has NOT been declared\n";
 		}
 	}
 
 	else
 	{
-		cout << funcName << " has NOT been declared\n";
+		reportError(ctx);
 
-		reportError();
+		cout << funcName << " has NOT been declared\n";
 	}
 
 	if (isDeclared)
@@ -207,9 +211,9 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 	if (funcSymbols.count(funcName) != 1)
 	{
-		cout << funcName << " has NOT been declared\n";
+		reportError(ctx);
 
-		reportError();
+		cout << funcName << " has NOT been declared\n";
 
 		return;
 	}
@@ -261,9 +265,9 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 			if (currentFunc.locals.count(argName) != 1)
 			{
-				cout << "argument has not been declared\n";
+				reportError(ctx);
 
-				reportError();
+				cout << "argument has not been declared\n";
 			}
 
 			varSymbol varArg = currentFunc.locals[argName];
@@ -275,9 +279,9 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 				if (argType != INT)
 				{
-					cout << "argument is already a pointer or reference\n";
+					reportError(ctx);
 
-					reportError();
+					cout << "argument is already a pointer or reference\n";
 				}
 
 				if (varArg._needsMemSafety)
@@ -299,18 +303,20 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 	if (argType != calledFunc._paramType)
 	{
-		cout << "argument data type does not match parameter data type\n";
+		reportError(ctx);
 
-		reportError();
+		cout << "argument data type does not match parameter data type\n";
 	}
 
 	else
 	{
 		string paramName = calledFunc._paramName;
 
-		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none, none, false);
+		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none, none, false, 0);
 
 		funcSymbols[funcName].locals[paramName] = param;
+
+		funcSymbols[funcName].variablesList.push_back(param);
 	}
 
 	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
@@ -331,14 +337,9 @@ void symbolTable::exitFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	function = treeFuncSymbols.get(ctx);
 
-	/*cout << function.getName() << endl;
+	varListProp.put(ctx, variablesList);
 
-	for (auto x : function.locals)
-	{
-		varSymbol var = x.second;
 
-		var.printVarSymbol();
-	}*/
 }
 
 
@@ -348,18 +349,20 @@ void symbolTable::exitMain(InoxisParser::MainContext* ctx)
 
 	funcSymbol function = funcSymbols[funcName];
 
+	for (auto var: function.locals)
+	{
+		varSymbol v = var.second;
+
+		v.printVarSymbol();
+	}
+
 	treeFuncSymbols.put(ctx, function);
 
 	function = treeFuncSymbols.get(ctx);
 
-	/*cout << "main\n";
+	varListProp.put(ctx, variablesList);
 
-	for (auto x : function.locals)
-	{
-		varSymbol var = x.second;
-
-		var.printVarSymbol();
-	}*/
+	
 }
 
 
@@ -375,7 +378,7 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	// then check parentFunc locals to see if the name conflicts with another local
 	if (currentFunction.locals.count(name) != 0)
 	{
-		reportError();
+		reportError(ctx);
 
 		cout << "variable name conflict with: " << name << endl;
 
@@ -400,6 +403,8 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 	bool isArray = false;
 
+	int arraySize = 0;
+
 	DATA_TYPE dataType = INT;
 
 	if (mutText == "mut")
@@ -408,7 +413,12 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	}
 
 	if (!arrayText.empty())
+	{
 		isArray = true;
+
+		// get the array size
+		arraySize = stoi(ctx->array()->index()->getText());
+	}
 
 	if (dataTypeText == "*")
 		dataType = POINTER;
@@ -420,18 +430,20 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 	if (dataType != POINTER && needsMemSafety)
 	{
-		cout << "cannot allocate heap memory to a non-pointer\n";
+		reportError(ctx);
 
-		reportError();
+		cout << "cannot allocate heap memory to a non-pointer\n";
 
 		return;
 	}
 
-	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType, none, none, false);
+	varSymbol newVar(name, isMut, needsMemSafety, isArray, dataType, none, none, false, arraySize);
 
 	funcSymbols[parentFunc.getName()].locals[name] = newVar;
 
 	newVar = funcSymbols[parentFunc.getName()].locals[name];
+
+	variablesList.push_back(newVar);
 }
 
 
@@ -447,7 +459,7 @@ void symbolTable::enterVar(InoxisParser::VarContext* ctx)
 
 	if (parentFunc.locals.count(name) != 1)
 	{
-		reportError();
+		reportError(ctx);
 
 		cout << "Variable: " << name << " has not been declared" << endl;
 

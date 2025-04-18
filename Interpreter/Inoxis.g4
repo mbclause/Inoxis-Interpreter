@@ -33,7 +33,7 @@ param: 'int' pointRef mut ID subscript;
 
 var: pointRef ID array;
 
-varDec: 'int' pointRef mut ID array varDecRHS ';';
+varDec: 'int' mut pointRef ID array varDecRHS ';';
 
 arg: INT | var;
 
@@ -49,9 +49,11 @@ assign: var '=' assignRHS ';';
 
 
 // print
-print: 'cout' '<<' (STRING_LITERAL | var | 'endl') out ';';
+print: 'cout' '<<' printLiteral out ';';
 
-out: ('<<' (STRING_LITERAL | var | 'endl'))*;
+out: ('<<' printLiteral)*;
+
+printLiteral: (STRING_LITERAL | var | 'endl');
 
 
 // return statement
@@ -98,7 +100,7 @@ ifElseBlock: 'if' '(' condition ')' '{' statList '}' elif else;
 
 elif: ('elif' '(' condition ')' '{' statList '}')*;
 
-else: ('else' '(' condition ')' '{' statList '}')?;
+else: ('else' '{' statList '}')?;
 
 
 // conditionals

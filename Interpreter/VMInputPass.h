@@ -22,19 +22,36 @@ using namespace antlr4::tree;
 class VMInputPass : public InoxisBaseListener
 {
 public:
-	VMInputPass(ParseTreeProperty<vector<variant<InoxisParser::StatementContext*, sentinal,
-		InoxisParser::ReturnContext*>>> _statLists, 
-		ParseTreeProperty<funcSymbol> _symbolTables) : statLists(_statLists), 
-		symbolTables(_symbolTables), statementIndex(0), numLocals(0), currentFuncIndex(0)
+	VMInputPass(ParseTreeProperty<vector<variant<string, sentinal>>> _statLists,
+		ParseTreeProperty<funcSymbol> _symbolTables, ParseTreeProperty<vector<varSymbol>> varLists) :
+		statLists(_statLists),
+		symbolTables(_symbolTables), statementIndex(0), numLocals(0), currentFuncIndex(1), inControlBlock(false),
+		varListProp(varLists)
 	{ 
+		// my array of function structs
 		functions = g_array_new(false, false, sizeof(function));
 
-		currentSymbolsGArray = g_array_new(false, false, sizeof(unsigned));
+		// symbol array for the current function
+		currentSymbolsGArray = g_array_new(false, false, sizeof(int));
+
+		currentStatementsGArray = g_array_new(false, false, sizeof(statement));
 	};
 
 
 	// ENTER_RULE
 	// funcDec (add to functions, add parameter to symbols)
+	void enterFuncDec(InoxisParser::FuncDecContext* ctx) {
+		string funcName = ctx->ID()->getText();
+
+		functionMap[funcName] = currentFuncIndex;
+
+		currentFuncIndex++;
+	}
+
+	void enterWhile(InoxisParser::WhileContext* ctx) { inControlBlock = true; }
+
+	void enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx) { inControlBlock = true; }
+
 	// funcDef (set current statList)
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
 	
@@ -43,13 +60,14 @@ public:
 	
 	// EXIT RULE
 	// need these to build up expressions
-	// enter numLiteral
+	// numLiteral
 	void exitNumLiteral(InoxisParser::NumLiteralContext* ctx);
 	
 	// varLiteral
 	void exitVarLiteral(InoxisParser::VarLiteralContext* ctx);
 
 	// funcCallExp
+	void exitFuncCallFactor(InoxisParser::FuncCallFactorContext* ctx);
 
 	// add
 	void exitAdd(InoxisParser::AddContext* ctx);
@@ -57,53 +75,89 @@ public:
 	// subtract
 	void exitSubtract(InoxisParser::SubtractContext* ctx);
 
-	// rhsRef
-	//void exitRhsRef(InoxisParser::RhsRefContext* ctx);
+	// exitVar
+	void exitVar(InoxisParser::VarContext* ctx);
 
-	// condition
-	//void exitCondition(InoxisParser::ConditionContext* ctx);
+	void exitIndex(InoxisParser::IndexContext* ctx);
+
+	void exitArray(InoxisParser::ArrayContext* ctx)
+	{
+		expProp.put(ctx, expProp.get(ctx->index()));
+
+		allocationSizeProp.put(ctx, allocationSizeProp.get(ctx->index()));
+	}
+
+	void exitArg(InoxisParser::ArgContext* ctx);
+
+	// rhsRef
+	void exitRhsRef(InoxisParser::RhsRefContext* ctx);
 
 
 	// statement types
 	// varDec
-	//void exitVarDec(InoxisParser::VarDecContext* ctx);
+	void exitVarDec(InoxisParser::VarDecContext* ctx);
+
+	void exitVarDecRHS(InoxisParser::VarDecRHSContext* ctx) {
+		expProp.put(ctx, expProp.get(ctx->assignRHS()));
+
+		allocationSizeProp.put(ctx, allocationSizeProp.get(ctx->assignRHS()));
+	}
+
+	void exitAssignRHS(InoxisParser::AssignRHSContext* ctx);
+
+	void exitAllocate(InoxisParser::AllocateContext* ctx);
 
 	// assign
-	//void exitAssign(InoxisParser::AssignContext* ctx);
+	void exitAssign(InoxisParser::AssignContext* ctx);
 
 	// print
-	//void exitPrint(InoxisParser::PrintContext* ctx);
+	void exitPrint(InoxisParser::PrintContext* ctx);
 
 	// out
-	//void exitOut(InoxisParser::OutContext* ctx);
+	void exitOut(InoxisParser::OutContext* ctx);
+
+	void exitPrintLiteral(InoxisParser::PrintLiteralContext* ctx);
 
 	// funcCall
-	//void exitFuncCall(InoxisParser::FuncCallContext* ctx);
+	void exitFuncCall(InoxisParser::FuncCallContext* ctx);
+
+	void exitFuncCallExp(InoxisParser::FuncCallExpContext* ctx) {
+		expProp.put(ctx, expProp.get(ctx->funcCallFactor()));
+	}
+	
+	void exitReturn(InoxisParser::ReturnContext* ctx);
+
+	void exitRetVal(InoxisParser::RetValContext* ctx) {
+		expProp.put(ctx, expProp.get(ctx->expression()));
+	}
 	
 	// control flow
 	// ifElseBlock
-	//void exitIfElseBlock(InoxisParser::IfElseBlockContext* ctx);
+	void exitIfElseBlock(InoxisParser::IfElseBlockContext* ctx);
 
 	// elif
-	//void exitElif(InoxisParser::ElifContext* ctx);
+	void exitElif(InoxisParser::ElifContext* ctx);
 
 	// else
-	//void exitElse(InoxisParser::ElseContext* ctx);
+	void exitElse(InoxisParser::ElseContext* ctx);
 
 	// while
-	//void exitWhile(InoxisParser::WhileContext* ctx);
+	void exitWhile(InoxisParser::WhileContext* ctx);
+
+	// condition
+	void exitCondition(InoxisParser::ConditionContext* ctx);
+
+	void exitCondRHS(InoxisParser::CondRHSContext* ctx);
 
 
 	// funcDef (add statements)??
-	void exitMain(InoxisParser::MainContext* ctx) { statementIndex = 0; }
+	void exitMain(InoxisParser::MainContext* ctx);
 
-	// allocate garrays for statements and locals, push a 0 to locals numLocals times
-	void exitFuncDef(InoxisParser::FuncDefContext* ctx) { statementIndex = 0; }
+	
+	void exitFuncDef(InoxisParser::FuncDefContext* ctx);
 
 	// also add statement to the function statements??
-	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
-
-	void exitReturn(InoxisParser::ReturnContext* ctx) { incrementStatements(); };
+	void exitStatement(InoxisParser::StatementContext* ctx);
 
 
 	// need to have similar incrementStatList function to see when we reach sentinal for pointer var
@@ -111,16 +165,21 @@ public:
 
 	void  incrementStatements();
 
+	// function to get all of the blocks in an ifElseBlock statement
+	GArray* getIfElseBlocks(InoxisParser::IfElseBlockContext* ctx);
+
 
 	// data members
-	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>> currentStatList;
+	vector<variant<string, sentinal>> currentStatList;
 
 	int statementIndex;
 
-	ParseTreeProperty<vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>> statLists;
+	ParseTreeProperty<vector<variant<string, sentinal>>> statLists;
 
 	// do I need this??
 	ParseTreeProperty<funcSymbol>  symbolTables;
+
+	ParseTreeProperty<vector<varSymbol>> varListProp;
 
 	// current statements list for function
 
@@ -130,15 +189,27 @@ public:
 	// index for current function
 	int  currentFuncIndex;
 
+	funcSymbol  currentFunction;
+
 	// GArray of functions
 	GArray* functions;
 
 	// map from var name to index for current function locals
-	map<string, int>  currentLocalsMap;
+	map<string, unsigned>  currentLocalsMap;
 
+	// map from function name to its index in the functions table
+	map<string, int>  functionMap;
+
+	// of type int
 	GArray* currentSymbolsGArray;
 
+	// of type statement
+	GArray* currentStatementsGArray;
+
 	const int zero = 0;
+
+	// keep track of if we're in an if/else/while block
+	bool  inControlBlock;
 
 
 	// need parse tree properties for each struct
@@ -165,4 +236,10 @@ public:
 	ParseTreeProperty<statement>	stmntProp;
 
 	ParseTreeProperty<function>		funcProp;
+
+	ParseTreeProperty<int>			allocationSizeProp;
+
+	ParseTreeProperty<vector<InoxisParser::StatListContext*>>  elifStatsProp;
+
+	ParseTreeProperty<vector<InoxisParser::ConditionContext*>>  elifCondsProp;
 };

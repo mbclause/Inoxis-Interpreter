@@ -28,10 +28,9 @@ class MemSafetyPass : public InoxisBaseListener
 {
 public:
 	// ctors
-	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0), 
-		inFuncDef(false), statementIndex(0) {};
+	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0), statementIndex(0) {};
 
-	MemSafetyPass() : _numErrors(0), inFuncDef(false), statementIndex(0) {};
+	MemSafetyPass() : _numErrors(0), statementIndex(0) {};
 
 
 
@@ -62,15 +61,19 @@ public:
 
 
 
-	void reportMemError() { _numErrors++; };
+	void reportMemError(antlr4::ParserRuleContext* ctx) {
+		size_t line = ctx->getStart()->getLine();
+		cout << "Line " << line << ": ";
+		_numErrors++;
+	};
+
 
 	vector<string>  getVars(string statement);
 
-	bool   checkIfSentinal(vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>
+	bool   checkIfSentinal(vector<variant<string, sentinal>>
 		statements, int start, string var);
 
-	bool   isFinalUse(vector<InoxisParser::StatementContext*>  statements, InoxisParser::ReturnContext* returnStatement, 
-		int start, string var);
+	bool   isFinalUse(vector<string>  statements, int start, string var);
 
 	void  incrementStatements();
 
@@ -78,23 +81,26 @@ public:
 
 	void  dropVar(string varName);
 
-	bool  checkReadPermissions(vector<string> vars);
+	bool  checkReadPermissions(vector<string> vars, antlr4::ParserRuleContext* ctx);
 	
 	vector<string>  getPrintVars(InoxisParser::PrintContext* ctx);
+
+	vector<string>  convertStatementsToString(vector<InoxisParser::StatementContext*>  statements, 
+		InoxisParser::ReturnContext* returnStatement);
+
+	void  addConditionalStatements(InoxisParser::StatementContext* condStatement, vector<string> &stringStatements);
 
 
 	// data members
 	ParseTreeProperty<funcSymbol> functions;
 
-	ParseTreeProperty<vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>>> statLists;
+	ParseTreeProperty<vector<variant<string, sentinal>>> statLists;
 
-	vector<variant<InoxisParser::StatementContext*, sentinal, InoxisParser::ReturnContext*>> currentStatList;
+	vector<variant<string, sentinal>> currentStatList;
 
 	int  statementIndex;
 
 	int _numErrors;
 
 	funcSymbol currentFunction;
-
-	bool   inFuncDef;
 };

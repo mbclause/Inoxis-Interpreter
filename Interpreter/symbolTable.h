@@ -44,7 +44,11 @@ public:
 
 	bool compFuncSignatures(funcSymbol func1, funcSymbol func2);
 
-	void reportError() { numErrors++; };
+	void reportError(antlr4::ParserRuleContext* ctx) { 
+		size_t line = ctx->getStart()->getLine();
+		cout << "Line " << line << ": ";
+		numErrors++; 
+	};
 
 
 
@@ -55,6 +59,10 @@ public:
 	antlr4::tree::ParseTreeProperty<funcSymbol>  treeFuncSymbols;
 
 	map<string, funcSymbol> funcSymbols;
+
+	antlr4::tree::ParseTreeProperty<vector<varSymbol>>  varListProp;
+
+	vector<varSymbol>  variablesList;
 
 	funcSymbol  currentFunction;
 };

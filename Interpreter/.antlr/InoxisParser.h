@@ -24,12 +24,12 @@ public:
     RuleProgram = 0, RuleFuncDecs = 1, RuleMain = 2, RuleFuncDefs = 3, RuleStatList = 4, 
     RuleFuncDec = 5, RuleFuncDef = 6, RuleFuncCall = 7, RuleFuncCallFactor = 8, 
     RuleParam = 9, RuleVar = 10, RuleVarDec = 11, RuleArg = 12, RuleIndex = 13, 
-    RuleStatement = 14, RuleAssign = 15, RulePrint = 16, RuleOut = 17, RuleReturn = 18, 
-    RuleRetVal = 19, RuleMut = 20, RulePointRef = 21, RuleSubscript = 22, 
-    RuleArray = 23, RuleAllocate = 24, RuleVarDecRHS = 25, RuleAssignRHS = 26, 
-    RuleRhsRef = 27, RuleExpression = 28, RuleWhile = 29, RuleIfElseBlock = 30, 
-    RuleElif = 31, RuleElse = 32, RuleCondition = 33, RuleNot = 34, RuleCondOp = 35, 
-    RuleCondRHS = 36
+    RuleStatement = 14, RuleAssign = 15, RulePrint = 16, RuleOut = 17, RulePrintLiteral = 18, 
+    RuleReturn = 19, RuleRetVal = 20, RuleMut = 21, RulePointRef = 22, RuleSubscript = 23, 
+    RuleArray = 24, RuleAllocate = 25, RuleVarDecRHS = 26, RuleAssignRHS = 27, 
+    RuleRhsRef = 28, RuleExpression = 29, RuleWhile = 30, RuleIfElseBlock = 31, 
+    RuleElif = 32, RuleElse = 33, RuleCondition = 34, RuleNot = 35, RuleCondOp = 36, 
+    RuleCondRHS = 37
   };
 
   explicit InoxisParser(antlr4::TokenStream *input);
@@ -67,6 +67,7 @@ public:
   class AssignContext;
   class PrintContext;
   class OutContext;
+  class PrintLiteralContext;
   class ReturnContext;
   class RetValContext;
   class MutContext;
@@ -276,8 +277,8 @@ public:
   public:
     VarDecContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    PointRefContext *pointRef();
     MutContext *mut();
+    PointRefContext *pointRef();
     antlr4::tree::TerminalNode *ID();
     ArrayContext *array();
     VarDecRHSContext *varDecRHS();
@@ -363,9 +364,8 @@ public:
   public:
     PrintContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    PrintLiteralContext *printLiteral();
     OutContext *out();
-    antlr4::tree::TerminalNode *STRING_LITERAL();
-    VarContext *var();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -380,10 +380,8 @@ public:
   public:
     OutContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> STRING_LITERAL();
-    antlr4::tree::TerminalNode* STRING_LITERAL(size_t i);
-    std::vector<VarContext *> var();
-    VarContext* var(size_t i);
+    std::vector<PrintLiteralContext *> printLiteral();
+    PrintLiteralContext* printLiteral(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -393,6 +391,22 @@ public:
   };
 
   OutContext* out();
+
+  class  PrintLiteralContext : public antlr4::ParserRuleContext {
+  public:
+    PrintLiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *STRING_LITERAL();
+    VarContext *var();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  PrintLiteralContext* printLiteral();
 
   class  ReturnContext : public antlr4::ParserRuleContext {
   public:
@@ -672,7 +686,6 @@ public:
   public:
     ElseContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ConditionContext *condition();
     StatListContext *statList();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
