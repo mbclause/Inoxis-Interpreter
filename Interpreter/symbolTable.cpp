@@ -140,13 +140,20 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		isMut = true;
 	}
 
+	bool isArray = false;
+
+	int arraySize = 0;
+
+	if (ctx->param()->paramArray()->getText().size() > 0)
+	{
+		isArray = true;
+
+		arraySize = stoi(ctx->param()->paramArray()->INT()->getText());
+	}
+
 
 
 	funcSymbol funcDef(funcName, paramName, isMut, returnType, paramType);
-
-	varSymbol param(paramName, isMut, false, false, paramType, none, none, false, 0);
-
-	//variablesList.push_back(param);
 
 
 
@@ -179,6 +186,12 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	if (isDeclared)
 	{
 		currentFunction = funcSymbols[funcName];
+
+		varSymbol param(paramName, isMut, false, isArray, paramType, none, none, false, arraySize);
+
+		variablesList.push_back(param);
+
+		funcSymbols[funcName].locals[paramName] = param;
 
 		/*for (auto x : currentFunction.locals)
 		{
@@ -314,15 +327,13 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 
 		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none, none, false, 0);
 
-		funcSymbols[funcName].locals[paramName] = param;
-
-		funcSymbols[funcName].variablesList.push_back(param);
+		//funcSymbols[funcName].locals[paramName] = param;
 	}
 
 	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
 
 	// save the called function's info in the parse tree
-	treeFuncSymbols.put(ctx, calledFunc);
+	//treeFuncSymbols.put(ctx, calledFunc);
 }
 
 
@@ -339,22 +350,19 @@ void symbolTable::exitFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	varListProp.put(ctx, variablesList);
 
+	variablesList.clear();
+
 
 }
 
 
 void symbolTable::exitMain(InoxisParser::MainContext* ctx)
 {
-	string funcName = "main";
+	string  funcName = "main";
 
 	funcSymbol function = funcSymbols[funcName];
 
-	for (auto var: function.locals)
-	{
-		varSymbol v = var.second;
 
-		v.printVarSymbol();
-	}
 
 	treeFuncSymbols.put(ctx, function);
 
@@ -362,7 +370,7 @@ void symbolTable::exitMain(InoxisParser::MainContext* ctx)
 
 	varListProp.put(ctx, variablesList);
 
-	
+	variablesList.clear();
 }
 
 

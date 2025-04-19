@@ -115,6 +115,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitParamArray(InoxisParser::ParamArrayContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitAllocate(InoxisParser::AllocateContext *ctx) override {
     return visitChildren(ctx);
   }

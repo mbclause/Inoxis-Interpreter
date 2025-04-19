@@ -69,6 +69,8 @@ public:
 
     virtual std::any visitArray(InoxisParser::ArrayContext *context) = 0;
 
+    virtual std::any visitParamArray(InoxisParser::ParamArrayContext *context) = 0;
+
     virtual std::any visitAllocate(InoxisParser::AllocateContext *context) = 0;
 
     virtual std::any visitVarDecRHS(InoxisParser::VarDecRHSContext *context) = 0;

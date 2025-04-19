@@ -149,16 +149,16 @@ gthread-2.0.lib
     <ClCompile Include=".antlr\InoxisListener.cpp" />
     <ClCompile Include=".antlr\InoxisParser.cpp" />
     <ClCompile Include=".antlr\InoxisVisitor.cpp" />
-    <ClCompile Include="c_practice.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="MemSafetyPass.cpp" />
     <ClCompile Include="myLexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="symbolTable.cpp" />
-    <ClCompile Include="test.c" />
     <ClCompile Include="varSymbol.cpp" />
+    <ClCompile Include="VirtualMachine.c" />
     <ClCompile Include="VMInput.c" />
     <ClCompile Include="VMInputPass.cpp" />
+    <ClCompile Include="VMInstruction.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="accepted_1.txt" />
@@ -179,8 +179,10 @@ gthread-2.0.lib
     <ClInclude Include="myLexer.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="varSymbol.h" />
+    <ClInclude Include="VirtualMachine.h" />
     <ClInclude Include="VMInput.h" />
     <ClInclude Include="VMInputPass.h" />
+    <ClInclude Include="VMInstruction.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".antlr\Inoxis.g4" />

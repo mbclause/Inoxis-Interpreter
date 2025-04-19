@@ -39,16 +39,10 @@
     <ClCompile Include="MemSafetyPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VMInputPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VMInput.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="c_practice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisBaseListener.cpp">
@@ -67,6 +61,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".antlr\InoxisVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualMachine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VMInstruction.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,6 +123,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include=".antlr\InoxisVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VirtualMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VMInstruction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

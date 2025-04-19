@@ -91,6 +91,9 @@ public:
   virtual void enterArray(InoxisParser::ArrayContext * /*ctx*/) override { }
   virtual void exitArray(InoxisParser::ArrayContext * /*ctx*/) override { }
 
+  virtual void enterParamArray(InoxisParser::ParamArrayContext * /*ctx*/) override { }
+  virtual void exitParamArray(InoxisParser::ParamArrayContext * /*ctx*/) override { }
+
   virtual void enterAllocate(InoxisParser::AllocateContext * /*ctx*/) override { }
   virtual void exitAllocate(InoxisParser::AllocateContext * /*ctx*/) override { }
 

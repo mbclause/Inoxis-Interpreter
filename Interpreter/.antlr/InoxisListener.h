@@ -89,6 +89,9 @@ public:
   virtual void enterArray(InoxisParser::ArrayContext *ctx) = 0;
   virtual void exitArray(InoxisParser::ArrayContext *ctx) = 0;
 
+  virtual void enterParamArray(InoxisParser::ParamArrayContext *ctx) = 0;
+  virtual void exitParamArray(InoxisParser::ParamArrayContext *ctx) = 0;
+
   virtual void enterAllocate(InoxisParser::AllocateContext *ctx) = 0;
   virtual void exitAllocate(InoxisParser::AllocateContext *ctx) = 0;
 

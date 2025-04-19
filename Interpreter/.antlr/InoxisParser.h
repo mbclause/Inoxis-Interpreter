@@ -26,10 +26,10 @@ public:
     RuleParam = 9, RuleVar = 10, RuleVarDec = 11, RuleArg = 12, RuleIndex = 13, 
     RuleStatement = 14, RuleAssign = 15, RulePrint = 16, RuleOut = 17, RulePrintLiteral = 18, 
     RuleReturn = 19, RuleRetVal = 20, RuleMut = 21, RulePointRef = 22, RuleSubscript = 23, 
-    RuleArray = 24, RuleAllocate = 25, RuleVarDecRHS = 26, RuleAssignRHS = 27, 
-    RuleRhsRef = 28, RuleExpression = 29, RuleWhile = 30, RuleIfElseBlock = 31, 
-    RuleElif = 32, RuleElse = 33, RuleCondition = 34, RuleNot = 35, RuleCondOp = 36, 
-    RuleCondRHS = 37
+    RuleArray = 24, RuleParamArray = 25, RuleAllocate = 26, RuleVarDecRHS = 27, 
+    RuleAssignRHS = 28, RuleRhsRef = 29, RuleExpression = 30, RuleWhile = 31, 
+    RuleIfElseBlock = 32, RuleElif = 33, RuleElse = 34, RuleCondition = 35, 
+    RuleNot = 36, RuleCondOp = 37, RuleCondRHS = 38
   };
 
   explicit InoxisParser(antlr4::TokenStream *input);
@@ -74,6 +74,7 @@ public:
   class PointRefContext;
   class SubscriptContext;
   class ArrayContext;
+  class ParamArrayContext;
   class AllocateContext;
   class VarDecRHSContext;
   class AssignRHSContext;
@@ -245,7 +246,7 @@ public:
     PointRefContext *pointRef();
     MutContext *mut();
     antlr4::tree::TerminalNode *ID();
-    SubscriptContext *subscript();
+    ParamArrayContext *paramArray();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -494,6 +495,21 @@ public:
   };
 
   ArrayContext* array();
+
+  class  ParamArrayContext : public antlr4::ParserRuleContext {
+  public:
+    ParamArrayContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *INT();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ParamArrayContext* paramArray();
 
   class  AllocateContext : public antlr4::ParserRuleContext {
   public:

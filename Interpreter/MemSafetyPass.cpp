@@ -402,7 +402,7 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 					{
 						currentFunction.locals[varName].ownsHeapData = true;
 
-						cout << varName << " now owns heap data\n";
+						//cout << varName << " now owns heap data\n";
 					}
 
 					dropVar(rhsVar);
@@ -831,6 +831,8 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	currentFunction = functions.get(ctx);
 
+	string paramName = ctx->param()->ID()->getText();
+
 	//cout << endl << currentFunction.getName() << endl;
 
 	// sentinel drops permissions for borower and regains for borowee
@@ -849,7 +851,6 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		vector<string> statements = convertStatementsToString(s, ctx->return_());
 
 		// first need to add the sentinal for the parameter if it's not used
-		string paramName = ctx->param()->ID()->getText();
 
 		// check if there's a sentinal value for the variable
 		if (!checkIfSentinal(anotatedStatements, 0, paramName))
@@ -911,6 +912,25 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		// variables are dropped while we walk the rest of the parse tree for this function
 		currentStatList = anotatedStatements;
 
+	}
+
+
+
+	// now we have to initialize the parameters permissions
+	if (ctx->param()->mut()->getText() == "mut")
+	{
+		currentFunction.locals[paramName].setPermissions(read | write | own, false);
+
+		//cout << "init: " << paramName << ". Permissions: " <<
+			//currentFunction.locals[paramName].memPermissions << endl;
+	}
+
+	else
+	{
+		currentFunction.locals[paramName].setPermissions(read | own, false);
+
+		//cout << "init: " << paramName << ". Permissions: " <<
+			//currentFunction.locals[paramName].memPermissions << endl;
 	}
 
 	//cout << endl;

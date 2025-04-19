@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include <glib.h>
 #include <stdbool.h>
@@ -6,6 +6,7 @@
 // Forward declare
 typedef struct expression expression;
 
+// ENUMS
 // OP - Operators
 typedef enum 
 {
@@ -34,6 +35,30 @@ typedef enum
 {
     STRING_LIT, NUMBER_LIT, VARIABLE_LIT
 } LIT_KIND;
+
+
+typedef enum
+{
+    MEM_POINTER, MEM_INT, MEM_REF
+} MEM_VAL;
+
+
+
+// STRUCTS
+// struct for memory
+typedef struct
+{
+    MEM_VAL type;
+
+    union
+    {
+        int* heapPtr;
+
+        int  intVal;
+
+        unsigned  index;
+    } val;
+} memVal;
 
 
 
@@ -212,7 +237,7 @@ typedef struct
     // type statement
     GArray* statements; 
 
-    // of type int
+    // of type memVal
     GArray* symbols; 
 
 } function;
@@ -244,6 +269,14 @@ print* makePrint(GArray* literalArray);
 function* makeFunction(GArray* stats, GArray* syms);
 
 
+// make and init functions for memVal
+memVal   initIntMemVal(int  val);
+
+memVal   initRefMemVal(unsigned index);
+
+memVal makePtrMemVal(int* ptr);
+
+
 
 
 // corresponding free functions for each
@@ -268,6 +301,8 @@ bool freeFunction(function* func);
 bool freeExpression(expression* exp);
 
 bool freeStringLiteral(literal lit);
+
+bool  freeMemVal(memVal mv);
 
 
 
@@ -353,9 +388,35 @@ void  printPrintStat(print p);
 
 void  printReturn(Return r);
 
+// print mem val
+void  printMemVal(memVal  mv);
+
+void  printIntMemVal(memVal  mv);
+
+void  printPtrMemVal(memVal  mv);
+
+void  printRefMemVal(memVal  mv);
+
 
 // print the operator
 void  printOperator(OP op);
+
+
+
+
+// get methods
+// for memVal
+inline int  getIntMemVal(memVal mv) { return mv.val.intVal; };
+
+inline unsigned  getRefMemVal(memVal mv) { return mv.val.index; };
+
+inline int* getPtrMemVal(memVal mv) {
+    if (mv.val.heapPtr)
+        return mv.val.heapPtr;
+
+    else
+        return NULL;
+}
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,7 @@ File: Interpreter.h
 #include "symbolTable.h"
 #include "MemSafetyPass.h"
 #include "VMInputPass.h"
+#include "VirtualMachine.h"
 
 using namespace std;
 

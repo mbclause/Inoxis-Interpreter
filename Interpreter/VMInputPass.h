@@ -32,7 +32,7 @@ public:
 		functions = g_array_new(false, false, sizeof(function));
 
 		// symbol array for the current function
-		currentSymbolsGArray = g_array_new(false, false, sizeof(int));
+		currentSymbolsGArray = g_array_new(false, false, sizeof(memVal));
 
 		currentStatementsGArray = g_array_new(false, false, sizeof(statement));
 	};
@@ -191,7 +191,7 @@ public:
 
 	funcSymbol  currentFunction;
 
-	// GArray of functions
+	// GArray of functions, the output of the pass
 	GArray* functions;
 
 	// map from var name to index for current function locals

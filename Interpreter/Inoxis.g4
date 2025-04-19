@@ -29,7 +29,7 @@ funcCallFactor: ID '(' arg ')';
 
 
 // variable uses
-param: 'int' pointRef mut ID subscript;
+param: 'int' pointRef mut ID paramArray;
 
 var: pointRef ID array;
 
@@ -71,6 +71,8 @@ pointRef: ('*'|'&')?;
 subscript: '[]'?;
 
 array: ('[' index ']')?;
+
+paramArray: ('[' INT ']')?;
 
 allocate: 'new' 'int' array;
 

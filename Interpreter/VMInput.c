@@ -319,7 +319,8 @@ expression  initFuncCallExpression(funcCall* call)
 
 	newExp.kind = EXPR_CALL;
 
-	newExp.val.call = *call;
+	if(call)
+		newExp.val.call = *call;
 
 	return  newExp;
 }
@@ -340,6 +341,47 @@ expression* makeExpression(expression exp)
 	}
 
 	return newExp;
+}
+
+
+
+// init memVal
+memVal   initIntMemVal(int  val)
+{
+	memVal newMV;
+
+	newMV.type = MEM_INT;
+
+	newMV.val.intVal = val;
+
+	return newMV;
+}
+
+
+
+memVal   initRefMemVal(unsigned index)
+{
+	memVal newMV;
+
+	newMV.type = MEM_REF;
+
+	newMV.val.index = index;
+
+	return newMV;
+}
+
+
+
+memVal makePtrMemVal(int* ptr)
+{
+	memVal newMV;
+
+	newMV.type = MEM_POINTER;
+
+	if (ptr)
+		newMV.val.heapPtr = ptr;
+
+	return  newMV;
 }
 
 
@@ -441,6 +483,18 @@ bool freeStringLiteral(literal lit)
 {
 	if (lit.val.string)
 		g_string_free(lit.val.string, true);
+
+	return true;
+}
+
+
+bool  freeMemVal(memVal mv)
+{
+
+		if (mv.val.heapPtr)
+			free(mv.val.heapPtr);
+
+
 
 	return true;
 }
@@ -854,6 +908,52 @@ void  printOperator(OP op)
 	default:
 		break;
 	}
+}
+
+
+
+
+// print memval
+void  printMemVal(memVal  mv)
+{
+	switch (mv.type)
+	{
+	case MEM_INT:
+		printIntMemVal(mv);
+		break;
+
+	case MEM_POINTER:
+		printPtrMemVal(mv);
+		break;
+
+	case MEM_REF:
+		printRefMemVal(mv);
+		break;
+
+	default:
+		break;
+	}
+}
+
+
+
+void  printIntMemVal(memVal  mv)
+{
+	printf("Int = %d\n", mv.val.intVal);
+}
+
+
+
+void  printPtrMemVal(memVal  mv)
+{
+	printf("Heap Address = %p\n", (void*)mv.val.heapPtr);
+}
+
+
+
+void  printRefMemVal(memVal  mv)
+{
+	printf("Variable at index = %d\n", mv.val.index);
 }
 
 

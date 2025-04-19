@@ -29,12 +29,12 @@ void VMInputPass::exitMain(InoxisParser::MainContext* ctx)
 
 	//cout << "symbol table size: " << currentSymbolsGArray->len << endl;
 
-	for (unsigned i = 0; i < currentStatementsGArray->len; i++)
+	/*for (unsigned i = 0; i < currentStatementsGArray->len; i++)
 	{
 		statement stat = g_array_index(currentStatementsGArray, statement, i);
 
 		//printStatement(stat);
-	}
+	}*/
 
 	function* newFunction = makeFunction(currentStatementsGArray, currentSymbolsGArray);
 
@@ -1111,7 +1111,7 @@ void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	string funcName = ctx->ID()->getText();
 
-	GArray*  localSymbols = g_array_new(false, false, sizeof(int));
+	GArray*  localSymbols = g_array_new(false, false, sizeof(memVal));
 
 	// create a new statements garry for the function
 	GArray* funcStatements = g_array_new(false, false, sizeof(statement));
@@ -1152,15 +1152,11 @@ void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	}
 
 
-	// get the variable index. push a zero that many times to the garray
-	// this line from GeeksForGeeks
-	auto lastPair = prev(locals.end());
-
-	unsigned localsSize = lastPair->second;
-
-	for (unsigned k = 0; k <= localsSize; k++)
+	for (unsigned k = 0; k < index; k++)
 	{
-		g_array_append_val(localSymbols, zero);
+		memVal  newMemVal = initIntMemVal(0);
+
+		g_array_append_val(localSymbols, newMemVal);
 	}
 
 	currentLocalsMap = locals;
@@ -1192,7 +1188,7 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 	// create a new statements garry for the function
 	GArray* funcStatements = g_array_new(false, false, sizeof(statement));
 
-	GArray* localSymbols = g_array_new(false, false, sizeof(int));
+	GArray* localSymbols = g_array_new(false, false, sizeof(memVal));
 
 	// create a new map from var names to array indices
 	map<string, unsigned>  locals;
@@ -1228,18 +1224,11 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 
 	//cout << "size of string to index map: " << locals.size() << endl;
 
-
-	// get the variable index. push a zero that many times to the garray
-	// this line from GeeksForGeeks
-	auto lastPair = prev(locals.end());
-
-	unsigned localsSize = lastPair->second;
-
-	//cout << "index of the last variable in map: " << localsSize << endl;
-
-	for (unsigned k = 0; k <= localsSize; k++)
+	for (unsigned k = 0; k < index; k++)
 	{
-		g_array_append_val(localSymbols, zero);
+		memVal newMemVal = initIntMemVal(0);
+
+		g_array_append_val(localSymbols, newMemVal);
 	}
 
 	currentLocalsMap = locals;

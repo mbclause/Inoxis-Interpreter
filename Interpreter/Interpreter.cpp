@@ -45,7 +45,6 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 			if (memPass._numErrors == 0)
 			{
-				cout << "\n\nvm input pass\n";
 
 				// output of this walk will be a GArray of function structs
 				// this will be passed to the VM
@@ -55,7 +54,8 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 
 				walker.walk(&vmInput, tree);
 
-				printVMInput(vmInput.functions);
+				// compile and execute the program using the virtual machine
+				VMMain(vmInput.functions);
 			}
 		}
 	}
