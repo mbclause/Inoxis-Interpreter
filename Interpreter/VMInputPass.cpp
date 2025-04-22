@@ -9,9 +9,9 @@ void VMInputPass::exitFuncDef(InoxisParser::FuncDefContext* ctx)
 {
 	//cout << "symbol table size: " << currentSymbolsGArray->len << endl;
 
-	function* newFunction = makeFunction(currentStatementsGArray, currentSymbolsGArray);
+	function newFunction = { currentStatementsGArray, currentSymbolsGArray };
 
-	g_array_append_val(functions, *newFunction);
+	g_array_append_val(functions, newFunction);
 
 	statementIndex = 0;
 }
@@ -36,9 +36,9 @@ void VMInputPass::exitMain(InoxisParser::MainContext* ctx)
 		//printStatement(stat);
 	}*/
 
-	function* newFunction = makeFunction(currentStatementsGArray, currentSymbolsGArray);
+	function newFunction = { currentStatementsGArray, currentSymbolsGArray };
 
-	g_array_append_val(functions, *newFunction);
+	g_array_append_val(functions, newFunction);
 }
 
 
@@ -327,11 +327,17 @@ Description: create an if statement
 */
 void VMInputPass::exitIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
 {
-	// get all of the if/else blocks
+	// the list of if/elif/else statements
 	GArray* s = getIfElseBlocks(ctx);
 
+	// create a new ifelse statement
+	ifElseBlock ieb = initIfElseBlock(s);
+
+	// make the statement
+	statement newStat = initIfElseBlockStatement(ieb);
+
 	// add them to the function statement list
-	g_array_append_vals(currentStatementsGArray, s->data, s->len);
+	g_array_append_val(currentStatementsGArray, newStat);
 
 	inControlBlock = false;
 }
@@ -450,13 +456,34 @@ void VMInputPass::exitAssign(InoxisParser::AssignContext* ctx)
 
 	size_t  allocSize = allocationSizeProp.get(ctx->assignRHS());
 
+	// get the lhs variable name
+	string lhsVarName = ctx->var()->ID()->getText();
+
+	// get it's memory index
+	unsigned lhsVarIndex = currentLocalsMap[lhsVarName];
+
+	bool isStackArray = false;
+
 	bool heapAlloc = false;
+
+	OP lhsDataType = NONE;
+
+	if (ctx->var()->array()->getText().size() > 0)
+		isStackArray = true;
+
+	if (ctx->var()->pointRef()->getText().size() > 0)
+	{
+		if (ctx->var()->pointRef()->getText() == "*")
+			lhsDataType = POINTER;
+		else
+			lhsDataType = REF;
+	}
 
 	if (allocSize > 0)
 		heapAlloc = true;
 
 	/*    bool heapAlloc; size_t allocSize; expression lhs; expression rhs;*/
-	assign newAssign{ heapAlloc, allocSize, lhs, rhs };
+	assign newAssign{ lhsVarIndex, heapAlloc, allocSize, lhs, rhs, isStackArray, lhsDataType };
 
 	//printAssign(newAssign);
 
@@ -562,11 +589,16 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 
 	bool hasRHS = false;
 
+	bool isStackArray = false;
+
+	size_t stackArraySize = 0;
+
+	OP  op = NONE;
+
 	// if there's a * or &
 
 		if (ctx->pointRef()->getText().size() > 0)
 		{
-			OP op;
 
 			if (ctx->pointRef()->getText() == "&")
 			{
@@ -599,6 +631,11 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 		BinOp* newBinOp = makeBinOp(BRACKETS, newLitExp, indexPtr);
 
 		lhs = makeBinOpExpression(newBinOp);
+
+		op = BRACKETS;
+
+		// get array size for variable
+		stackArraySize = currentFunction.locals[varName].arraySize;
 
 		//freeBinOp(newBinOp);
 
@@ -637,8 +674,10 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 		rhs = initEmptyExpression();
 	}
 
-	/*    bool heapAlloc; bool hasRHS; size_t allocSize; expression lhs; expression rhs;*/
-	varDec newVarDec{ hasAllocation, hasRHS, allocSize, *lhs, rhs };
+	/*
+	    bool heapAlloc; bool hasRHS; bool isStackArray; size_t allocSize;size_t  stackArraySize;OP  lhsDataType;unsigned  lhsVarIndex;expression lhs;expression rhs;
+	*/
+	varDec newVarDec{ hasAllocation, hasRHS, isStackArray, allocSize, stackArraySize, op, index, *lhs, rhs };
 
 	statement newStatement = initVarDecStatement(newVarDec);
 

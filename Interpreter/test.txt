@@ -1,26 +1,23 @@
 
-int func1(int mut paramArray[7]);
+int func1(int param);
 
 int main()
 {
 
-	int mut a[7];
-
-	a[3] = 5;
-
-	func1(a);
+	int *var1 = new int[7];
 
 	return 0;
 }
 
-int func1(int mut paramArray[7])
+
+int func1(int param)
 {
-	int foo = 7;
+	int  var2 = 7 + 10;
 
-	paramArray[3] = 4;
-
-	return foo;
+	return 0;
 }
+
+
 
 
 

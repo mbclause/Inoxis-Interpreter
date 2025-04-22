@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glib.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 // Forward declare
@@ -10,8 +11,10 @@ typedef struct expression expression;
 // OP - Operators
 typedef enum 
 {
-    ADD, SUBTRACT, NOT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, 
-    POINTER, REF, MUT_REF, BRACKETS, NOT_EQUAL, NEW, EQUALS, NONE
+    // Binary
+    ADD, SUBTRACT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, NOT_EQUAL, BRACKETS, EQUALS,
+    // unary
+    NOT, POINTER, REF, MUT_REF, NEW, NONE
 
 } OP;
 
@@ -20,7 +23,7 @@ typedef enum
 // STAT_TYPE - Statement types
 typedef enum 
 {
-    VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE
+    VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE, IF_ELSE
 
 } STAT_TYPE;
 
@@ -146,9 +149,19 @@ typedef struct
 } controlFlow;
 
 
+// struct to store all of the blocks in an if/elif/else unit
+typedef struct
+{
+    // of type statement
+    GArray* ctrlFlowBlocks;
+} ifElseBlock;
+
+
 // assign
 typedef struct 
 {
+    unsigned  lhsIndex;
+
     bool heapAlloc;
 
     size_t allocSize;
@@ -156,6 +169,10 @@ typedef struct
     expression lhs;
 
     expression rhs;
+
+    bool  isStackArray;
+
+    OP lhsDataType;
 
 } assign;
 
@@ -183,7 +200,15 @@ typedef struct
 
     bool hasRHS;
 
+    bool isStackArray;
+
     size_t allocSize;
+
+    size_t  stackArraySize;
+
+    OP  lhsDataType;
+
+    unsigned  lhsVarIndex;
 
     expression lhs;
 
@@ -216,6 +241,8 @@ typedef union
     Return  retVal;
 
     funcCall  call;
+
+    ifElseBlock  ifElse;
 
 } values;
 
@@ -269,6 +296,13 @@ print* makePrint(GArray* literalArray);
 function* makeFunction(GArray* stats, GArray* syms);
 
 
+// init an ifElseBlock
+inline ifElseBlock  initIfElseBlock(GArray* blocks) {
+    ifElseBlock newBlock = { blocks };
+    return newBlock;
+}
+
+
 // make and init functions for memVal
 memVal   initIntMemVal(int  val);
 
@@ -280,6 +314,8 @@ memVal makePtrMemVal(int* ptr);
 
 
 // corresponding free functions for each
+
+
 // freeUnaryOp
 bool  freeUnaryOp(unaryOp* uo);
 
@@ -296,13 +332,29 @@ bool  freeControlFlow(controlFlow* cf);
 bool  freePrint(print* p);
 
 // freeFunction
-bool freeFunction(function* func);
+bool freeFunction(function func);
+
+// free all of the VM input memory, so the garray of function structs
+inline void  freeVMInput(GArray* functions) {
+    if (functions)
+    {
+        for (unsigned i = 0; i < functions->len; i++)
+        {
+            freeFunction(g_array_index(functions, function, i));
+        }
+    }
+}
 
 bool freeExpression(expression* exp);
 
 bool freeStringLiteral(literal lit);
 
 bool  freeMemVal(memVal mv);
+
+inline bool freeIfElseBlock(ifElseBlock i) {
+    if (i.ctrlFlowBlocks)
+        g_array_free(i.ctrlFlowBlocks, true);
+}
 
 
 
@@ -347,6 +399,16 @@ statement  initFreeStatement(freeType  _free);
 statement  initReturnStatement(Return  ret);
 
 statement  initFuncCallStatement(funcCall* call);
+
+inline statement initIfElseBlockStatement(ifElseBlock block) {
+    statement s;
+
+    s.statType = IF_ELSE;
+
+    s.vals.ifElse = block;
+
+    return s;
+}
 
 
 // init literal types
@@ -397,9 +459,19 @@ void  printPtrMemVal(memVal  mv);
 
 void  printRefMemVal(memVal  mv);
 
+inline void printIfElseBlock(ifElseBlock ieb) {
+    for (unsigned i = 0; i < ieb.ctrlFlowBlocks->len; i++)
+    {
+        printStatement(g_array_index(ieb.ctrlFlowBlocks, statement, i));
+    }
+}
+
 
 // print the operator
 void  printOperator(OP op);
+
+
+
 
 
 

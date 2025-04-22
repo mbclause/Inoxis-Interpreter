@@ -12,13 +12,14 @@ Description: Contains the data structs and function declarations in C for the vi
 // stack data type enum
 typedef enum
 {
-	STACK_STRING, STACK_INT
+	STACK_STRING, STACK_INT, STACK_PTR
 } STACK_DATA_TYPE;
 
 
 
 // DATA
-// data stack will be a struct that either contains a gstring or an it
+// data stack will be a struct that either contains a gstring, an integer, an index into local memory (also an int),
+// or a pointer to heap memory
 typedef struct
 {
 	STACK_DATA_TYPE type;
@@ -28,6 +29,8 @@ typedef struct
 		GString* str;
 
 		int  num;
+
+		int* ptr;
 
 	} value;
 } datum;
@@ -70,7 +73,7 @@ Description: use a switch statement to call the specified compile<statementType>
 Input: statement stmnt - the statement to compile
 GArray* instructions - the array of instructions that will be added to during compilation of the statement
 */
-void   compileStatement(statement stmnt, GArray* instructions);
+void   compileStatement(statement stmnt, GArray* instructions, GArray* jumpLabels, GArray*  functionLocations);
 
 
 
@@ -78,7 +81,7 @@ void   compileStatement(statement stmnt, GArray* instructions);
 Function: crashReport
 Description: If we hit an error in the virtual machine, dump the top of the stack and the instruction we are on
 */
-void  crashReport(GArray* stack, instruction badInstruction, int structnNum);
+void  crashReport(instruction badInstruction, int structnNum);
 
 
 
@@ -91,18 +94,35 @@ functions - the garray of function structs, need the symbols data member for eac
 void  execute(GArray* instructions, GArray* functions);
 
 
+// stack implementation functions
+
+
+
 
 
 
 // compile_ functions
+// compile expression functions
+void  compileExpression(expression e, GArray* instructions);
+
+void  compileLiteral(literal l, GArray* instructions);
+
+void  compileUnary(unaryOp uo, GArray* instructions);
+
+void  compileBinary(BinOp  bo, GArray* instructions);
+
+
+// compile statement functions
 // VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE
 void  compileVarDec(varDec vd, GArray* instructions);
 
 void compileAssign(assign a, GArray* instructions);
 
-void  compileIf(controlFlow cf, GArray* instructions);
+void  compileIfElseBlock(ifElseBlock cf, GArray* instructions);
 
-void  compileElif(controlFlow cf, GArray* instructions);
+//void  compileElif(controlFlow cf, GArray* instructions);
+
+//void  compileElse(controlFlow cf, GArray* instructions);
 
 void  compileFuncCall(funcCall fc, GArray* instructions);
 
@@ -125,21 +145,40 @@ inline datum  initIntDat(int val) { datum d; d.type = STACK_INT; d.value.num = v
 
 inline datum  initStrDat(GString* str) { datum d; d.type = STACK_STRING; d.value.str = str; return d; }
 
+inline datum  initPtrDat(int* ptr) { datum d; d.type = STACK_PTR; d.value.ptr = ptr; return d; }
+
 
 // GET
 inline int   getIntDat(datum d) { return d.value.num; }
 
 inline GString* getStrDat(datum d) { return d.value.str; }
 
+inline int* getPtrDat(datum d) { return d.value.ptr; }
+
 
 // PRINT
+inline void  printIntDat(int val) { printf("INTVAL = %d\n", val); }
+
+inline void  printStrDat(GString* str) { g_print("STRING = %s\n", str); }
+
+inline void  printPtrDat(int* ptr) { printf("HEAP_POINTER = %p\n", (void*)ptr); }
+
 inline void  printDatum(datum d) { 
-	if (d.type == STACK_INT) 
-		printIntDat(d.value.num); 
+	if (d.type == STACK_INT)
+		printIntDat(d.value.num);
+	else if (d.type == STACK_PTR)
+		printPtrDat(d.value.ptr);
 	else 
 		printStrDat(d.value.str); 
 }
 
-inline void  printIntDat(int val) { printf("INTVAL = %d\n", val); }
-
-inline void  printStrDat(GString* str) { g_print("STRING = %s", str); }
+/*
+Print each datum in the data stack
+*/
+inline  void  printDataStack(GArray* stack) {
+	for (unsigned i = 0; i < stack->len; i++)
+	{
+		printf("Index - %d: ", i);
+		printDatum(g_array_index(stack, datum, i));
+	}
+}

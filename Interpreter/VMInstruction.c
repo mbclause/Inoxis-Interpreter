@@ -167,7 +167,11 @@ void printJNZI(jumpNotZeroI jnz)
 
 void  printStoreI(storeI s)
 {
-	printf("STORE(%d)", s.val);
+	if (s.type == STORE_INT)
+		printf("STORE(%d)", s.value.intVal);
+
+	else
+		g_print("STORE(%s)", s.value.str);
 }
 
 
@@ -189,9 +193,23 @@ void  printMovI(movI  m)
 
 	case MOV_TO_STACK:
 		printf("MOVE_TO_STACK(%d)", m.index);
+		break;
+
+	case MOV_FROM_STACK_INDEX:
+		printf("MOV_FROM_STACK_INDEX");
+		break;
+
+	case MOV_TO_HEAP:
+		printf("MOV_TO_HEAP(%d)", m.index);
+		break;
+
+	case MOV_TO_STACK_INDEX:
+		printf("MOV_TO_STACK_INDEX");
+		break;
 
 	default:
 		printf("bad mov");
+		break;
 	}
 }
 
@@ -199,7 +217,7 @@ void  printMovI(movI  m)
 
 void  printAllocI(allocI  a)
 {
-	printf("ALLOC(%d)", a.size);
+	printf("ALLOC(%zd)", a.size);
 }
 
 

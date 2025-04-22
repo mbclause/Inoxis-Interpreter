@@ -467,13 +467,15 @@ bool  freePrint(print* p)
 
 
 // freeFunction
-bool freeFunction(function* func)
+bool freeFunction(function func)
 {
-	if (func->statements)
-		g_array_free(func->statements, true);
+	if (func.statements)
+	{
+		g_array_free(func.statements, true);
+	}
 
-	if (func->symbols)
-		g_array_free(func->symbols, true);
+	if (func.symbols)
+		g_array_free(func.symbols, true);
 
 	return true;
 }
@@ -743,6 +745,10 @@ void  printStatement(statement stat)
 
 	case RETURN:
 		printReturn(stat.vals.retVal);
+		break;
+
+	case IF_ELSE:
+		printIfElseBlock(stat.vals.ifElse);
 		break;
 
 	default:

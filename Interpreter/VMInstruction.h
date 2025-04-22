@@ -4,6 +4,7 @@ File: VMInstruction.h
 Description: Contains the struct definitions and helper method declarations for the VM instruction type
 */
 #include "VMInput.h"
+#include <stdio.h>
 
 
 // enum: INSTRUCTION_TYPE
@@ -29,7 +30,7 @@ typedef enum
 // move type
 typedef enum
 {
-    MOV_TO_STACK, MOV_TO_MEM
+    MOV_TO_STACK, MOV_TO_MEM, MOV_FROM_STACK_INDEX, MOV_TO_HEAP, MOV_TO_STACK_INDEX
 } MOV_TYPE;
 
 
@@ -46,7 +47,12 @@ typedef enum
 } STORE_TYPE;
 
 
+typedef struct
+{
+    LABEL_TYPE type;
 
+    int  instructionIndex;
+} jumpLabel;
 
 
 typedef struct
@@ -66,7 +72,7 @@ typedef struct
 } jumpNotZeroI;
 
 
-// push an int or a string onto the data stack
+// push an int onto the data stack
 typedef struct
 {
     STORE_TYPE type;
@@ -88,6 +94,7 @@ typedef struct
 
 
 // move an int from memory at index to the stack or move an int from the data stack to memory at index
+// MOV_FROM_STACK_INDEX gets the memory index from the top of the stack and then pushes the value there back on the stack
 typedef struct
 {
     MOV_TYPE type;
@@ -98,7 +105,9 @@ typedef struct
 
 typedef struct
 {
-    int size;
+    int varIndex;
+
+    size_t size;
 } allocI;
 
 
@@ -170,6 +179,14 @@ inline instruction  initFreeI(freeI  f) { instruction i; i.type = FREE_I; i.valu
 
 inline instruction  initPrintI(printI p) { instruction i; i.type = PRINT_I; i.values.pr = p; return i; };
 
+// initialize an instruction that doesn't have operands, just an operator
+inline instruction initInstructionNoOperands(INSTRUCTION_TYPE type) {
+    instruction i;
+    i.type = type;
+    i.values.nill = 0;
+    return i;
+}
+
 
 // init helpers for storeI
 inline storeI  initIntStore(int val) { storeI s; s.type = STORE_INT; s.value.intVal = val; return s; }
@@ -197,6 +214,15 @@ void  printFreeI(freeI f);
 
 inline void  printPrintI(printI p) { printf("PRINT(%d) values", p.numLiterals); };
 
+// instructions have type instruction
+inline void printInstructions(GArray* instructions) {
+    for (int i = (instructions->len) - 1; i >= 0; i--)
+    {
+        printf("Instruction %d:", i + 1);
+        printInstruction(g_array_index(instructions, instruction, i));
+    }
+}
+
 
 
 
@@ -210,7 +236,7 @@ inline int  getCallI(instruction i) { return i.values.call.funcIndex; };
 
 inline int  getMoveI(instruction i) { return i.values.mov.index; };
 
-inline int   getAllocI(instruction i) { return i.values.alloc.size; };
+//inline int   getAllocI(instruction i) { return i.values.alloc.size; };
 
 inline int   getFreeI(instruction i) { return i.values.Free.varIndex; };
 
