@@ -12,7 +12,7 @@ Description: Contains the data structs and function declarations in C for the vi
 // stack data type enum
 typedef enum
 {
-	STACK_STRING, STACK_INT, STACK_PTR
+	STACK_STRING, STACK_INT, STACK_PTR, STACK_INDEX
 } STACK_DATA_TYPE;
 
 
@@ -31,6 +31,8 @@ typedef struct
 		int  num;
 
 		int* ptr;
+
+		unsigned index;
 
 	} value;
 } datum;
@@ -73,7 +75,7 @@ Description: use a switch statement to call the specified compile<statementType>
 Input: statement stmnt - the statement to compile
 GArray* instructions - the array of instructions that will be added to during compilation of the statement
 */
-void   compileStatement(statement stmnt, GArray* instructions, GArray* jumpLabels, GArray*  functionLocations);
+void   compileStatement(statement stmnt, GArray* instructions, GHashTable* jumpLabels, GArray*  functionLocations);
 
 
 
@@ -103,38 +105,38 @@ void  execute(GArray* instructions, GArray* functions);
 
 // compile_ functions
 // compile expression functions
-void  compileExpression(expression e, GArray* instructions);
+void  compileExpression(expression e, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 void  compileLiteral(literal l, GArray* instructions);
 
-void  compileUnary(unaryOp uo, GArray* instructions);
+void  compileUnary(unaryOp uo, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
-void  compileBinary(BinOp  bo, GArray* instructions);
+void  compileBinary(BinOp  bo, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 
 // compile statement functions
 // VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE
-void  compileVarDec(varDec vd, GArray* instructions);
+void  compileVarDec(varDec vd, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
-void compileAssign(assign a, GArray* instructions);
+void compileAssign(assign a, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
-void  compileIfElseBlock(ifElseBlock cf, GArray* instructions);
+void  compileIfElseBlock(ifElseBlock cf, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 //void  compileElif(controlFlow cf, GArray* instructions);
 
 //void  compileElse(controlFlow cf, GArray* instructions);
 
-void  compileFuncCall(funcCall fc, GArray* instructions);
+void  compileFuncCall(funcCall fc, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 // the index for the print function will be functions.len
 // 
-void  compilePrint(print p, GArray* instructions);
+void  compilePrint(print p, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 void compileFree(freeType f, GArray* instructions);
 
-void  compileReturn(Return r, GArray* instructions);
+void  compileReturn(Return r, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
-void   compileWhile(controlFlow cf, GArray* instructions);
+void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 
 
@@ -146,6 +148,8 @@ inline datum  initIntDat(int val) { datum d; d.type = STACK_INT; d.value.num = v
 inline datum  initStrDat(GString* str) { datum d; d.type = STACK_STRING; d.value.str = str; return d; }
 
 inline datum  initPtrDat(int* ptr) { datum d; d.type = STACK_PTR; d.value.ptr = ptr; return d; }
+
+inline datum  initIndexDat(unsigned index) { datum d; d.type = STACK_INDEX; d.value.index = index; return d; }
 
 
 // GET
@@ -163,11 +167,15 @@ inline void  printStrDat(GString* str) { g_print("STRING = %s\n", str); }
 
 inline void  printPtrDat(int* ptr) { printf("HEAP_POINTER = %p\n", (void*)ptr); }
 
+inline void  printIndexDat(unsigned index) { printf("MEMORY INDEX = %d\n", index); }
+
 inline void  printDatum(datum d) { 
 	if (d.type == STACK_INT)
 		printIntDat(d.value.num);
 	else if (d.type == STACK_PTR)
 		printPtrDat(d.value.ptr);
+	else if (d.type == STACK_INDEX)
+		printIndexDat(d.value.index);
 	else 
 		printStrDat(d.value.str); 
 }
@@ -178,7 +186,18 @@ Print each datum in the data stack
 inline  void  printDataStack(GArray* stack) {
 	for (unsigned i = 0; i < stack->len; i++)
 	{
-		printf("Index - %d: ", i);
+		printf("Data stack index - %d: ", i);
 		printDatum(g_array_index(stack, datum, i));
 	}
+}
+
+
+
+// function to print the label hash map
+inline void printLabelHashMap(gpointer key, gpointer value, gpointer user_data) {
+	int  num = GPOINTER_TO_INT(value);
+
+	GString* k = (GString*)key;
+
+	printf("<%s, %d>\n", k->str, num + 1);
 }

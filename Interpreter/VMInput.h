@@ -14,7 +14,7 @@ typedef enum
     // Binary
     ADD, SUBTRACT, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL, DOUBLE_EQUAL, NOT_EQUAL, BRACKETS, EQUALS,
     // unary
-    NOT, POINTER, REF, MUT_REF, NEW, NONE
+    NOT, POINTER_OP, REF_OP, MUT_REF, NEW, NONE
 
 } OP;
 
@@ -170,7 +170,7 @@ typedef struct
 
     expression rhs;
 
-    bool  isStackArray;
+    bool  isArray;
 
     OP lhsDataType;
 

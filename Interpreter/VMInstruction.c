@@ -42,7 +42,7 @@ void  printInstruction(instruction i)
 		break;
 
 	case GREATER_I:
-		printf("GREATER_EQUAL");
+		printf("GREATER");
 		break;
 
 	case GREATER_EQUAL_I:
@@ -101,66 +101,14 @@ void  printInstruction(instruction i)
 
 void printJumpI(jumpI  j)
 {
-	printf("JUMP(");
-
-	// FUNCTION_DONE, IF, ELIF, ELSE
-	switch (j.type)
-	{
-	case FUNCTION_DONE:
-		printf("FUNCTION_DONE(%d)", j.index);
-		break;
-
-	case IF_LABEL:
-		printf("IF(%d)", j.index);
-		break;
-
-	case ELIF_LABEL:
-		printf("ELIF(%d)", j.index);
-		break;
-
-	case ELSE_LABEL:
-		printf("ELSE(%d)", j.index);
-		break;
-
-	default:
-		printf("bad jump");
-		break;
-	}
-
-	printf(")");
+	printf("JUMP(%s)", j.jumpLabel->str);
 }
 
 
 
 void printJNZI(jumpNotZeroI jnz)
 {
-	printf("JUMP_IF_NOT_ZERO(");
-
-	// FUNCTION_DONE, IF, ELIF, ELSE
-	switch (jnz.type)
-	{
-	case FUNCTION_DONE:
-		printf("FUNCTION_DONE(%d)", jnz.index);
-		break;
-
-	case IF_LABEL:
-		printf("IF(%d)", jnz.index);
-		break;
-
-	case ELIF_LABEL:
-		printf("ELIF(%d)", jnz.index);
-		break;
-
-	case ELSE_LABEL:
-		printf("ELSE(%d)", jnz.index);
-		break;
-
-	default:
-		printf("bad jump");
-		break;
-	}
-
-	printf(")");
+	printf("JUMP_IF_NOT_ZERO(%s)", jnz.jumpLabel->str);
 }
 
 
@@ -170,15 +118,18 @@ void  printStoreI(storeI s)
 	if (s.type == STORE_INT)
 		printf("STORE(%d)", s.value.intVal);
 
+	else if (s.type == STORE_INDEX)
+		printf("STORE(%d)", s.value.index);
+
 	else
-		g_print("STORE(%s)", s.value.str);
+		g_print("STORE(%s)", s.value.str->str);
 }
 
 
 
 void  printCallI(callI c)
 {
-	printf("CALL(%d)", c.funcIndex);
+	printf("CALL(%s)", c.label->str);
 }
 
 
@@ -203,8 +154,16 @@ void  printMovI(movI  m)
 		printf("MOV_TO_HEAP(%d)", m.index);
 		break;
 
+	case MOV_FROM_HEAP:
+		printf("MOV_FROM_HEAP(%d)", m.index);
+		break;
+
 	case MOV_TO_STACK_INDEX:
 		printf("MOV_TO_STACK_INDEX");
+		break;
+
+	case MOV_STACK_TO_HEAP:
+		printf("MOV_STACK_TO_HEAP");
 		break;
 
 	default:

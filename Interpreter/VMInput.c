@@ -883,7 +883,7 @@ void  printOperator(OP op)
 		printf(" == ");
 		break;
 
-	case POINTER:
+	case POINTER_OP:
 		printf("* ");
 		break;
 
@@ -891,7 +891,7 @@ void  printOperator(OP op)
 		printf("mut & ");
 		break;
 
-	case REF:
+	case REF_OP:
 		printf("& ");
 		break;
 

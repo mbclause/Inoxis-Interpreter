@@ -11,13 +11,13 @@ Description: Contains all function definitions for VirtualMachine.h
 Function: compileExpression
 Description: call the appropriate compile function depending on the expression type
 */
-void  compileExpression(expression e, GArray* instructions)
+void  compileExpression(expression e, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
 	// EXPR_BIN, EXPR_LIT, EXPR_UNARY, EXPR_CALL, EXPR_NONE
 	switch (e.kind)
 	{
 	case EXPR_BIN:
-		compileBinary(e.val.binaryOp, instructions);
+		compileBinary(e.val.binaryOp, instructions, jumpLabels, functionLocations);
 		break;
 
 	case EXPR_LIT:
@@ -25,11 +25,11 @@ void  compileExpression(expression e, GArray* instructions)
 		break;
 
 	case EXPR_UNARY:
-		compileUnary(e.val.unary, instructions);
+		compileUnary(e.val.unary, instructions, jumpLabels, functionLocations);
 		break;
 
 	case EXPR_CALL:
-		compileFuncCall(e.val.call, instructions);
+		compileFuncCall(e.val.call, instructions, jumpLabels, functionLocations);
 
 	default:
 		break;
@@ -103,7 +103,7 @@ void  compileLiteral(literal l, GArray* instructions)
 Function: compileUnary
 Description: push the correct instructions for the unary operator
 */
-void  compileUnary(unaryOp uo, GArray* instructions)
+void  compileUnary(unaryOp uo, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
 	/*
 	unary Expression operators:
@@ -117,27 +117,47 @@ void  compileUnary(unaryOp uo, GArray* instructions)
 	*/
 
 	//for pointer/ref, don't compile the expression, we need to get the index of the variable,
-	// need a dereference instruction
-	if (uo.op == POINTER)
+	// then we move whatever that variable is pointing to onto the data stack
+	if (uo.op == POINTER_OP)
 	{
+		// get var index
+		int varIndex = uo.exp->val.litVal.val.varIndex;
 
+		movI newMov = { MOV_FROM_HEAP, varIndex };
+
+		instruction newI = initMovI(newMov);
+
+		g_array_append_val(instructions, newI);
 	}
 
+	//&var - address, store the index of var onto the stack
 	else if (uo.op == MUT_REF)
 	{
+		unsigned varIndex = uo.exp->val.litVal.val.varIndex;
 
+		storeI  newStore = initIndexStore(varIndex);
+
+		instruction newI = initStoreI(newStore);
+
+		g_array_append_val(instructions, newI);
 	}
 
 	// get the index of var from uo.exp, then just STORE that index
-	else if (uo.op == REF)
+	else if (uo.op == REF_OP)
 	{
+		unsigned varIndex = uo.exp->val.litVal.val.varIndex;
 
+		storeI  newStore = initIndexStore(varIndex);
+
+		instruction newI = initStoreI(newStore);
+
+		g_array_append_val(instructions, newI);
 	}
 
 	// not operator - compile the conditional expression, then push NOT_I instruciton
 	else if (uo.op == NOT)
 	{
-		compileExpression(*uo.exp, instructions);
+		compileExpression(*uo.exp, instructions, jumpLabels, functionLocations);
 
 		instruction newI = initInstructionNoOperands(NOT_I);
 
@@ -160,11 +180,11 @@ void  compileUnary(unaryOp uo, GArray* instructions)
 Function: compileBinary
 Description: compile both lhs and rhs expression, then push the appropriate instructions for the binary operator
 */
-void  compileBinary(BinOp  bo, GArray* instructions)
+void  compileBinary(BinOp  bo, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
-	compileExpression(*bo.lhs, instructions);
+	compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
 
-	compileExpression(*bo.rhs, instructions);
+	compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
 
 	instruction newI;
 
@@ -237,7 +257,7 @@ Function: compileVarDec
 Description: Compile the expression on the LHS (if any), get the data type of the declared variable, then push the 
 appropriate moveI instruction onto the instructions stack
 */
-void  compileVarDec(varDec vd, GArray* instructions)
+void  compileVarDec(varDec vd, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
 	/* MovI is agnostic about data type it just moves whatever is in memory location to stack and vice versa. 
 
@@ -271,7 +291,7 @@ void  compileVarDec(varDec vd, GArray* instructions)
 		// otherwise compile the expression on the rhs and push the appropriate move instruction after
 		else
 		{
-			compileExpression(vd.rhs, instructions);
+			compileExpression(vd.rhs, instructions, jumpLabels, functionLocations);
 
 		}
 
@@ -295,9 +315,11 @@ Description: compile rhs expression, then mov value into lhs var. If lhs has sub
 store the lhs var index on the stack, then we ADD, then we need another mov instruction that pops the mem index from 
 the top of the stack and then pops the stack again and moves that value to the index
 */
-void compileAssign(assign a, GArray* instructions)
+void compileAssign(assign a, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
 	unsigned lhsVarIndex = a.lhsIndex;
+
+	//printf("%d\n", a.lhsDataType);
 
 	// if there's a heap allocation, do the same as compileVarDec
 	if (a.heapAlloc)
@@ -323,39 +345,77 @@ void compileAssign(assign a, GArray* instructions)
 	else
 	{
 		// compile the rhs
-		compileExpression(a.rhs, instructions);
+		compileExpression(a.rhs, instructions, jumpLabels, functionLocations);
 
 		// if the lhs uses the subscript operator
-		if (a.isStackArray)
+		if (a.isArray)
 		{
-			// compile the index, which is the rhs of the binary operation
-			compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
+			// if the lhs is a stack array
+			if (a.lhsDataType == NONE)
+			{
+				// compile the index, which is the rhs of the binary operation
+				compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
 
-			//store the lhs var index on the data stack
-			storeI newStore = initIntStore(lhsVarIndex);
+				//store the lhs var index on the data stack
+				storeI newStore = initIntStore(lhsVarIndex);
 
-			instruction newStoreI = initStoreI(newStore);
+				instruction newStoreI = initStoreI(newStore);
 
-			g_array_append_val(instructions, newStoreI);
+				g_array_append_val(instructions, newStoreI);
 
-			// add the two values to get the actual memory index
-			instruction newAdd = initInstructionNoOperands(ADD_I);
+				// add the two values to get the actual memory index
+				instruction newAdd = initInstructionNoOperands(ADD_I);
 
-			g_array_append_val(instructions, newAdd);
+				g_array_append_val(instructions, newAdd);
 
-			// mov the rhs value to the index on top of the stack
-			movI newMov = { MOV_TO_STACK_INDEX , 0 };
+				// mov the rhs value to the index on top of the stack
+				movI newMov = { MOV_TO_STACK_INDEX , 0 };
 
-			instruction newMovI = initMovI(newMov);
+				instruction newMovI = initMovI(newMov);
 
-			g_array_append_val(instructions, newMovI);
+				g_array_append_val(instructions, newMovI);
 
+			}
+
+			// otherwise it's a heap array
+			else if(a.lhsDataType = POINTER_OP)
+			{
+				// now we need to get the heap memory address stored in var and push it on the stack
+				// pass compile literal the literal that's the lhs of the binary expression
+				compileLiteral(a.lhs.val.binaryOp.lhs->val.litVal, instructions);
+
+				// push the index onto the stack
+				// compile the index, which is the rhs of the binary operation
+				compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
+
+				// now we need to use pointer arithmetic to add the index to the heap pointer to get the proper address
+				instruction newAdd = initInstructionNoOperands(ADD_I);
+
+				g_array_append_val(instructions, newAdd);
+
+				// now we need to pop the stack to get heap address, then pop the stack again and move that data
+				// to address
+				movI newMove = { MOV_STACK_TO_HEAP, 0 };
+
+				instruction newI = initMovI(newMove);
+
+				g_array_append_val(instructions, newI);
+
+			}
+
+			else
+			{
+				printf("type error\n");
+
+				exit(1);
+			}
 		}
 
+		// not an array
 		else
 		{
 			// if the lhs uses the dereference operator, move the rhs to the address in the pointer
-			if (a.lhsDataType == POINTER)
+			if (a.lhsDataType == POINTER_OP)
 			{
 				movI newMov = { MOV_TO_HEAP, lhsVarIndex };
 
@@ -381,31 +441,223 @@ void compileAssign(assign a, GArray* instructions)
 
 
 
-void  compileIfElseBlock(ifElseBlock cf, GArray* instructions)
+/*
+Function: compileIfElseBlock
+Description: For each block, compile the condition, then push a jnz instruction that jumps to the appropriate place.
+Then compile the statements in the block.
+*/
+void  compileIfElseBlock(ifElseBlock cf, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
+	// at the end of the statements for each block, 
+	// we need an unconditional jump that goes to the end of the last block
+	GString* newExitBlockLabel = g_string_new("");
 
+	g_string_printf(newExitBlockLabel, "EXIT_IF_ELSE_BLOCK(%d)", instructions->len);
+
+	// loop through all blocks
+	for (unsigned i = 0; i < cf.ctrlFlowBlocks->len; i++)
+	{
+		// get the block
+		statement stat = g_array_index(cf.ctrlFlowBlocks, statement, i);
+
+		controlFlow block = stat.vals.ctrlFlowVals;
+
+		// at the beginning of each block, we either enter it or jump to the beginning of the next block
+
+		// case: IF
+		// there's always one. 
+		if (stat.statType == IF)
+		{
+			// at the beginning of each block, we either enter it or jump to the beginning of the next block
+			GString* newIfLabel = g_string_new("");
+
+			g_string_printf(newIfLabel, "IF(%d)", instructions->len);
+
+			// compile the condition
+			compileExpression(block.condition, instructions, jumpLabels, functionLocations);
+
+			// add the jnz(newIfLabel)
+			jumpNotZeroI jnz = { newIfLabel };
+
+			instruction newI = initJumpNotZeroI(jnz);
+
+			g_array_append_val(instructions, newI);
+
+			// compile all of the statements in the block
+			for (unsigned j = 0; j < block.statements->len; j++)
+			{
+				statement s = g_array_index(block.statements, statement, j);
+
+				compileStatement(s, instructions, jumpLabels, functionLocations);
+			}
+
+			// add an unconditional jump to the end of the entire block
+			jumpI newJump = { newExitBlockLabel };
+
+			instruction newJumpI = initJumpI(newJump);
+
+			g_array_append_val(instructions, newJumpI);
+
+			// add the ifLabel to the jumpLabels hash map
+			g_hash_table_insert(jumpLabels, newIfLabel, GINT_TO_POINTER(instructions->len));
+		}
+
+		else if (stat.statType == ELIF)
+		{
+			// at the beginning of each block, we either enter it or jump to the beginning of the next block
+			GString* newElifLabel = g_string_new("");
+
+			g_string_printf(newElifLabel, "ELIF(%d)", instructions->len);
+
+			// compile the condition
+			compileExpression(block.condition, instructions, jumpLabels, functionLocations);
+
+			// add the jnz(newIfLabel)
+			jumpNotZeroI jnz = { newElifLabel };
+
+			instruction newI = initJumpNotZeroI(jnz);
+
+			g_array_append_val(instructions, newI);
+
+			// compile all of the statements in the block
+			for (unsigned j = 0; j < block.statements->len; j++)
+			{
+				statement s = g_array_index(block.statements, statement, j);
+
+				compileStatement(s, instructions, jumpLabels, functionLocations);
+			}
+
+			// add an unconditional jump to the end of the entire block
+			jumpI newJump = { newExitBlockLabel };
+
+			instruction newJumpI = initJumpI(newJump);
+
+			g_array_append_val(instructions, newJumpI);
+
+			// add the ifLabel to the jumpLabels hash map
+			g_hash_table_insert(jumpLabels, newElifLabel, GINT_TO_POINTER(instructions->len));
+		}
+
+		else if (stat.statType == ELSE)
+		{
+			// Else - no condition,we always enter it if we arrive at it
+			// we also don't need to jump to the end of the block
+			
+			// compile all of the statements in the block
+			for (unsigned j = 0; j < block.statements->len; j++)
+			{
+				statement s = g_array_index(block.statements, statement, j);
+
+				compileStatement(s, instructions, jumpLabels, functionLocations);
+			}
+		}
+
+		else
+		{
+			printf("BAD CONTROL BLOCK\n");
+
+			exit(1);
+		}
+	}
+
+	// add the jumplable to the hash map
+	g_hash_table_insert(jumpLabels, newExitBlockLabel, GINT_TO_POINTER(instructions->len));
 }
 
 
 
-void   compileWhile(controlFlow cf, GArray* instructions)
+/*
+Function: compileWhile
+Description: compile the condition, then jnz either into the block or to the end. If we enter the block, we have an
+unconditional jump back to before the beginning of the conditional
+*/
+void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
+	// make the unconditional jump to the beginning of the loop
+	GString* newBeginWhileLabel = g_string_new("");
 
+	g_string_printf(newBeginWhileLabel, "BACK_TO_BEGINNING_WHILE(%d)", instructions->len);
+
+	// add it to the hash table
+	g_hash_table_insert(jumpLabels, newBeginWhileLabel, GINT_TO_POINTER(instructions->len));
+
+	// compile the condition
+	compileExpression(cf.condition, instructions, jumpLabels, functionLocations);
+
+	// add the conditional jump instruction
+	// create label
+	GString* newEndWhileLabel = g_string_new("");
+
+	g_string_printf(newEndWhileLabel, "TEST_WHILE(%d)", instructions->len);
+
+	// add the instruction
+	jumpNotZeroI jnz = { newEndWhileLabel };
+
+	instruction newJNZ = initJumpNotZeroI(jnz);
+
+	g_array_append_val(instructions, newJNZ);
+
+	// now compile the statements in the block
+	for (unsigned i = 0; i < cf.statements->len; i++)
+	{
+		statement stat = g_array_index(cf.statements, statement, i);
+
+		compileStatement(stat, instructions, jumpLabels, functionLocations);
+	}
+
+	// add the unconditional jump to beginning of while loop
+	jumpI newJump = { newBeginWhileLabel };
+
+	instruction newJumpI = initJumpI(newJump);
+
+	g_array_append_val(instructions, newJumpI);
+
+	// now add the jnz label to the hash table
+	g_hash_table_insert(jumpLabels, newEndWhileLabel, GINT_TO_POINTER(instructions->len));
 }
 
 
 
-void  compileFuncCall(funcCall fc, GArray* instructions)
+/*
+Function: compileFuncCall
+Description: compile the argument, look up the instruction number for the beginning of the called function,
+then add the call instruction to that location
+*/
+void  compileFuncCall(funcCall fc, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
+	// compile argument
+	compileExpression(*fc.arg, instructions, jumpLabels, functionLocations);
 
-}
+	// get instruction location for called function
+	unsigned funcLocation = fc.funcIndex;
+
+	// add a label for calling the current function, includes it's index
+	GString* newFuncCallLabel = g_string_new("");
+
+	g_string_printf(newFuncCallLabel, "CALL_FUNCTION(%d)", funcLocation);
+
+	// add the call instruction to that location
+	callI newCall = { newFuncCallLabel };
+
+	instruction newI = initCallI(newCall);
+
+	g_array_append_val(instructions, newI);
+} // end compileFuncCall
 
 
 
-void  compileReturn(Return r, GArray* instructions)
+/*
+Function: compileReturn
+Description: compile the return value and add a return instruction
+*/
+void  compileReturn(Return r, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
+	compileExpression(r.retVal, instructions, jumpLabels, functionLocations);
 
-}
+	instruction newRetI = initInstructionNoOperands(RETURN_I);
+
+	g_array_append_val(instructions, newRetI);
+} // end compileReturn
 
 
 
@@ -413,9 +665,24 @@ void  compileReturn(Return r, GArray* instructions)
 Function: compilePrint
 Expression: compile all of the printed expressions in reverse order, then add the print(literals.len) instruction
 */
-void  compilePrint(print p, GArray* instructions)
+void  compilePrint(print p, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
+	int numValsPrinted = p.literals->len;
 
+	// compile the expressions in reverse order
+	for (int i = p.literals->len - 1; i >= 0; i--)
+	{
+		expression e = g_array_index(p.literals, expression, i);
+
+		compileExpression(e, instructions, jumpLabels, functionLocations);
+	}
+
+	// add the print instruction
+	printI newPrint = { numValsPrinted };
+
+	instruction newI = initPrintI(newPrint);
+
+	g_array_append_val(instructions, newI);
 }
 
 
@@ -462,29 +729,29 @@ Description: use a switch statement to call the specified compile<statementType>
 Input: statement stmnt - the statement to compile
 GArray* instructions - the array of instructions that will be added to during compilation of the statement
 */
-void   compileStatement(statement stmnt, GArray* instructions, GArray* jumpLabels, GArray* functionLocations)
+void   compileStatement(statement stmnt, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
 	// VAR_DEC, ASSIGN, IF, ELIF, ELSE, FUNC_CALL, PRINT, FREE, RETURN, WHILE
 	switch (stmnt.statType)
 	{
 	case VAR_DEC:
-		compileVarDec(stmnt.vals.varDecVals, instructions);
+		compileVarDec(stmnt.vals.varDecVals, instructions, jumpLabels, functionLocations);
 		break;
 
 	case ASSIGN:
-		compileAssign(stmnt.vals.assignVals, instructions);
+		compileAssign(stmnt.vals.assignVals, instructions, jumpLabels, functionLocations);
 		break;
 
 	case IF_ELSE:
-		compileIfElseBlock(stmnt.vals.ifElse, instructions);
+		compileIfElseBlock(stmnt.vals.ifElse, instructions, jumpLabels, functionLocations);
 		break;
 
 	case FUNC_CALL:
-		compileFuncCall(stmnt.vals.call, instructions);
+		compileFuncCall(stmnt.vals.call, instructions, jumpLabels, functionLocations);
 		break;
 
 	case PRINT:
-		compilePrint(stmnt.vals.printVals, instructions);
+		compilePrint(stmnt.vals.printVals, instructions, jumpLabels, functionLocations);
 		break;
 
 	case FREE:
@@ -492,11 +759,11 @@ void   compileStatement(statement stmnt, GArray* instructions, GArray* jumpLabel
 		break;
 
 	case RETURN:
-		compileReturn(stmnt.vals.retVal, instructions);
+		compileReturn(stmnt.vals.retVal, instructions, jumpLabels, functionLocations);
 		break;
 
 	case WHILE:
-		compileWhile(stmnt.vals.ctrlFlowVals, instructions);
+		compileWhile(stmnt.vals.ctrlFlowVals, instructions, jumpLabels, functionLocations);
 		break;
 
 	default:
@@ -520,9 +787,12 @@ GArray* compile(GArray* functions)
 	if (instructions)
 	{
 		// create an array of jump labels
-		GArray* jumpLabels = g_array_new(false, false, sizeof(jumpLabel));
+		//GArray* jumpLabels = g_array_new(false, false, sizeof(jumpLabel));
 
+		// array containing the location of the first instruction for function i
 		GArray* functionLocations = g_array_new(false, false, sizeof(unsigned));
+
+		GHashTable* jumpLabels = g_hash_table_new(g_str_hash, g_str_equal);
 
 		// loop through each function
 		for (unsigned i = 0; i < functions->len; i++)
@@ -530,20 +800,27 @@ GArray* compile(GArray* functions)
 			// get the function
 			function func = g_array_index(functions, function, i);
 
-			//GArray* locals = func.symbols;
-			/*
-			1. need to create a local array of jump labels, when we compile a jump, we first 
-			add a label to the labels array, then we add jump(label.len).
-			the jump instruction will look up the label at that location, which has the instruction index to jump to.
-			*/
+			GString* newFuncLabel = g_string_new("");
+
+			g_string_printf(newFuncLabel, "FUNCTION_DONE(%d)", instructions->len);
+
+			// add a label for calling the current function, includes it's index
+			GString* newFuncCallLabel = g_string_new("");
+
+			g_string_printf(newFuncCallLabel, "CALL_FUNCTION(%d)", i);
+
+
 			if (i > 0)
 			{
 				// add a top level guard to the function
-				jumpI newJump = { FUNCTION_DONE, jumpLabels->len };
+				jumpI newJump = { newFuncLabel };
 
 				instruction newI = initJumpI(newJump);
 
 				g_array_append_val(instructions, newI);
+
+				// add the call label
+				g_hash_table_insert(jumpLabels, newFuncCallLabel, GINT_TO_POINTER(instructions->len));
 			}
 
 			// add the location of the current function in instructions to the locations array
@@ -559,12 +836,21 @@ GArray* compile(GArray* functions)
 
 			if (i > 0)
 			{
-				// add a label that points to the end of the current function in instructions
-				jumpLabel newLabel = { FUNCTION_DONE, instructions->len };
 
-				g_array_append_val(jumpLabels, newLabel);
+				// add a label that points to the end of the current function in instructions
+				g_hash_table_insert(jumpLabels, newFuncLabel, GINT_TO_POINTER(instructions->len));
 			}
 		}
+
+		// print function instruction locations
+		for (unsigned i = 0; i < functionLocations->len; i++)
+		{
+			//printf("Function %d starts at instruction - %d\n", i + 1, g_array_index(functionLocations, unsigned, i) + 1);
+		}
+
+		printf("LABEL TABLE\n");
+
+		g_hash_table_foreach(jumpLabels, printLabelHashMap, NULL);
 
 		return instructions;
 	}

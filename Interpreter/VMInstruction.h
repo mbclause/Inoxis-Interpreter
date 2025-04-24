@@ -27,10 +27,22 @@ typedef enum
 } INSTRUCTION_TYPE;
 
 
-// move type
+/*
+Move types:
+MOV_TO_STACK: gets the value at memory INDEX and pushes onto the data stack
+MOV_TO_MEM: pops the value off the data stack and moves it to the memory INDEX
+MOV_FROM_STACK_INDEX: pops the memory index off the data stack, gets the value there and pushes it onto the data stack
+MOV_TO_STACK_INDEX: pops the memory index off the data stack, pops the data stack again and moves that value to
+memory index
+MOV_TO_HEAP: pops the value off the data stack and moves it to the address stored in memory INDEX
+MOV_FROM_HEAP: gets the value stored at the address in memory INDEX and pushes it onto the stack
+MOV_STACK_TO_HEAP: pops the heap address off the data stack, pops the data stack again and moves that value to
+that address
+*/
 typedef enum
 {
-    MOV_TO_STACK, MOV_TO_MEM, MOV_FROM_STACK_INDEX, MOV_TO_HEAP, MOV_TO_STACK_INDEX
+    MOV_TO_STACK, MOV_TO_MEM, MOV_FROM_STACK_INDEX, MOV_TO_HEAP, MOV_TO_STACK_INDEX, MOV_FROM_HEAP,
+    MOV_STACK_TO_HEAP
 } MOV_TYPE;
 
 
@@ -43,7 +55,7 @@ typedef enum
 
 typedef enum
 {
-    STORE_INT, STORE_STRING
+    STORE_INT, STORE_STRING, STORE_INDEX
 } STORE_TYPE;
 
 
@@ -51,24 +63,20 @@ typedef struct
 {
     LABEL_TYPE type;
 
-    int  instructionIndex;
+    int  jumpTableIndex;
 } jumpLabel;
 
 
 typedef struct
 {
-    LABEL_TYPE type;
-
-    int index;
+    GString* jumpLabel;
 } jumpI;
 
 
 
 typedef struct
 {
-    LABEL_TYPE type;
-
-    int index;
+    GString* jumpLabel;
 } jumpNotZeroI;
 
 
@@ -82,6 +90,8 @@ typedef struct
         int  intVal;
 
         GString* str;
+
+        unsigned index;
     } value;
 } storeI;
 
@@ -89,7 +99,7 @@ typedef struct
 
 typedef struct
 {
-    int funcIndex;
+    GString* label;
 } callI;
 
 
@@ -193,7 +203,7 @@ inline storeI  initIntStore(int val) { storeI s; s.type = STORE_INT; s.value.int
 
 inline storeI  initStringStore(GString* str) { storeI s; s.type = STORE_STRING; s.value.str = str; return s; }
 
-
+inline storeI  initIndexStore(unsigned index) { storeI s; s.type = STORE_INDEX; s.value.index = index; return s; }
 
 // helper functions for printing instructions
 void  printInstruction(instruction i);
@@ -228,11 +238,11 @@ inline void printInstructions(GArray* instructions) {
 
 
 // get methods for each instruction with operands
-inline int   getJumpI(instruction i) { return i.values.jump.index; }
+//inline int   getJumpI(instruction i) { return i.values.jump.index; }
 
-inline int  getJNZ(instruction i) { return i.values.jnz.index; }
+//inline int  getJNZ(instruction i) { return i.values.jnz.index; }
 
-inline int  getCallI(instruction i) { return i.values.call.funcIndex; };
+//inline int  getCallI(instruction i) { return i.values.call.funcIndex; };
 
 inline int  getMoveI(instruction i) { return i.values.mov.index; };
 

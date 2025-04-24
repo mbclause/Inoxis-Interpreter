@@ -462,28 +462,31 @@ void VMInputPass::exitAssign(InoxisParser::AssignContext* ctx)
 	// get it's memory index
 	unsigned lhsVarIndex = currentLocalsMap[lhsVarName];
 
-	bool isStackArray = false;
+	bool isArray = false;
 
 	bool heapAlloc = false;
 
 	OP lhsDataType = NONE;
 
 	if (ctx->var()->array()->getText().size() > 0)
-		isStackArray = true;
+		isArray = true;
 
 	if (ctx->var()->pointRef()->getText().size() > 0)
 	{
 		if (ctx->var()->pointRef()->getText() == "*")
-			lhsDataType = POINTER;
+			lhsDataType = POINTER_OP;
 		else
-			lhsDataType = REF;
+			lhsDataType = REF_OP;
 	}
+
+	if (currentFunction.locals[lhsVarName].dataType == POINTER)
+		lhsDataType = POINTER_OP;
 
 	if (allocSize > 0)
 		heapAlloc = true;
 
 	/*    bool heapAlloc; size_t allocSize; expression lhs; expression rhs;*/
-	assign newAssign{ lhsVarIndex, heapAlloc, allocSize, lhs, rhs, isStackArray, lhsDataType };
+	assign newAssign{ lhsVarIndex, heapAlloc, allocSize, lhs, rhs, isArray, lhsDataType };
 
 	//printAssign(newAssign);
 
@@ -602,12 +605,12 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 
 			if (ctx->pointRef()->getText() == "&")
 			{
-				op = REF;
+				op = REF_OP;
 			}
 
 			else
 			{
-				op = POINTER;
+				op = POINTER_OP;
 			}
 			
 
@@ -840,7 +843,7 @@ void VMInputPass::exitRhsRef(InoxisParser::RhsRefContext* ctx)
 
 	else
 	{
-		op = REF;
+		op = REF_OP;
 	}
 
 	unaryOp* uo = makeUnaryOp(op, newLitExp);
@@ -911,12 +914,12 @@ void VMInputPass::exitVar(InoxisParser::VarContext* ctx)
 
 		if (ctx->pointRef()->getText() == "&")
 		{
-			op = REF;
+			op = REF_OP;
 		}
 
 		else
 		{
-			op = POINTER;
+			op = POINTER_OP;
 		}
 
 		unaryOp* newUnary = makeUnaryOp(op, newLitExp);

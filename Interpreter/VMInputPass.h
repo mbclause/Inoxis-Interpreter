@@ -17,6 +17,7 @@ Description: This class will walk the AST and for each function
 
 using namespace std;
 using namespace antlr4::tree;
+using namespace DataType;
 
 
 class VMInputPass : public InoxisBaseListener
