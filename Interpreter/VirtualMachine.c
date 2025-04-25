@@ -7,6 +7,39 @@ Description: Contains all function definitions for VirtualMachine.h
 #include "VirtualMachine.h"
 
 
+inline void destroy_gstring(gpointer data) {
+	g_string_free((GString*)data, TRUE);
+}
+
+
+
+/*
+Function: popStack
+Description: If the data stack is not empty, get the top element, remove it from the stack, and return it.
+Otherwise report error.
+*/
+datum  popStack(GArray* dataStack)
+{
+	if (dataStack)
+	{
+		datum d = g_array_index(dataStack, datum, dataStack->len - 1);
+
+		g_array_remove_index(dataStack, dataStack->len - 1);
+
+		return d;
+	}
+
+	else
+	{
+		printf("tried to pop empty stack\n");
+
+		exit(1);
+	}
+}
+
+
+
+
 /*
 Function: compileExpression
 Description: call the appropriate compile function depending on the expression type
@@ -332,14 +365,6 @@ void compileAssign(assign a, GArray* instructions, GHashTable* jumpLabels, GArra
 
 		// push the allocate instruction
 		g_array_append_val(instructions, newI);
-
-		// move the pointer to the mem location
-		movI  newMov = { MOV_TO_MEM, lhsVarIndex };
-
-		instruction m = initMovI(newMov);
-
-		// push the move instruction
-		g_array_append_val(instructions, m);
 	}
 
 	else
@@ -637,7 +662,7 @@ void  compileFuncCall(funcCall fc, GArray* instructions, GHashTable* jumpLabels,
 	g_string_printf(newFuncCallLabel, "CALL_FUNCTION(%d)", funcLocation);
 
 	// add the call instruction to that location
-	callI newCall = { newFuncCallLabel };
+	callI newCall = { newFuncCallLabel, funcLocation };
 
 	instruction newI = initCallI(newCall);
 
@@ -706,7 +731,7 @@ void compileFree(freeType f, GArray* instructions)
 Function: crashReport
 Description: If we hit an error in the virtual machine, dump the top of the stack and the instruction we are on and exit program.
 */
-void  crashReport(instruction badInstruction, int structnNum)
+/*void  crashReport(instruction badInstruction, int structnNum)
 {
 	printf("VM error at instruction %d", structnNum);
 
@@ -718,7 +743,7 @@ void  crashReport(instruction badInstruction, int structnNum)
 	// printStack()
 
 	exit(1);
-} // end crashReport
+} // end crashReport*/
 
 
 
@@ -779,7 +804,7 @@ void   compileStatement(statement stmnt, GArray* instructions, GHashTable* jumpL
 Function: compile
 Description: Takes the VMInput and converts it into a GPtrArray of instructions
 */
-GArray* compile(GArray* functions)
+GArray* compile(GArray* functions, GHashTable* jumpLabels)
 {
 	// initialize the instructions garray
 	GArray* instructions = g_array_new(false, false, sizeof(instruction));
@@ -791,8 +816,6 @@ GArray* compile(GArray* functions)
 
 		// array containing the location of the first instruction for function i
 		GArray* functionLocations = g_array_new(false, false, sizeof(unsigned));
-
-		GHashTable* jumpLabels = g_hash_table_new(g_str_hash, g_str_equal);
 
 		// loop through each function
 		for (unsigned i = 0; i < functions->len; i++)
@@ -821,6 +844,13 @@ GArray* compile(GArray* functions)
 
 				// add the call label
 				g_hash_table_insert(jumpLabels, newFuncCallLabel, GINT_TO_POINTER(instructions->len));
+
+				// now move the argument val on top of the stack into localMem[0]
+				movI newMov = { MOV_TO_MEM, 0 };
+
+				instruction  newMovI = initMovI(newMov);
+
+				g_array_append_val(instructions, newMovI);
 			}
 
 			// add the location of the current function in instructions to the locations array
@@ -868,9 +898,154 @@ Description: execute all of the instructions in the instructions array
 Input: instructions = the array of instruction structs to execute
 functions - the garray of function structs, need the symbols data member for each
 */
-void  execute(GArray* instructions, GArray* functions)
+void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 {
+	// set up the data stack
+	GArray* dataStack = g_array_new(false, false, sizeof(datum));
 
+	// set up the frame pointer and the program counter
+	int pc = 0;
+
+	// this is the index into the functions array to get the locals memory
+	int fp = 0;
+
+	// push the location of the end of the program onto the data stack, this is where we'll return to when main ends
+	// to exit the program
+
+	datum fpd = initIntDat(fp);
+
+	datum pcd = initIntDat(instructions->len);
+
+	pushStack(dataStack, fpd);
+
+	pushStack(dataStack, pcd);
+
+	printf("\nEXECUTE\n");
+
+	//printf("Data Stack before execution:\n");
+
+	//printDataStack(dataStack);
+
+	// loop through the program until we reach the end
+	while (pc < instructions->len)
+	{
+		// execute the instruction at program counter
+		instruction currentI = g_array_index(instructions, instruction, pc);
+
+		INSTRUCTION_TYPE iType = currentI.type;
+
+		// get the local memory for the function we are in currently
+		function  currentFunc = g_array_index(functions, function, fp);
+
+		// of type memVal
+		GArray* localMem = currentFunc.symbols;
+
+		if (!localMem)
+		{
+			printf("bad memory\n");
+
+			exit(1);
+		}
+
+		//printInstruction(currentI);
+
+		// call the appropriate execute_x function for the instruction
+		switch (iType)
+		{
+		case MOVE_I:
+			executeMovI(currentI.values.mov, dataStack, localMem);
+			pc++;
+			break;
+
+		case STORE_I:
+			executeStore(currentI.values.store, dataStack);
+			pc++;
+			break;
+
+		case ADD_I:
+			executeAdd(dataStack);
+			pc++;
+			break;
+
+		case SUBTRACT_I:
+			executeSubtract(dataStack);
+			pc++;
+			break;
+
+		case LESS_I:
+			executeLess(dataStack);
+			pc++;
+			break;
+
+		case LESS_EQUAL_I:
+			executeLessEqual(dataStack);
+			pc++;
+			break;
+
+		case GREATER_I:
+			executeGreater(dataStack);
+			pc++;
+			break;
+
+		case GREATER_EQUAL_I:
+			executeGreaterEqual(dataStack);
+			pc++;
+			break;
+
+		case DOUBLE_EQUALS_I:
+			executeDoubleEqual(dataStack);
+			pc++;
+			break;
+
+		case NOT_EQUAL_I:
+			executeNotEqual(dataStack);
+			pc++;
+			break;
+
+		case NOT_I:
+			executeNot(dataStack);
+			pc++;
+			break;
+
+		case CALL_I:
+			executeCall(currentI.values.call, dataStack, &pc, &fp);
+			break;
+
+		case RETURN_I:
+			executeReturn(dataStack, &pc, &fp);
+			break;
+
+		case PRINT_I:
+			executePrint(currentI.values.pr, dataStack);
+			pc++;
+			break;
+
+		case JUMP_I:
+			executeJump(currentI.values.jump, &pc);
+			break;
+
+		case JUMP_NOT_ZERO_I:
+			executeJumpNotZero(currentI.values.jnz, dataStack, &pc);
+			break;
+
+		case ALLOCATE_I:
+			executeAllocate(currentI.values.alloc, localMem);
+			break;
+
+		case FREE_I:
+			executeFree(currentI.values.Free, localMem);
+			break;
+
+		default:
+			printf("bad instruction\n");
+			exit(1);
+			break;
+		}
+
+		//printDataStack(dataStack);
+
+		//printf("\n");
+	}
 }
 
 
@@ -885,6 +1060,13 @@ Input: functions - a g_array of function structs created by the VMInputPass
 */
 bool  VMMain(GArray* functions)
 {
+	if (!functions)
+	{
+		printf("functions array is null\n");
+
+		exit(1);
+	}
+
 
 	// print all of the statements
 	for (unsigned i = 0; i < functions->len; i++)
@@ -897,6 +1079,13 @@ bool  VMMain(GArray* functions)
 
 		else
 			printf("Function: %d\n", i + 1);
+
+		if (func.statements == NULL || func.symbols == NULL)
+		{
+			printf("function unanitialized\n");
+
+			exit(1);
+		}
 
 		// print the size of the locals array
 		printf("Size of function locals: %d\n", func.symbols->len);
@@ -914,9 +1103,11 @@ bool  VMMain(GArray* functions)
 		printf("\n");
 	}
 
+	GHashTable* jumpLabels = g_hash_table_new_full(g_str_hash, g_str_equal, destroy_gstring, NULL);
+
 
 	// get the array of instructions
-	GArray* instructions = compile(functions);
+	GArray* instructions = compile(functions, jumpLabels);
 
 	if (!instructions)
 	{
@@ -925,18 +1116,28 @@ bool  VMMain(GArray* functions)
 
 	}
 
+	if (!jumpLabels)
+	{
+		exit(1);
+	}
+
 	printInstructions(instructions);
 
 	// execute the instructions, passing the local arrays for the functions
-	//execute(instructions, functions);
+	execute(instructions, functions, jumpLabels);
 
 	// free the instructions
 	g_array_free(instructions, true);
+
+	
 
 	// free the data stack
 
 	// now we need to free all of the input memory
 	freeVMInput(functions);
+
+	// free the jumpLabels hash table
+	g_hash_table_destroy(jumpLabels);
 
 	return true;
 }

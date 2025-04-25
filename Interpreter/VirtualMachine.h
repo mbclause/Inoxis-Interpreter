@@ -3,6 +3,8 @@ File: VirtualMachine.h
 Description: Contains the data structs and function declarations in C for the virtual machine back-end.
 */
 #pragma once
+#ifndef VIRTUAL_MACHINE_H
+#define VIRTUAL_MACHINE_H
 
 #include "VMInput.h"
 #include "VMInstruction.h"
@@ -65,7 +67,7 @@ bool  VMMain(GArray* functions);
 Function: compile
 Description: Takes the VMInput and converts it into a GPtrArray of instructions
 */
-GArray*   compile(GArray* functions);
+GArray*   compile(GArray* functions, GHashTable* jumpLabels);
 
 
 /*
@@ -83,7 +85,7 @@ void   compileStatement(statement stmnt, GArray* instructions, GHashTable* jumpL
 Function: crashReport
 Description: If we hit an error in the virtual machine, dump the top of the stack and the instruction we are on
 */
-void  crashReport(instruction badInstruction, int structnNum);
+//void  crashReport(instruction badInstruction, int structnNum);
 
 
 
@@ -93,10 +95,7 @@ Description: execute all of the instructions in the instructions array
 Input: instructions = the array of instruction structs to execute
 functions - the garray of function structs, need the symbols data member for each
 */
-void  execute(GArray* instructions, GArray* functions);
-
-
-// stack implementation functions
+void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels);
 
 
 
@@ -142,6 +141,13 @@ void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels
 
 
 // helper functions for datum
+// function to pop the top of data stack and return the value
+datum  popStack(GArray* dataStack);
+
+// push a value on top of the stack
+inline void  pushStack(GArray* dataStack, datum d) { g_array_append_val(dataStack, d); }
+
+
 // init
 inline datum  initIntDat(int val) { datum d; d.type = STACK_INT; d.value.num = val; return d; }
 
@@ -163,7 +169,7 @@ inline int* getPtrDat(datum d) { return d.value.ptr; }
 // PRINT
 inline void  printIntDat(int val) { printf("INTVAL = %d\n", val); }
 
-inline void  printStrDat(GString* str) { g_print("STRING = %s\n", str); }
+inline void  printStrDat(GString* str) { g_print("STRING = %s\n", str->str); }
 
 inline void  printPtrDat(int* ptr) { printf("HEAP_POINTER = %p\n", (void*)ptr); }
 
@@ -184,9 +190,18 @@ inline void  printDatum(datum d) {
 Print each datum in the data stack
 */
 inline  void  printDataStack(GArray* stack) {
+	if (!stack)
+	{
+		printf("data stack empty\n");
+
+		return;
+	}
+
+	printf("Data Stack\n");
+
 	for (unsigned i = 0; i < stack->len; i++)
 	{
-		printf("Data stack index - %d: ", i);
+		printf("index - %d: ", i);
 		printDatum(g_array_index(stack, datum, i));
 	}
 }
@@ -201,3 +216,5 @@ inline void printLabelHashMap(gpointer key, gpointer value, gpointer user_data) 
 
 	printf("<%s, %d>\n", k->str, num + 1);
 }
+
+#endif

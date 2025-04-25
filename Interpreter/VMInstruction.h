@@ -1,9 +1,12 @@
 #pragma once
+#ifndef VM_INSTRUCTION_H
+#define VM_INSTRUCTION_H
 /*
 File: VMInstruction.h
 Description: Contains the struct definitions and helper method declarations for the VM instruction type
 */
 #include "VMInput.h"
+#include "VirtualMachine.h"
 #include <stdio.h>
 
 
@@ -25,6 +28,8 @@ typedef enum
     ALLOCATE_I, FREE_I
 
 } INSTRUCTION_TYPE;
+
+
 
 
 /*
@@ -100,6 +105,8 @@ typedef struct
 typedef struct
 {
     GString* label;
+
+    int  funcIndex;
 } callI;
 
 
@@ -171,6 +178,62 @@ typedef struct
 
 
 // FUNCTION DECLARATIONS
+// execute individual instruction functions
+void  executeMovI(movI  mov, GArray* dataStack, GArray* localMem);
+
+// execute each move type
+void  executeMovToStack(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovToMem(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovFromStackIndex(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovToStackIndex(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovToHeap(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovFromHeap(int index, GArray* dataStack, GArray* localMem);
+
+void  executeMovStackToHeap(int index, GArray* dataStack, GArray* localMem);
+
+
+void  executeStore(storeI  stor, GArray* dataStack);
+
+void  executeAdd(GArray* dataStack);
+
+void  executeSubtract(GArray* dataStack);
+
+void  executeLess(GArray* dataStack);
+
+void  executeLessEqual(GArray* dataStack);
+
+void executeGreater(GArray* dataStack);
+
+void  executeGreaterEqual(GArray* dataStack);
+
+void  executeDoubleEqual(GArray* dataStack);
+
+void  executeNotEqual(GArray* dataStack);
+
+void  executeNot(GArray* dataStack);
+
+void  executeCall(callI c, GArray* dataStack, int* pc, int* fp);
+
+void  executeReturn(GArray* dataStack, int* pc, int* fp);
+
+void  executePrint(printI  p, GArray* dataStack);
+
+
+void  executeJump(jumpI  j, int* pc);
+
+void  executeJumpNotZero(jumpNotZeroI jnz, GArray* dataStack, int* pc);
+
+void  executeAllocate(allocI a, GArray* localMem);
+
+void  executeFree(freeI  f, GArray* localMem);
+
+
+
 // create an init_ function for each instruction.operands type
 inline instruction  initJumpI(jumpI j) { instruction i; i.type = JUMP_I; i.values.jump = j; return i; }
 
@@ -260,3 +323,5 @@ inline int   getIntStore(storeI  s) { return s.value.intVal;}
 inline GString*   getStringStore(storeI  s) { return s.value.str; }
 
 inline  STORE_TYPE  getStoreType(storeI s) { return s.type;}
+
+#endif

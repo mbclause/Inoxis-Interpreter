@@ -1,23 +1,16 @@
 
-int  func1(int param);
+
 
 int main()
 {
 
-	int mut var1 = 8;
+	int mut *var1 = new int[7];
 
-	func1(var1);
+	var1[3] = 4;
 
-	cout << "asdfasdb" << var1 << endl;
+	//cout << "var1[3] = " << var1[3] << endl;
 
 	return 0;
-}
-
-int func1(int param)
-{
-	int mut var2 = 9;
-
-	return var2;
 }
 
 

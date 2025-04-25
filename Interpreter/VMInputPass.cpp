@@ -116,6 +116,9 @@ Descrition: create the else statement and pass it up the tree
 */
 void VMInputPass::exitElse(InoxisParser::ElseContext* ctx)
 {
+	if (ctx->statList() == NULL)
+		return;
+
 	// there's no condition, empty expression
 	expression elseCond = initEmptyExpression();
 
@@ -156,9 +159,12 @@ Descrition: pass the vector of statLists and conditions up the parse tree
 */
 void VMInputPass::exitElif(InoxisParser::ElifContext* ctx)
 {
-	elifCondsProp.put(ctx, ctx->condition());
+	if (ctx)
+	{
+		elifCondsProp.put(ctx, ctx->condition());
 
-	elifStatsProp.put(ctx, ctx->statList());
+		elifStatsProp.put(ctx, ctx->statList());
+	}
 }
 
 
