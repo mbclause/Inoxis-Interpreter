@@ -28,9 +28,10 @@ class MemSafetyPass : public InoxisBaseListener
 {
 public:
 	// ctors
-	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0), statementIndex(0) {};
+	MemSafetyPass(ParseTreeProperty<funcSymbol> funcs) : functions(funcs), _numErrors(0), statementIndex(0),
+	inWhileLoop(false) {};
 
-	MemSafetyPass() : _numErrors(0), statementIndex(0) {};
+	MemSafetyPass() : _numErrors(0), statementIndex(0), inWhileLoop(false) {};
 
 
 
@@ -46,7 +47,9 @@ public:
 
 	void enterMain(InoxisParser::MainContext* ctx);
 
-	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); resetStatList(); };
+	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); 
+	printStatList();
+	resetStatList(); };
 
 	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
 
@@ -91,6 +94,18 @@ public:
 	void  addConditionalStatements(InoxisParser::StatementContext* condStatement, vector<string> &stringStatements);
 
 
+	void  printStatList() {
+		for (int i = 0; i < currentStatList.size(); i++)
+		{
+			if (holds_alternative<string>(currentStatList[i]))
+				cout << get<string>(currentStatList[i]) << endl;
+
+			else
+				cout << get<sentinal>(currentStatList[i]).varName << " dropped\n";
+		}
+	}
+
+
 	// data members
 	ParseTreeProperty<funcSymbol> functions;
 
@@ -101,6 +116,8 @@ public:
 	int  statementIndex;
 
 	int _numErrors;
+
+	bool  inWhileLoop;
 
 	funcSymbol currentFunction;
 };

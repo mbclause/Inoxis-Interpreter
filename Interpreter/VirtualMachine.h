@@ -9,6 +9,8 @@ Description: Contains the data structs and function declarations in C for the vi
 #include "VMInput.h"
 #include "VMInstruction.h"
 
+#include <stdio.h>
+
 
 // ENUMS
 // stack data type enum
@@ -144,8 +146,7 @@ void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels
 // function to pop the top of data stack and return the value
 datum  popStack(GArray* dataStack);
 
-// push a value on top of the stack
-inline void  pushStack(GArray* dataStack, datum d) { g_array_append_val(dataStack, d); }
+
 
 
 // init
@@ -186,6 +187,12 @@ inline void  printDatum(datum d) {
 		printStrDat(d.value.str); 
 }
 
+
+// push a value on top of the stack
+inline void  pushStack(GArray* dataStack, datum d) {
+	g_array_append_val(dataStack, d);
+}
+
 /*
 Print each datum in the data stack
 */
@@ -199,7 +206,7 @@ inline  void  printDataStack(GArray* stack) {
 
 	printf("Data Stack\n");
 
-	for (unsigned i = 0; i < stack->len; i++)
+	for (int i = stack->len - 1; i >= 0; i--)
 	{
 		printf("index - %d: ", i);
 		printDatum(g_array_index(stack, datum, i));
@@ -212,9 +219,9 @@ inline  void  printDataStack(GArray* stack) {
 inline void printLabelHashMap(gpointer key, gpointer value, gpointer user_data) {
 	int  num = GPOINTER_TO_INT(value);
 
-	GString* k = (GString*)key;
+	const char* k = (const char*)key;
 
-	printf("<%s, %d>\n", k->str, num + 1);
+	printf("<%s, %d>\n", k, num + 1);
 }
 
 #endif

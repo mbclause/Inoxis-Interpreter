@@ -25,7 +25,7 @@ typedef enum
     // jumps
     JUMP_I, JUMP_NOT_ZERO_I,
     // heap memory actions
-    ALLOCATE_I, FREE_I
+    ALLOCATE_I, FREE_I, REF_I, SUBSCRIPT_I
 
 } INSTRUCTION_TYPE;
 
@@ -60,7 +60,7 @@ typedef enum
 
 typedef enum
 {
-    STORE_INT, STORE_STRING, STORE_INDEX
+    STORE_INT, STORE_STRING, STORE_INDEX, STORE_PTR
 } STORE_TYPE;
 
 
@@ -97,6 +97,8 @@ typedef struct
         GString* str;
 
         unsigned index;
+
+        int* ptr;
     } value;
 } storeI;
 
@@ -140,6 +142,17 @@ typedef struct
     int  numLiterals;
 } printI;
 
+typedef struct
+{
+    int  rhsVarIndex;
+} refI;
+
+
+typedef struct
+{
+    int  varIndex;
+} subscriptI;
+
 
 
 // union: operands
@@ -161,7 +174,11 @@ typedef union
 
     printI  pr;
 
+    refI ref;
+
     int  nill;
+
+    subscriptI subscript;
 
 } operands;
 
@@ -217,20 +234,25 @@ void  executeNotEqual(GArray* dataStack);
 
 void  executeNot(GArray* dataStack);
 
-void  executeCall(callI c, GArray* dataStack, int* pc, int* fp);
+void  executeCall(callI c, GArray* dataStack, int* pc, int* fp, GHashTable* jumpLabels, GArray* functions);
 
 void  executeReturn(GArray* dataStack, int* pc, int* fp);
 
 void  executePrint(printI  p, GArray* dataStack);
 
 
-void  executeJump(jumpI  j, int* pc);
+void  executeJump(jumpI  j, int* pc, GHashTable* jumpLabels);
 
-void  executeJumpNotZero(jumpNotZeroI jnz, GArray* dataStack, int* pc);
+void  executeJumpNotZero(jumpNotZeroI jnz, GArray* dataStack, int* pc, GHashTable* jumpLabels);
 
 void  executeAllocate(allocI a, GArray* localMem);
 
 void  executeFree(freeI  f, GArray* localMem);
+
+// creates a pointer to ref.varIndex's data and pushes it onto the stack
+void  executeRef(refI  ref, GArray* localMem, GArray*  dataStack);
+
+void  executeSubscript(subscriptI  sub, GArray* dataStack, GArray* localMem);
 
 
 
@@ -251,6 +273,10 @@ inline instruction  initAllocI(allocI  a) { instruction i; i.type = ALLOCATE_I; 
 inline instruction  initFreeI(freeI  f) { instruction i; i.type = FREE_I; i.values.Free = f; return i; }
 
 inline instruction  initPrintI(printI p) { instruction i; i.type = PRINT_I; i.values.pr = p; return i; };
+
+inline instruction  initRefI(refI ref) { instruction i; i.type = REF_I; i.values.ref = ref; return i; }
+
+inline instruction initSubscriptI(subscriptI s) { instruction i; i.type = SUBSCRIPT_I; i.values.subscript = s; return i; }
 
 // initialize an instruction that doesn't have operands, just an operator
 inline instruction initInstructionNoOperands(INSTRUCTION_TYPE type) {
@@ -285,7 +311,11 @@ void  printAllocI(allocI  a);
 
 void  printFreeI(freeI f);
 
-inline void  printPrintI(printI p) { printf("PRINT(%d) values", p.numLiterals); };
+inline void  printPrintI(printI p) { printf("PRINT(%d)", p.numLiterals); };
+
+inline void  printRefI(refI ref) { printf("REFERENCE(%d)", ref.rhsVarIndex); }
+
+inline void  printSubscriptI(subscriptI s) { printf("SUBSCRIPT(%d)", s.varIndex); }
 
 // instructions have type instruction
 inline void printInstructions(GArray* instructions) {

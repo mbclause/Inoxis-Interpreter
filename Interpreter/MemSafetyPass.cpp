@@ -85,6 +85,12 @@ void  MemSafetyPass::addConditionalStatements(InoxisParser::StatementContext* co
 	{
 		auto whileStatement = condStatement->while_();
 
+		string  whileSentinal = "ENTER_WHILE";
+
+		string  endWhileSentinal = "EXIT_WHILE";
+
+		stringStatements.push_back(whileSentinal);
+
 		// add the if condition to stringStatements
 		stringStatements.push_back(whileStatement->condition()->getText());
 
@@ -100,6 +106,8 @@ void  MemSafetyPass::addConditionalStatements(InoxisParser::StatementContext* co
 			// from stackOverflow
 			stringStatements.insert(stringStatements.end(), whileStatements.begin(), whileStatements.end());
 		}
+
+		stringStatements.push_back(endWhileSentinal);
 	}
 }
 
@@ -763,10 +771,53 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 		// convert to strings
 		vector<string>  statements = convertStatementsToString(s, ctx->return_());
 
+		vector<string>  whileVars;
+
 		// for statement in statements
 		for (int i = 0; i < statements.size(); i++)
 		{
 			string statement = statements[i];
+
+			if (statement == "ENTER_WHILE")
+				inWhileLoop = true;
+
+			// once we exit while loop, we need to check all vars used in it and add sentinals
+			if (statement == "EXIT_WHILE")
+			{
+				inWhileLoop = false;
+
+				for (int k = 0; k < whileVars.size(); k++)
+				{
+					string varName = whileVars[k];
+
+					// check if there's a sentinal value for the variable
+					if (!checkIfSentinal(anotatedStatements, i, varName))
+					{
+						// if there isn't, check if this is the last time the var is used
+						// call isFinalUse()
+						if (i + 1 >= statements.size())
+						{
+							// add sentinal for var to anotatedStatements
+							sentinal newSentinal{ varName, false };
+
+							anotatedStatements.push_back(newSentinal);
+						}
+
+						else
+						{
+							if (isFinalUse(statements, i + 1, varName))
+							{
+								// add sentinal for var to anotatedStatements
+								sentinal newSentinal{ varName, false };
+
+								anotatedStatements.push_back(newSentinal);
+							}
+						}
+					}
+				}
+
+				whileVars.clear();
+			}
 
 			anotatedStatements.push_back(statement);
 
@@ -777,27 +828,38 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 			{
 				string varName = vars[j];
 
-				// check if there's a sentinal value for the variable
-				if (!checkIfSentinal(anotatedStatements, i, varName))
+				// if we're in a while loop, we don't want to add a sentinal
+				// add the var to a list we'll check after we exit loop
+				if (inWhileLoop)
 				{
-					// if there isn't, check if this is the last time the var is used
-					// call isFinalUse()
-					if (i + 1 >= statements.size())
-					{
-						// add sentinal for var to anotatedStatements
-						sentinal newSentinal{ varName, false };
+					whileVars.push_back(varName);
+				}
 
-						anotatedStatements.push_back(newSentinal);
-					}
+				else
+				{
 
-					else
+					// check if there's a sentinal value for the variable
+					if (!checkIfSentinal(anotatedStatements, i, varName))
 					{
-						if (isFinalUse(statements, i + 1, varName))
+						// if there isn't, check if this is the last time the var is used
+						// call isFinalUse()
+						if (i + 1 >= statements.size())
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
 
 							anotatedStatements.push_back(newSentinal);
+						}
+
+						else
+						{
+							if (isFinalUse(statements, i + 1, varName))
+							{
+								// add sentinal for var to anotatedStatements
+								sentinal newSentinal{ varName, false };
+
+								anotatedStatements.push_back(newSentinal);
+							}
 						}
 					}
 				}
@@ -842,6 +904,8 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	int i = 0;
 
+	vector<string>  whileVars;
+
 	// make sure the function contains statements
 	if (ctx->statList() != NULL)
 	{
@@ -873,32 +937,84 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 			vector<string> vars = getVars(statement);
 
-			// loop through all vars in statement
-			for (int j = 0; j < vars.size(); j++)
+			if (statement == "ENTER_WHILE")
+				inWhileLoop = true;
+
+			// once we exit while loop, we need to check all vars used in it and add sentinals
+			if (statement == "EXIT_WHILE")
 			{
-				string varName = vars[j];
+				inWhileLoop = false;
 
-				// check if there's a sentinal value for the variable
-				if (!checkIfSentinal(anotatedStatements, i, varName))
+				for (int k = 0; k < whileVars.size(); k++)
 				{
-					// if there isn't, check if this is the last time the var is used
-					// call isFinalUse()
-					if (i + 1 >= statements.size())
-					{
-						// add sentinal for var to anotatedStatements
-						sentinal newSentinal{ varName, false };
+					string varName = whileVars[k];
 
-						anotatedStatements.push_back(newSentinal);
-					}
-
-					else
+					// check if there's a sentinal value for the variable
+					if (!checkIfSentinal(anotatedStatements, i, varName))
 					{
-						if (isFinalUse(statements, i + 1, varName))
+						// if there isn't, check if this is the last time the var is used
+						// call isFinalUse()
+						if (i + 1 >= statements.size())
 						{
 							// add sentinal for var to anotatedStatements
 							sentinal newSentinal{ varName, false };
 
 							anotatedStatements.push_back(newSentinal);
+						}
+
+						else
+						{
+							if (isFinalUse(statements, i + 1, varName))
+							{
+								// add sentinal for var to anotatedStatements
+								sentinal newSentinal{ varName, false };
+
+								anotatedStatements.push_back(newSentinal);
+							}
+						}
+					}
+				}
+
+				whileVars.clear();
+			}
+
+			// loop through all vars in statement
+			for (int j = 0; j < vars.size(); j++)
+			{
+				string varName = vars[j];
+
+				// if we're in a while loop, we don't want to add a sentinal
+				// add the var to a list we'll check after we exit loop
+				if (inWhileLoop)
+				{
+					whileVars.push_back(varName);
+				}
+
+				else
+				{
+
+					// check if there's a sentinal value for the variable
+					if (!checkIfSentinal(anotatedStatements, i, varName))
+					{
+						// if there isn't, check if this is the last time the var is used
+						// call isFinalUse()
+						if (i + 1 >= statements.size())
+						{
+							// add sentinal for var to anotatedStatements
+							sentinal newSentinal{ varName, false };
+
+							anotatedStatements.push_back(newSentinal);
+						}
+
+						else
+						{
+							if (isFinalUse(statements, i + 1, varName))
+							{
+								// add sentinal for var to anotatedStatements
+								sentinal newSentinal{ varName, false };
+
+								anotatedStatements.push_back(newSentinal);
+							}
 						}
 					}
 				}

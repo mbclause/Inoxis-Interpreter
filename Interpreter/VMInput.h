@@ -3,6 +3,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // Forward declare
 typedef struct expression expression;

@@ -6,6 +6,91 @@ Description: Function definitions for VMInstruction.h
 
 #include "VMInstruction.h"
 
+#include <stdio.h>
+
+
+/*
+Function: executeSubscript
+Description: given a memory index for the first element of the array, pop the stack to get the array index,
+then, if the memory val holds an int, add sub.varIndex to the popped index,
+if an unsigned or pointer value, add the popped value to that value,
+push the resulting value onto the stack
+*/
+void  executeSubscript(subscriptI  sub, GArray* dataStack, GArray* localMem)
+{
+	// pop stack to get array index
+	datum aIndex = popStack(dataStack);
+
+	if (aIndex.type != STACK_INT)
+	{
+		printf("bad array index");
+
+		exit(1);
+	}
+
+	// get the int val
+	int  arrayIndex = aIndex.value.num;
+
+	// now check data type of sub.index in memory
+	memVal mv = g_array_index(localMem, memVal, sub.varIndex);
+
+	datum resultAddress;
+
+	//if the memory val holds an int, add sub.varIndex to the popped index,
+	if (mv.type == MEM_INT)
+	{
+		int  resultInt = sub.varIndex + arrayIndex;
+
+		resultAddress.type = STACK_INDEX;
+
+		resultAddress.value.index = resultInt;
+	}
+
+	// pointer value, add the popped value to that value,
+	else if (mv.type == MEM_POINTER)
+	{
+		// get pointer
+		int* ptr = mv.val.heapPtr;
+
+		if (!ptr)
+		{
+			printf("bad pointer\n");
+
+			exit(1);
+		}
+
+		// add index
+		int* resultPtr = ptr + arrayIndex;
+
+		resultAddress.type = STACK_PTR;
+
+		resultAddress.value.ptr = resultPtr;
+	}
+
+	else if (mv.type == MEM_REF)
+	{
+		int  refIndex = mv.val.index;
+
+		int  resultIndex = refIndex + arrayIndex;
+
+		resultAddress.type = STACK_INDEX;
+
+		resultAddress.value.index = resultIndex;
+	}
+
+	else
+	{
+		printf("bad memval\n");
+
+		exit(1);
+	}
+
+	// push the value onto the stack
+	pushStack(dataStack, resultAddress);
+} // end executeSubscript
+
+
+
 
 /*
 Function: executeMovI
@@ -212,7 +297,9 @@ void  executeMovToMem(int index, GArray* dataStack, GArray* localMem)
 
 /*
 Function: executeMovFromStackIndex
-Description: pops the memory index off the data stack, gets the value there and pushes it onto the data stack
+Description: pops a value off the stack,
+if it's memory index, gets the value there and pushes it onto the data stack,
+if a pointer, get the value at that memory location and push it
 */
 void  executeMovFromStackIndex(int index, GArray* dataStack, GArray* localMem)
 {
@@ -226,73 +313,96 @@ void  executeMovFromStackIndex(int index, GArray* dataStack, GArray* localMem)
 	// pop the index off top of stack
 	datum d = popStack(dataStack);
 
-	if (d.type != STACK_INDEX)
+	if (d.type == STACK_STRING)
 	{
-		printf("popped value needs to be stack_index\n");
+		printf("bad memory lookup");
 
 		exit(1);
 	}
 
-	unsigned  newIndex = d.value.index;
-
-	if (newIndex < 0 || newIndex >= localMem->len)
+	// if the stack top is a heap address, get the value at that address
+	else if (d.type == STACK_PTR)
 	{
-		printf("bad local mem index\n");
+		int* ptr = d.value.ptr;
 
-		exit(1);
-	}
-
-	// get the value at the new index
-	memVal mv = g_array_index(localMem, memVal, newIndex);
-
-	datum dVal;
-
-	// MEM_POINTER, MEM_INT, MEM_REF
-	if (mv.type == MEM_POINTER)
-	{
-		int* ptr = getPtrMemVal(mv);
-
-		// error
-		if (ptr == NULL)
+		if (!ptr)
 		{
-			printf("bad local memory access pointer\n");
+			printf("bad memory access\n");
 
 			exit(1);
 		}
 
-		dVal.type = STACK_PTR;
+		int  newVal = *ptr;
 
-		dVal.value.ptr = ptr;
+		datum newHeapVal = initIntDat(newVal);
+
+		pushStack(dataStack, newHeapVal);
 	}
 
-	else if (mv.type == MEM_INT)
-	{
-		int  num = getIntMemVal(mv);
-
-		dVal.type = STACK_INT;
-
-		dVal.value.num = num;
-	}
-
-	else if (mv.type == MEM_REF)
-	{
-		unsigned  i = getRefMemVal(mv);
-
-		dVal.type = STACK_INDEX;
-
-		dVal.value.index = i;
-	}
-
-	// error
 	else
 	{
-		printf("bad memory type\n");
+		unsigned  newIndex = d.value.index;
 
-		exit(1);
+		if (newIndex < 0 || newIndex >= localMem->len)
+		{
+			printf("bad local mem index\n");
+
+			exit(1);
+		}
+
+		// get the value at the new index
+		memVal mv = g_array_index(localMem, memVal, newIndex);
+
+		datum dVal;
+
+		// MEM_POINTER, MEM_INT, MEM_REF
+		if (mv.type == MEM_POINTER)
+		{
+			int* ptr = getPtrMemVal(mv);
+
+			// error
+			if (ptr == NULL)
+			{
+				printf("bad local memory access pointer\n");
+
+				exit(1);
+			}
+
+			dVal.type = STACK_PTR;
+
+			dVal.value.ptr = ptr;
+		}
+
+		else if (mv.type == MEM_INT)
+		{
+			int  num = getIntMemVal(mv);
+
+			dVal.type = STACK_INT;
+
+			dVal.value.num = num;
+		}
+
+		else if (mv.type == MEM_REF)
+		{
+			unsigned  i = getRefMemVal(mv);
+
+			dVal.type = STACK_INDEX;
+
+			dVal.value.index = i;
+		}
+
+		// error
+		else
+		{
+			printf("bad memory type\n");
+
+			exit(1);
+		}
+
+		// push the value onto the stack
+		pushStack(dataStack, dVal);
 	}
 
-	// push the value onto the stack
-	pushStack(dataStack, dVal);
 
 } // end executeMovFromStackIndex
 
@@ -306,79 +416,97 @@ memory index
 void  executeMovToStackIndex(int index, GArray* dataStack, GArray* localMem)
 {
 	// pop the index off top of stack
+	// need to check if it's a memory address or a heap address
 	datum d = popStack(dataStack);
-
-	if (d.type != STACK_INDEX)
-	{
-		printf("popped value needs to be stack_index\n");
-
-		exit(1);
-	}
-
-	unsigned  newIndex = d.value.index;
-
-	if (newIndex < 0 || newIndex >= localMem->len)
-	{
-		printf("bad local mem index\n");
-
-		exit(1);
-	}
 
 	// get the value to move off the stack top
 	datum dVal = popStack(dataStack);
 
-	memVal mv;
-
-	if (dVal.type == STACK_STRING)
+	// if the top is a pointer, move the data into it
+	if (d.type == STACK_PTR)
 	{
-		printf("can't move strings into local memory\n");
-
-		exit(1);
-	}
-
-	else if (dVal.type == STACK_INT)
-	{
-		int num = dVal.value.num;
-
-		mv.type = MEM_INT;
-
-		mv.val.intVal = num;
-	}
-
-	else if (dVal.type == STACK_PTR)
-	{
-		int* ptr = dVal.value.ptr;
+		// get the address
+		int* ptr = d.value.ptr;
 
 		if (!ptr)
 		{
-			printf("bad local memory access pointer\n");
+			printf("bad stack access pointer\n");
 
 			exit(1);
 		}
 
-		mv.type = MEM_POINTER;
+		// get the value to send to address
+		int  newVal = dVal.value.num;
 
-		mv.val.heapPtr = ptr;
+		// add the value
+		*ptr = newVal;
 	}
 
-	else if (dVal.type == STACK_INDEX)
-	{
-		unsigned i = dVal.value.index;
-
-		mv.type = MEM_REF;
-
-		mv.val.index = i;
-	}
-
+	// otherwise, create a new memval with data and move it to index
 	else
 	{
-		printf("bad stack data type\n");
+		unsigned  newIndex = d.value.index;
 
-		exit(1);
+		if (newIndex < 0 || newIndex >= localMem->len)
+		{
+			printf("bad local mem index\n");
+
+			exit(1);
+		}
+
+		memVal mv;
+
+		if (dVal.type == STACK_STRING)
+		{
+			printf("can't move strings into local memory\n");
+
+			exit(1);
+		}
+
+		else if (dVal.type == STACK_INT)
+		{
+			int num = dVal.value.num;
+
+			mv.type = MEM_INT;
+
+			mv.val.intVal = num;
+		}
+
+		else if (dVal.type == STACK_PTR)
+		{
+			int* ptr = dVal.value.ptr;
+
+			if (!ptr)
+			{
+				printf("bad local memory access pointer\n");
+
+				exit(1);
+			}
+
+			mv.type = MEM_POINTER;
+
+			mv.val.heapPtr = ptr;
+		}
+
+		else if (dVal.type == STACK_INDEX)
+		{
+			unsigned i = dVal.value.index;
+
+			mv.type = MEM_REF;
+
+			mv.val.index = i;
+		}
+
+		else
+		{
+			printf("bad stack data type\n");
+
+			exit(1);
+		}
+
+		// put the popped value into memory at the popped index
+		g_array_index(localMem, memVal, newIndex) = mv;
 	}
-
-	// put the popped value into memory at the popped index
-	g_array_index(localMem, memVal, newIndex) = mv;
 
 } // end executeMovToStackIndex
 
@@ -392,13 +520,6 @@ void  executeMovToHeap(int index, GArray* dataStack, GArray* localMem)
 {
 	// pop stack
 	datum d = popStack(dataStack);
-
-	if (d.type != STACK_INT)
-	{
-		printf("can only move ints into heap memory");
-
-		exit(1);
-	}
 
 	if (index < 0 || index >= localMem->len)
 	{
@@ -438,7 +559,7 @@ void  executeMovToHeap(int index, GArray* dataStack, GArray* localMem)
 
 /*
 Function: executeMovFromHeap
-Description: gets the value stored at the address in memory INDEX and pushes it onto the stack
+Description: gets the value stored at the address/mem location in memory INDEX and pushes it onto the stack
 */
 void  executeMovFromHeap(int index, GArray* dataStack, GArray* localMem)
 {
@@ -452,25 +573,57 @@ void  executeMovFromHeap(int index, GArray* dataStack, GArray* localMem)
 	// get the memVal at index
 	memVal mv = g_array_index(localMem, memVal, index);
 
-	if (mv.type != MEM_POINTER)
+	int  newVal;
+
+	// if the location holds a pointer...
+	if (mv.type == MEM_POINTER)
+	{
+		// get the pointer
+		int* ptr = mv.val.heapPtr;
+
+		if (!ptr)
+		{
+			printf("bad local memory access pointer\n");
+
+			exit(1);
+		}
+
+		// get the value pointed to
+		newVal = *ptr;
+	}
+
+	// if it contains an index...
+	else if (mv.type == MEM_REF)
+	{
+		int  refIndex = mv.val.index;
+
+		// get the memval at that index
+		if (refIndex < 0 || refIndex >= localMem->len)
+		{
+			printf("bad local mem index\n");
+
+			exit(1);
+		}
+
+		memVal mv = g_array_index(localMem, memVal, refIndex);
+
+		if (mv.type != MEM_INT)
+		{
+			printf("can only reference integer types\n");
+
+			exit(1);
+		}
+
+		// assign the value
+		newVal = mv.val.intVal;
+	}
+
+	else
 	{
 		printf("trying to access heap with non pointer\n");
 
 		exit(1);
 	}
-	
-	// get the pointer
-	int* ptr = mv.val.heapPtr;
-
-	if (!ptr)
-	{
-		printf("bad local memory access pointer\n");
-
-		exit(1);
-	}
-
-	// get the value pointed to
-	int newVal = *ptr;
 
 	// push it onto the stack
 	datum d = initIntDat(newVal);
@@ -510,13 +663,6 @@ void  executeMovStackToHeap(int index, GArray* dataStack, GArray* localMem)
 	// pop the stack again
 	datum dVal = popStack(dataStack);
 
-	if (dVal.type != STACK_INT)
-	{
-		printf("can only move ints into heap memory");
-
-		exit(1);
-	}
-
 	// get the value to send to address
 	int  newVal = dVal.value.num;
 
@@ -553,6 +699,22 @@ void  executeStore(storeI  stor, GArray* dataStack)
 		d.value.num = num;
 	}
 
+	else if (stor.type == STORE_PTR)
+	{
+		int* ptr = stor.value.ptr;
+
+		if (!ptr)
+		{
+			printf("bad stor pointer\n");
+
+			exit(1);
+		}
+
+		d.type = STACK_PTR;
+
+		d.value.ptr = ptr;
+	}
+
 	else if (stor.type == STORE_STRING)
 	{
 		GString* str = stor.value.str;
@@ -582,54 +744,680 @@ void  executeStore(storeI  stor, GArray* dataStack)
 
 
 
+/*
+Function: executeAdd
+Description: pop two numbers off the stack, add them, and push the result on the stack
+*/
 void  executeAdd(GArray* dataStack)
 {
+	// get the two operands off the stack
+	datum a = popStack(dataStack);
 
-}
+	datum b = popStack(dataStack);
 
+	datum resultDatum;
+
+	if (a.type == STACK_PTR)
+	{
+		int* aPtr = a.value.ptr;
+
+		if (!aPtr)
+		{
+			printf("bad pointer\n");
+
+			exit(1);
+		}
+
+		if (b.type == STACK_PTR)
+		{
+			printf("cannot add two pointers\n");
+
+			exit(1);
+		}
+
+		// add an integer to a pointer
+		else if (b.type == STACK_INT)
+		{
+			int  bInt = b.value.num;
+
+			int* resultPtr = aPtr + bInt;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		// add unsigned to a pointer
+		else if (b.type == STACK_INDEX)
+		{
+			int  bIndex = b.value.index;
+
+			int* resultPtr = aPtr + bIndex;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else if (a.type == STACK_INT)
+	{
+		int aInt = a.value.num;
+
+		// add int to a pointer
+		if (b.type == STACK_PTR)
+		{
+			int* bPtr = b.value.ptr;
+
+			if (!bPtr)
+			{
+				printf("bad pointer addition\n");
+
+				exit(1);
+			}
+
+			int* resultPtr = bPtr + aInt;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		// add two ints
+		else if (b.type == STACK_INT)
+		{
+			int  bInt = b.value.num;
+
+			int  resultInt = aInt + bInt;
+
+			resultDatum.type = STACK_INT;
+
+			resultDatum.value.num = resultInt;
+		}
+
+		// add unsigned + int to get an int
+		else if (b.type == STACK_INDEX)
+		{
+			unsigned  bIndex = b.value.num;
+
+			int  resultInt = aInt + bIndex;
+
+			resultDatum.type = STACK_INT;
+
+			resultDatum.value.num = resultInt;
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else if (a.type == STACK_INDEX)
+	{
+		unsigned aIndex = a.value.index;
+
+		// add unsigned to pointer
+		if (b.type = STACK_PTR)
+		{
+			int* bPtr = b.value.ptr;
+
+			if (!bPtr)
+			{
+				printf("bad pointer addition\n");
+
+				exit(1);
+			}
+
+			int* resultPtr = bPtr + aIndex;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		// add unsigned to int to get an int
+		else if (b.type == STACK_INT)
+		{
+			int  bInt = b.value.num;
+
+			int  resultInt = aIndex + bInt;
+
+			resultDatum.type = STACK_INT;
+
+			resultDatum.value.num = resultInt;
+		}
+
+		// add unsigned + unsigned
+		else if (b.type == STACK_INDEX)
+		{
+			unsigned bIndex = b.value.index;
+
+			unsigned resultIndex = aIndex + bIndex;
+
+			resultDatum.type = STACK_INDEX;
+
+			resultDatum.value.index = resultIndex;
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else
+	{
+		printf("cannot add current stack val\n");
+
+		exit(1);
+	}
+
+	// push the result onto the stack
+	pushStack(dataStack, resultDatum);
+} // end executeAdd
+
+
+
+/*
+Function: executeSubtract
+Description: pop two values, subtract them and push result
+*/
 void  executeSubtract(GArray* dataStack)
 {
+	// get the two operands off the stack
+	datum right = popStack(dataStack);
 
-}
+	datum left = popStack(dataStack);
 
+	datum resultDatum;
+
+	if (right.type == STACK_PTR)
+	{
+		int* rightPtr = right.value.ptr;
+
+		if (!rightPtr)
+		{
+			printf("bad pointer\n");
+
+			exit(1);
+		}
+
+		// subtract two pointers
+		if (left.type == STACK_PTR)
+		{
+			printf("cannot subtract two pointers\n");
+			
+			exit(1);
+		}
+
+		// subtract an integer from a pointer
+		else if (left.type == STACK_INT)
+		{
+			printf("can't subtract a pointer from an int\n");
+
+			exit(1);
+		}
+
+		// add unsigned to a pointer
+		else if (left.type == STACK_INDEX)
+		{
+			printf("can't subtract a pointer from an int\n");
+
+			exit(1);
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else if (right.type == STACK_INT)
+	{
+		int rightInt = right.value.num;
+
+		// subtract int from pointer
+		if (left.type == STACK_PTR)
+		{
+			int* leftPtr = left.value.ptr;
+
+			if (!leftPtr)
+			{
+				printf("bad pointer addition\n");
+
+				exit(1);
+			}
+
+			int* resultPtr = leftPtr - rightInt;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		// subtract two ints
+		else if (left.type == STACK_INT)
+		{
+			int  leftInt = left.value.num;
+
+			int  resultInt = leftInt - rightInt;
+
+			resultDatum.type = STACK_INT;
+
+			resultDatum.value.num = resultInt;
+		}
+
+		// subtract int from unsigned
+		else if (left.type == STACK_INDEX)
+		{
+			printf("can't subtract int from unsigned\n");
+
+			exit(1);
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else if (right.type == STACK_INDEX)
+	{
+		unsigned rightIndex = right.value.index;
+
+		// subtract unsigned from ptr
+		if (left.type = STACK_PTR)
+		{
+			int* leftPtr = left.value.ptr;
+
+			if (!leftPtr)
+			{
+				printf("bad pointer addition\n");
+
+				exit(1);
+			}
+
+			int* resultPtr = leftPtr - rightIndex;
+
+			resultDatum.type = STACK_PTR;
+
+			resultDatum.value.ptr = resultPtr;
+		}
+
+		// subtract unsigned from int
+		else if (left.type == STACK_INT)
+		{
+			int  leftInt = left.value.num;
+
+			int  resultInt = leftInt - rightIndex;
+
+			resultDatum.type = STACK_INT;
+
+			resultDatum.value.num = resultInt;
+		}
+
+		// subtract two unsigned
+		else if (left.type == STACK_INDEX)
+		{
+			printf("cannot subtract two unsigned values\n");
+
+			exit(1);
+		}
+
+		else
+		{
+			printf("cannot add current stack val\n");
+
+			exit(1);
+		}
+	}
+
+	else
+	{
+		printf("cannot add current stack val\n");
+
+		exit(1);
+	}
+
+	// push the result onto the stack
+	pushStack(dataStack, resultDatum);
+} // end executeSubtract
+
+
+
+/*
+Function: executeLess
+Description: pop the two operands, if a < b, push 0, 1 otherwise
+*/
 void  executeLess(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
-}
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt < rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
+} // end executeLess
+
+
 
 void  executeLessEqual(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt <= rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
 }
+
+
 
 void executeGreater(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt > rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
 }
+
+
 
 void  executeGreaterEqual(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt >= rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
 }
+
+
 
 void  executeDoubleEqual(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt == rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
 }
+
+
 
 void  executeNotEqual(GArray* dataStack)
 {
+	// pop the two operands
+	datum right = popStack(dataStack);
 
+	datum left = popStack(dataStack);
+
+	int result;
+
+	if (!(right.type == STACK_INT && left.type == STACK_INT))
+	{
+		printf("bad data types for comparison operator\n");
+
+		exit(1);
+	}
+
+	int  rightInt = right.value.num;
+
+	int  leftInt = left.value.num;
+
+	// push 0 for true and 1 for false
+	if (leftInt != rightInt)
+		result = 0;
+	else
+		result = 1;
+
+	datum resDat = initIntDat(result);
+
+	pushStack(dataStack, resDat);
 }
 
+
+
+/*
+Function: executeNot
+Description: pop the stack, if the value is 1, change it to 0 and vice versa
+*/
 void  executeNot(GArray* dataStack)
 {
+	// pop stack
+	datum d = popStack(dataStack);
 
+	// check value
+	if (d.type != STACK_INT)
+	{
+		printf("bad data types for not operator\n");
+
+		exit(1);
+	}
+
+	int val = d.value.num;
+
+	if (!(val == 0 || val == 1))
+	{
+		printf("can only negate 0 or 1\n");
+
+		exit(1);
+	}
+
+	int  result;
+
+	// flip the value
+	if (val == 0)
+		result = 1;
+	// val == 1
+	else
+		result = 0;
+
+	datum notDat = initIntDat(result);
+
+	// push it onto the stack
+	pushStack(dataStack, notDat);
 }
 
-void  executeCall(callI c, GArray* dataStack, int* pc, int* fp)
+
+
+/*
+Function: executeCall
+Description: first, pop the argument val off the stack, then get local memory from functions array, then
+set the paramemter (index 0) to val.
+push the frame pointer and the program counter onto the stack, then get the function location from the
+jump hash table and set the pc, also set the fp to the function index
+*/
+void  executeCall(callI c, GArray* dataStack, int* pc, int* fp, GHashTable* jumpLabels, GArray*  functions)
 {
 
+	// get the local memory for the called function
+	if (c.funcIndex >= functions->len || c.funcIndex < 0)
+	{
+		printf("bad fp\n");
+
+		exit(1);
+	}
+
+	function  currentFunc = g_array_index(functions, function, c.funcIndex);
+
+	// of type memVal
+	GArray* localMem = currentFunc.symbols;
+
+	if (!localMem)
+	{
+		printf("bad memory\n");
+
+		exit(1);
+	}
+
+	// set localMem[0] which is the parameter to stack top (argument), use executeMovToMem
+	executeMovToMem(0, dataStack, localMem);
+
+
+
+	// push the frame pointer and pc + 1
+	datum fpDat = initIntDat(*fp);
+
+	datum pcDat = initIntDat((*pc) + 1);
+
+	pushStack(dataStack, fpDat);
+
+	pushStack(dataStack, pcDat);
+
+	// set the frame pointer to the new function index
+
+	*fp = c.funcIndex;
+
+	// lookup the function call label
+	gpointer val = g_hash_table_lookup(jumpLabels, c.label->str);
+
+	// check the pointer
+	if (!val)
+	{
+		printf("bad hash lookup\n");
+
+		exit(1);
+	}
+
+	// convert to integer
+	int  newPc = GPOINTER_TO_INT(val);
+
+	// check new pc
+	if (newPc < 0)
+	{
+		printf("bad instruction index\n");
+
+		exit(1);
+	}
+
+	// set the pc
+	*pc = newPc;
 }
 
 
@@ -737,31 +1525,259 @@ void  executePrint(printI  p, GArray* dataStack)
 
 
 
-void  executeJump(jumpI  j, int* pc)
+/*
+Function: executeJump
+Description: lookup the jump label and get the new pc and set it
+*/
+void  executeJump(jumpI  j, int* pc, GHashTable* jumpLabels)
 {
+	if (!pc)
+	{
+		printf("bad pc\n");
 
-}
+		exit(1);
+	}
 
-void  executeJumpNotZero(jumpNotZeroI jnz, GArray* dataStack, int* pc)
+	// get the value paired with the jump label
+	gpointer val = g_hash_table_lookup(jumpLabels, j.jumpLabel->str);
+
+	if (!val)
+	{
+		printf("bad hash lookup\n");
+
+		exit(1);
+	}
+
+	// convert to integer
+	int  newPc = GPOINTER_TO_INT(val);
+
+	if (newPc < 0)
+	{
+		printf("bad instruction index\n");
+
+		exit(1);
+	}
+
+	// set the pc
+	*pc = newPc;
+} // end executeJump
+
+
+
+/*
+Function: executeJumpNotZero
+Description: pop the stack, if 0 (true) - just increment pc, if 1(false) - jump to the location at jnz.jumpLabel
+*/
+void  executeJumpNotZero(jumpNotZeroI jnz, GArray* dataStack, int* pc, GHashTable* jumpLabels)
 {
+	if (!pc)
+	{
+		printf("bad pc\n");
 
-}
+		exit(1);
+	}
 
+	datum d = popStack(dataStack);
+
+	if (d.type != STACK_INT)
+	{
+		printf("bad stack top\n");
+
+		exit(1);
+	}
+
+	int test = d.value.num;
+
+	if (!(test == 0 || test == 1))
+	{
+		printf("need 0 or 1 to jump\n");
+
+		exit(1);
+	}
+
+	// if true, just increment pc
+	if (test == 0)
+	{
+		int currentPc = *pc;
+
+		currentPc++;
+
+		*pc = currentPc;
+	}
+
+	// otherwise false, jump
+	else
+	{
+		// get the value paired with the jump label
+		gpointer val = g_hash_table_lookup(jumpLabels, jnz.jumpLabel->str);
+
+		if (!val)
+		{
+			printf("bad hash lookup\n");
+
+			exit(1);
+		}
+
+		// convert to integer
+		int  newPc = GPOINTER_TO_INT(val);
+
+		if (newPc < 0)
+		{
+			printf("bad instruction index\n");
+
+			exit(1);
+		}
+
+		// set the pc
+		*pc = newPc;
+	}
+} // end executeJumpNotZero
+
+
+
+/*
+Function: executeAllocate
+Description: make an a.size heap allocation using malloc, then move the pointer into a.varIndex
+*/
 void  executeAllocate(allocI a, GArray* localMem)
 {
+	// make the a.size heap allocation
+	int* ptr = (int*)malloc(a.size * sizeof(int));
 
-}
+	if (!ptr)
+	{
+		printf("bad heap allocation\n");
 
+		exit(1);
+	}
+
+	// store the pointer in a.varIndex
+	memVal newVal = makePtrMemVal(ptr);
+
+	if (a.varIndex < 0 || a.varIndex >= localMem->len)
+	{
+		printf("bad local mem index\n");
+
+		exit(1);
+	}
+
+	g_array_index(localMem, memVal, a.varIndex) = newVal;
+} // end executeAllocate
+
+
+
+
+/*
+Function: executeFree
+Description: Free the pointer at localMem[f.varIndex]
+*/
 void  executeFree(freeI  f, GArray* localMem)
 {
+	// check index
+	if (f.varIndex < 0 || f.varIndex >= localMem->len)
+	{
+		printf("bad local mem index\n");
 
-}
+		exit(1);
+	}
+
+	// get pointer at localMem[f.varIndex]
+	memVal val = g_array_index(localMem, memVal, f.varIndex);
+
+	if (val.type != MEM_POINTER)
+	{
+		printf("can't free non pointers\n");
+
+		exit(1);
+	}
+
+	int* ptr = val.val.heapPtr;
+
+	if (!ptr)
+	{
+		printf("bad free\n");
+
+		exit(1);
+	}
+
+	else
+	{
+		free(ptr);
+	}
+} // end executeFree
 
 
 
 
+/*
+Function: executeRef
+Description: creates a pointer to ref.varIndex's data and pushes it onto the stack.
+If var is a pointer, just copy the pointer. What if it's a stack array???????? Need to add that to type safety?
+Otherwise, create a new pointer with &var as the value.
+*/
+void  executeRef(refI  ref, GArray* localMem, GArray* dataStack)
+{
+	// get the memval at ref.index
+	// check index
+	int  varIndex = ref.rhsVarIndex;
 
+	if (varIndex < 0 || varIndex >= localMem->len)
+	{
+		printf("bad mem index\n");
 
+		exit(1);
+	}
+
+	memVal mv = g_array_index(localMem, memVal, varIndex);
+
+	datum d;
+
+	// check the vals type
+	// if a pointer, make and new pointer and copy the address
+	if (mv.type == MEM_POINTER)
+	{
+		// get the pointer to copy
+		int* oldPtr = mv.val.heapPtr;
+
+		if (!oldPtr)
+		{
+			printf("bad pointer\n");
+
+			exit(1);
+		}
+
+		// make the copy
+		int* newPtr = oldPtr;
+
+		if (!newPtr)
+		{
+			printf("bad pointer\n");
+
+			exit(1);
+		}
+
+		d.type = STACK_PTR;
+
+		d.value.ptr = newPtr;
+	}
+
+	// Otherwise, we push the index of the rhs var on the stack
+	else if (mv.type == STACK_INT)
+	{
+		d.type = STACK_INDEX;
+
+		d.value.index = varIndex;
+	}
+
+	else
+	{
+		printf("bad reference data type\n");
+	}
+
+	// push value onto the stack
+	pushStack(dataStack, d);
+
+} // end executeRef
 
 
 
@@ -853,6 +1869,14 @@ void  printInstruction(instruction i)
 
 	case PRINT_I:
 		printPrintI(i.values.pr);
+		break;
+
+	case REF_I:
+		printRefI(i.values.ref);
+		break;
+
+	case SUBSCRIPT_I:
+		printSubscriptI(i.values.subscript);
 		break;
 
 	default:

@@ -5,6 +5,7 @@ Description: Contains all function definitions for VirtualMachine.h
 
 #pragma once
 #include "VirtualMachine.h"
+#include <stdio.h>
 
 
 inline void destroy_gstring(gpointer data) {
@@ -20,7 +21,7 @@ Otherwise report error.
 */
 datum  popStack(GArray* dataStack)
 {
-	if (dataStack)
+	if (dataStack && dataStack->len > 0)
 	{
 		datum d = g_array_index(dataStack, datum, dataStack->len - 1);
 
@@ -163,28 +164,33 @@ void  compileUnary(unaryOp uo, GArray* instructions, GHashTable* jumpLabels, GAr
 		g_array_append_val(instructions, newI);
 	}
 
-	//&var - address, store the index of var onto the stack
+	//&var - create a pointer to vars data and push it onto the stack
+	// need a reference instruction, it creates a pointer to vars data and pushes it onto the stack
 	else if (uo.op == MUT_REF)
 	{
-		unsigned varIndex = uo.exp->val.litVal.val.varIndex;
+		// get var index
+		int varIndex = uo.exp->val.litVal.val.varIndex;
 
-		storeI  newStore = initIndexStore(varIndex);
+		// create a refI instruction 
+		refI  newRef = { varIndex };
 
-		instruction newI = initStoreI(newStore);
+		instruction newRefI = initRefI(newRef);
 
-		g_array_append_val(instructions, newI);
+		g_array_append_val(instructions, newRefI);
 	}
 
-	// get the index of var from uo.exp, then just STORE that index
+	// same as mut_ref
 	else if (uo.op == REF_OP)
 	{
-		unsigned varIndex = uo.exp->val.litVal.val.varIndex;
+		// get var index
+		int varIndex = uo.exp->val.litVal.val.varIndex;
 
-		storeI  newStore = initIndexStore(varIndex);
+		// create a refI instruction 
+		refI  newRef = { varIndex };
 
-		instruction newI = initStoreI(newStore);
+		instruction newRefI = initRefI(newRef);
 
-		g_array_append_val(instructions, newI);
+		g_array_append_val(instructions, newRefI);
 	}
 
 	// not operator - compile the conditional expression, then push NOT_I instruciton
@@ -215,9 +221,6 @@ Description: compile both lhs and rhs expression, then push the appropriate inst
 */
 void  compileBinary(BinOp  bo, GArray* instructions, GHashTable* jumpLabels, GArray* functionLocations)
 {
-	compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
-
-	compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
 
 	instruction newI;
 
@@ -227,23 +230,35 @@ void  compileBinary(BinOp  bo, GArray* instructions, GHashTable* jumpLabels, GAr
 	*/
 	if (bo.op == ADD)
 	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(ADD_I);
 	}
 
 	else if (bo.op == SUBTRACT)
 	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(SUBTRACT_I);
 	}
 
-	// in var[index], the lhs is the index of var and will be on the stack, under the index int val
-	// we push an ADDI instruction which will add the two values to get the actual index value
-	// we need to move the value at that index from memory to the stack
+	// if subscript, compile the rhs (array index), call subscript instruction and movfromstackindex
 	else if (bo.op == BRACKETS)
 	{
-		// add the lhs and rhs indices on the stack
-		instruction newAddI = initInstructionNoOperands(ADD_I);
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
 
-		g_array_append_val(instructions, newAddI);
+		// get the lhs index
+		int lhsVarIndex = bo.lhs->val.litVal.val.varIndex;
+
+		subscriptI newS = { lhsVarIndex };
+
+		instruction  newSI = initSubscriptI(newS);
+
+		g_array_append_val(instructions, newSI);
 
 		// pop the memory index from data stack, get the value in that index and push it onto the data stack
 		movI newMove = { MOV_FROM_STACK_INDEX, 0 };
@@ -253,23 +268,57 @@ void  compileBinary(BinOp  bo, GArray* instructions, GHashTable* jumpLabels, GAr
 
 	else if (bo.op == LESS)
 	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(LESS_I);
 	}
 
 	else if (bo.op == LESS_EQUAL)
+	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(LESS_EQUAL_I);
+	}
 
 	else if (bo.op == GREATER)
+	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(GREATER_I);
+	}
 
 	else if (bo.op == GREATER_EQUAL)
+	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(GREATER_EQUAL_I);
+	}
 
 	else if (bo.op == DOUBLE_EQUAL)
+	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(DOUBLE_EQUALS_I);
+	}
 
 	else if (bo.op == NOT_EQUAL)
+	{
+		compileExpression(*bo.lhs, instructions, jumpLabels, functionLocations);
+
+		compileExpression(*bo.rhs, instructions, jumpLabels, functionLocations);
+
 		newI = initInstructionNoOperands(NOT_EQUAL_I);
+	}
 
 	else
 	{
@@ -326,15 +375,16 @@ void  compileVarDec(varDec vd, GArray* instructions, GHashTable* jumpLabels, GAr
 		{
 			compileExpression(vd.rhs, instructions, jumpLabels, functionLocations);
 
+
+			// we always move whatever's on top of the stack to the new vars memory address
+			movI  newMov = { MOV_TO_MEM, lhsVarIndex };
+
+			instruction m = initMovI(newMov);
+
+			// push the move instruction
+			g_array_append_val(instructions, m);
+
 		}
-
-		// we always move whatever's on top of the stack to the new vars memory address
-		movI  newMov = { MOV_TO_MEM, lhsVarIndex };
-
-		instruction m = initMovI(newMov);
-
-		// push the move instruction
-		g_array_append_val(instructions, m);
 	}
 
 	// we don't need to do anything if there's no rhs
@@ -375,65 +425,24 @@ void compileAssign(assign a, GArray* instructions, GHashTable* jumpLabels, GArra
 		// if the lhs uses the subscript operator
 		if (a.isArray)
 		{
-			// if the lhs is a stack array
-			if (a.lhsDataType == NONE)
-			{
-				// compile the index, which is the rhs of the binary operation
-				compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
+			// compile the index, which is the rhs of the binary operation
+			compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
 
-				//store the lhs var index on the data stack
-				storeI newStore = initIntStore(lhsVarIndex);
+			// add new subscript instruction
+			subscriptI  newS = { lhsVarIndex };
 
-				instruction newStoreI = initStoreI(newStore);
+			instruction newSI = initSubscriptI(newS);
 
-				g_array_append_val(instructions, newStoreI);
+			// add to insructions
+			g_array_append_val(instructions, newSI);
 
-				// add the two values to get the actual memory index
-				instruction newAdd = initInstructionNoOperands(ADD_I);
+			// mov the rhs value to the index on top of the stack
+			movI newMov = { MOV_TO_STACK_INDEX , 0 };
 
-				g_array_append_val(instructions, newAdd);
+			instruction newMovI = initMovI(newMov);
 
-				// mov the rhs value to the index on top of the stack
-				movI newMov = { MOV_TO_STACK_INDEX , 0 };
+			g_array_append_val(instructions, newMovI);
 
-				instruction newMovI = initMovI(newMov);
-
-				g_array_append_val(instructions, newMovI);
-
-			}
-
-			// otherwise it's a heap array
-			else if(a.lhsDataType = POINTER_OP)
-			{
-				// now we need to get the heap memory address stored in var and push it on the stack
-				// pass compile literal the literal that's the lhs of the binary expression
-				compileLiteral(a.lhs.val.binaryOp.lhs->val.litVal, instructions);
-
-				// push the index onto the stack
-				// compile the index, which is the rhs of the binary operation
-				compileLiteral(a.lhs.val.binaryOp.rhs->val.litVal, instructions);
-
-				// now we need to use pointer arithmetic to add the index to the heap pointer to get the proper address
-				instruction newAdd = initInstructionNoOperands(ADD_I);
-
-				g_array_append_val(instructions, newAdd);
-
-				// now we need to pop the stack to get heap address, then pop the stack again and move that data
-				// to address
-				movI newMove = { MOV_STACK_TO_HEAP, 0 };
-
-				instruction newI = initMovI(newMove);
-
-				g_array_append_val(instructions, newI);
-
-			}
-
-			else
-			{
-				printf("type error\n");
-
-				exit(1);
-			}
 		}
 
 		// not an array
@@ -524,7 +533,7 @@ void  compileIfElseBlock(ifElseBlock cf, GArray* instructions, GHashTable* jumpL
 			g_array_append_val(instructions, newJumpI);
 
 			// add the ifLabel to the jumpLabels hash map
-			g_hash_table_insert(jumpLabels, newIfLabel, GINT_TO_POINTER(instructions->len));
+			g_hash_table_insert(jumpLabels, g_strdup(newIfLabel->str), GINT_TO_POINTER(instructions->len));
 		}
 
 		else if (stat.statType == ELIF)
@@ -560,7 +569,7 @@ void  compileIfElseBlock(ifElseBlock cf, GArray* instructions, GHashTable* jumpL
 			g_array_append_val(instructions, newJumpI);
 
 			// add the ifLabel to the jumpLabels hash map
-			g_hash_table_insert(jumpLabels, newElifLabel, GINT_TO_POINTER(instructions->len));
+			g_hash_table_insert(jumpLabels, g_strdup(newElifLabel->str), GINT_TO_POINTER(instructions->len));
 		}
 
 		else if (stat.statType == ELSE)
@@ -586,7 +595,7 @@ void  compileIfElseBlock(ifElseBlock cf, GArray* instructions, GHashTable* jumpL
 	}
 
 	// add the jumplable to the hash map
-	g_hash_table_insert(jumpLabels, newExitBlockLabel, GINT_TO_POINTER(instructions->len));
+	g_hash_table_insert(jumpLabels, g_strdup(newExitBlockLabel->str), GINT_TO_POINTER(instructions->len));
 }
 
 
@@ -604,7 +613,7 @@ void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels
 	g_string_printf(newBeginWhileLabel, "BACK_TO_BEGINNING_WHILE(%d)", instructions->len);
 
 	// add it to the hash table
-	g_hash_table_insert(jumpLabels, newBeginWhileLabel, GINT_TO_POINTER(instructions->len));
+	g_hash_table_insert(jumpLabels, g_strdup(newBeginWhileLabel->str), GINT_TO_POINTER(instructions->len));
 
 	// compile the condition
 	compileExpression(cf.condition, instructions, jumpLabels, functionLocations);
@@ -638,7 +647,7 @@ void   compileWhile(controlFlow cf, GArray* instructions, GHashTable* jumpLabels
 	g_array_append_val(instructions, newJumpI);
 
 	// now add the jnz label to the hash table
-	g_hash_table_insert(jumpLabels, newEndWhileLabel, GINT_TO_POINTER(instructions->len));
+	g_hash_table_insert(jumpLabels, g_strdup(newEndWhileLabel->str), GINT_TO_POINTER(instructions->len));
 }
 
 
@@ -843,14 +852,7 @@ GArray* compile(GArray* functions, GHashTable* jumpLabels)
 				g_array_append_val(instructions, newI);
 
 				// add the call label
-				g_hash_table_insert(jumpLabels, newFuncCallLabel, GINT_TO_POINTER(instructions->len));
-
-				// now move the argument val on top of the stack into localMem[0]
-				movI newMov = { MOV_TO_MEM, 0 };
-
-				instruction  newMovI = initMovI(newMov);
-
-				g_array_append_val(instructions, newMovI);
+				g_hash_table_insert(jumpLabels, g_strdup(newFuncCallLabel->str), GINT_TO_POINTER(instructions->len));
 			}
 
 			// add the location of the current function in instructions to the locations array
@@ -868,7 +870,7 @@ GArray* compile(GArray* functions, GHashTable* jumpLabels)
 			{
 
 				// add a label that points to the end of the current function in instructions
-				g_hash_table_insert(jumpLabels, newFuncLabel, GINT_TO_POINTER(instructions->len));
+				g_hash_table_insert(jumpLabels, g_strdup(newFuncLabel->str), GINT_TO_POINTER(instructions->len));
 			}
 		}
 
@@ -935,6 +937,13 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 		INSTRUCTION_TYPE iType = currentI.type;
 
 		// get the local memory for the function we are in currently
+		if (fp >= functions->len)
+		{
+			printf("bad fp\n");
+			
+			exit(1);
+		}
+
 		function  currentFunc = g_array_index(functions, function, fp);
 
 		// of type memVal
@@ -947,7 +956,7 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			exit(1);
 		}
 
-		//printInstruction(currentI);
+		printInstruction(currentI);
 
 		// call the appropriate execute_x function for the instruction
 		switch (iType)
@@ -1008,7 +1017,7 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			break;
 
 		case CALL_I:
-			executeCall(currentI.values.call, dataStack, &pc, &fp);
+			executeCall(currentI.values.call, dataStack, &pc, &fp, jumpLabels, functions);
 			break;
 
 		case RETURN_I:
@@ -1021,19 +1030,31 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			break;
 
 		case JUMP_I:
-			executeJump(currentI.values.jump, &pc);
+			executeJump(currentI.values.jump, &pc, jumpLabels);
 			break;
 
 		case JUMP_NOT_ZERO_I:
-			executeJumpNotZero(currentI.values.jnz, dataStack, &pc);
+			executeJumpNotZero(currentI.values.jnz, dataStack, &pc, jumpLabels);
 			break;
 
 		case ALLOCATE_I:
 			executeAllocate(currentI.values.alloc, localMem);
+			pc++;
 			break;
 
 		case FREE_I:
 			executeFree(currentI.values.Free, localMem);
+			pc++;
+			break;
+
+		case REF_I:
+			executeRef(currentI.values.ref, localMem, dataStack);
+			pc++;
+			break;
+
+		case SUBSCRIPT_I:
+			executeSubscript(currentI.values.subscript, dataStack, localMem);
+			pc++;
 			break;
 
 		default:
@@ -1042,9 +1063,9 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			break;
 		}
 
-		//printDataStack(dataStack);
+		printDataStack(dataStack);
 
-		//printf("\n");
+		printf("\n");
 	}
 }
 
@@ -1103,7 +1124,7 @@ bool  VMMain(GArray* functions)
 		printf("\n");
 	}
 
-	GHashTable* jumpLabels = g_hash_table_new_full(g_str_hash, g_str_equal, destroy_gstring, NULL);
+	GHashTable* jumpLabels = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
 
 	// get the array of instructions

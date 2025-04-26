@@ -1,26 +1,15 @@
 
 
-
 int main()
 {
+	int mut var1[3];
 
-	int mut *var1 = new int[7];
+	var1[0] = 30;
 
-	var1[3] = 4;
-
-	//cout << "var1[3] = " << var1[3] << endl;
+	cout << "var[0] = " << var1[0] << endl;
 
 	return 0;
 }
-
-
-
-
-
-
-
-
-
 
 
 
