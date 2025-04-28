@@ -48,7 +48,7 @@ public:
 	void enterMain(InoxisParser::MainContext* ctx);
 
 	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); 
-	printStatList();
+	//printStatList();
 	resetStatList(); };
 
 	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };

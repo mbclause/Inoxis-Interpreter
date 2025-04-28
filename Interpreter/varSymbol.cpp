@@ -50,5 +50,5 @@ void  varSymbol::regainPermissions()
 		setPermissions(read | own, false);
 	}
 
-	cout << _name << "s permissions have been regained and are now: " << memPermissions << endl;
+	//cout << _name << "s permissions have been regained and are now: " << memPermissions << endl;
 }

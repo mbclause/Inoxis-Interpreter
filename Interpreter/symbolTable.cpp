@@ -452,6 +452,8 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	newVar = funcSymbols[parentFunc.getName()].locals[name];
 
 	variablesList.push_back(newVar);
+
+	currentFunction = funcSymbols[parentFunc.getName()];
 }
 
 

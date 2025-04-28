@@ -404,14 +404,17 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 
 				DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
 
+				if (currentFunction.locals[rhsVar].ownsHeapData)
+				{
+					currentFunction.locals[varName].ownsHeapData = true;
+
+					currentFunction.locals[rhsVar].ownsHeapData = false;
+
+					//cout << varName << " now owns heap data\n";
+				}
+
 				if (rhsDataType == POINTER)
 				{
-					if (currentFunction.locals[rhsVar].ownsHeapData)
-					{
-						currentFunction.locals[varName].ownsHeapData = true;
-
-						//cout << varName << " now owns heap data\n";
-					}
 
 					dropVar(rhsVar);
 				}
@@ -530,14 +533,15 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 						DATA_TYPE rhsDataType = currentFunction.locals[rhsVar].dataType;
 
+						if (currentFunction.locals[rhsVar].ownsHeapData)
+						{
+							currentFunction.locals[varName].ownsHeapData = true;
+
+							//cout << varName << " now owns heap data\n";
+						}
+
 						if (rhsDataType == POINTER)
 						{
-							if (currentFunction.locals[rhsVar].ownsHeapData)
-							{
-								currentFunction.locals[varName].ownsHeapData = true;
-
-								//cout << varName << " now owns heap data\n";
-							}
 
 							dropVar(rhsVar);
 						}
@@ -563,6 +567,15 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 						bool rhsRefSymbol = false;
 
 						string rhsVar = rhsVars[0];
+
+						if (currentFunction.locals[rhsVar].ownsHeapData)
+						{
+							currentFunction.locals[varName].ownsHeapData = true;
+
+							//cout << varName << " now owns heap data\n";
+
+							currentFunction.locals[rhsVar].ownsHeapData = false;
+						}
 
 						// check if the rhs is mut
 						if (ctx->varDecRHS()->assignRHS()->rhsRef()->mut() != NULL)
@@ -1202,7 +1215,29 @@ void  MemSafetyPass::incrementStatements()
 				// get the name of the dropped var and then drop its permissions
 				sentinal currentSentinal = get<sentinal>(currentStatList[statementIndex]);
 
+				bool setSentinalFlag = false;
+
+				// if the variable is a borrow, only free the data if the borrowee has been dropped
+				// since the borrowee will regain permissions and own the heap data again
+				// data will be freed after the borrowee is dropped in that case
 				if (currentFunction.locals[currentSentinal.varName].ownsHeapData)
+				{
+					// if borrow, check if borowee has been dropped
+					if (currentFunction.locals[currentSentinal.varName].isBorrow)
+					{
+						// get borrowee name
+						string borroweeName = currentFunction.locals[currentSentinal.varName].borrowee;
+
+						// if it's been dropped, free data
+						if (currentFunction.locals[borroweeName].hasBeenDropped)
+							setSentinalFlag = true;
+					}
+
+					else
+						setSentinalFlag = true;
+				}
+
+				if (setSentinalFlag)
 				{
 					currentSentinal.heapAllocation = true;
 
@@ -1266,22 +1301,9 @@ void  MemSafetyPass::dropVar(string varName)
 
 		currentFunction.locals[varName].hasBeenDropped = true;
 
-		if (currentFunction.locals[varName].ownsHeapData == true)
-		{
-			currentFunction.locals[varName].ownsHeapData = false;
 
-			//cout << varName << " no longer owns heap data\n";
-		}
-
-		//cout << "after dropping, " << varName << "s permissions are now: " << 
-			//currentFunction.locals[varName].memPermissions << endl;
-
-		//currentFunction.locals[varName].isBorrow = true;
-
-		//currentFunction.locals[varName].borrowee = "var";
 
 		// if the dropped var is a borrow
-		// what if both are dropped on the same line??
 		if (currentFunction.locals[varName].isBorrow)
 		{
 			string borroweeName = currentFunction.locals[varName].borrowee;
@@ -1290,6 +1312,21 @@ void  MemSafetyPass::dropVar(string varName)
 			if (currentFunction.locals.count(borroweeName) == 1 && !currentFunction.locals[borroweeName].hasBeenDropped)
 			{
 				currentFunction.locals[borroweeName].regainPermissions();
+
+				// borrowee now owns heap data again
+				if (currentFunction.locals[varName].ownsHeapData == true)
+				{
+					currentFunction.locals[borroweeName].ownsHeapData = true;
+
+					//cout << varName << " no longer owns heap data\n";
+				}
+			}
+
+			if (currentFunction.locals[varName].ownsHeapData == true)
+			{
+				currentFunction.locals[varName].ownsHeapData = false;
+
+				//cout << varName << " no longer owns heap data\n";
 			}
 		}
 	}

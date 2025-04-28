@@ -880,9 +880,9 @@ GArray* compile(GArray* functions, GHashTable* jumpLabels)
 			//printf("Function %d starts at instruction - %d\n", i + 1, g_array_index(functionLocations, unsigned, i) + 1);
 		}
 
-		printf("LABEL TABLE\n");
+		//printf("LABEL TABLE\n");
 
-		g_hash_table_foreach(jumpLabels, printLabelHashMap, NULL);
+		//g_hash_table_foreach(jumpLabels, printLabelHashMap, NULL);
 
 		return instructions;
 	}
@@ -1090,7 +1090,7 @@ bool  VMMain(GArray* functions)
 
 
 	// print all of the statements
-	for (unsigned i = 0; i < functions->len; i++)
+	/*for (unsigned i = 0; i < functions->len; i++)
 	{
 		// get the function
 		function func = g_array_index(functions, function, i);
@@ -1122,7 +1122,7 @@ bool  VMMain(GArray* functions)
 		}
 
 		printf("\n");
-	}
+	}*/
 
 	GHashTable* jumpLabels = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 

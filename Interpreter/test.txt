@@ -1,16 +1,5 @@
 
 
-int main()
-{
-	int mut var1[3];
-
-	var1[0] = 30;
-
-	cout << "var[0] = " << var1[0] << endl;
-
-	return 0;
-}
-
 
 
 
