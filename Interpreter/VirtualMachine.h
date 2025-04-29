@@ -82,6 +82,9 @@ GArray* instructions - the array of instructions that will be added to during co
 void   compileStatement(statement stmnt, GArray* instructions, GHashTable* jumpLabels, GArray*  functionLocations);
 
 
+void  printVMInput(GArray* functions);
+
+
 
 /*
 Function: crashReport

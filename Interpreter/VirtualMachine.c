@@ -8,8 +8,52 @@ Description: Contains all function definitions for VirtualMachine.h
 #include <stdio.h>
 
 
+// wrapper for destryoing gpointers that are GStrings
 inline void destroy_gstring(gpointer data) {
 	g_string_free((GString*)data, TRUE);
+}
+
+
+
+/*
+Function: printVMInput
+Description: print the input to the VM
+*/
+void  printVMInput(GArray* functions)
+{
+	for (unsigned i = 0; i < functions->len; i++)
+	{
+		// get the function
+		function func = g_array_index(functions, function, i);
+
+		if (i == 0)
+			printf("Main \n");
+
+		else
+			printf("Function: %d\n", i + 1);
+
+		if (func.statements == NULL || func.symbols == NULL)
+		{
+			printf("function unanitialized\n");
+
+			exit(1);
+		}
+
+		// print the size of the locals array
+		printf("Size of function locals: %d\n", func.symbols->len);
+
+		// loop through all statements
+		for (unsigned j = 0; j < func.statements->len; j++)
+		{
+			statement stat = g_array_index(func.statements, statement, j);
+
+			printStatement(stat);
+
+			printf("\n");
+		}
+
+		printf("\n");
+	}
 }
 
 
@@ -1090,39 +1134,7 @@ bool  VMMain(GArray* functions)
 
 
 	// print all of the statements
-	/*for (unsigned i = 0; i < functions->len; i++)
-	{
-		// get the function
-		function func = g_array_index(functions, function, i);
-
-		if (i == 0)
-			printf("Main \n");
-
-		else
-			printf("Function: %d\n", i + 1);
-
-		if (func.statements == NULL || func.symbols == NULL)
-		{
-			printf("function unanitialized\n");
-
-			exit(1);
-		}
-
-		// print the size of the locals array
-		printf("Size of function locals: %d\n", func.symbols->len);
-
-		// loop through all statements
-		for (unsigned j = 0; j < func.statements->len; j++)
-		{
-			statement stat = g_array_index(func.statements, statement, j);
-
-			printStatement(stat);
-
-			printf("\n");
-		}
-
-		printf("\n");
-	}*/
+	printVMInput(functions);
 
 	GHashTable* jumpLabels = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
