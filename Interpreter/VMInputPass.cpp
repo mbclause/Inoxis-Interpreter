@@ -1,6 +1,145 @@
 #include "VMInputPass.h"
 
 
+void  VMInputPass::findControlFlowBlocks(InoxisParser::IfElseBlockContext* ifctx,
+	InoxisParser::WhileContext* whilectx, int  depth)
+{
+	if (ifctx)
+	{
+		// check if statements
+		// get all of the statements for the if block only
+		vector<InoxisParser::StatementContext*> ifStats = ifctx->statList()->statement();
+
+		for (int i = 0; i < ifStats.size(); i++)
+		{
+			// if it's an if/else block we need to get the statements a different way
+			if (ifStats[i]->ifElseBlock())
+			{
+				cfDepthProp.put(ifStats[i]->ifElseBlock(), depth);
+			}
+
+			else if(ifStats[i]->while_())
+			{
+				cfDepthProp.put(ifStats[i]->while_(), depth);
+			}
+		}
+
+		// check if there are elif blocks
+		if (ifctx->elif()->getText().size() > 0)
+		{
+			vector<InoxisParser::StatListContext*> statLists = elifStatsProp.get(ifctx->elif());
+
+			// now get all of the elif statements, if any, and add them
+			for (int i = 0; i < statLists.size(); i++)
+			{
+				vector<InoxisParser::StatementContext*> elifStats = statLists[i]->statement();
+
+				for (int j = 0; j < elifStats.size(); j++)
+				{
+					// if it's an if/else block we need to get the statements a different way
+					if (elifStats[j]->ifElseBlock())
+					{
+						cfDepthProp.put(elifStats[j]->ifElseBlock(), depth);
+					}
+
+					else if(elifStats[j]->while_())
+					{
+						cfDepthProp.put(elifStats[j]->while_(), depth);
+					}
+				}
+			}
+		}
+
+
+		// get the else statement if any and check its statements
+		if (ifctx->else_()->getText().size() > 0)
+		{
+			vector<InoxisParser::StatementContext*> elseStats = ifctx->else_()->statList()->statement();
+
+			for (int i = 0; i < elseStats.size(); i++)
+			{
+				// if it's an if/else block we need to get the statements a different way
+				if (elseStats[i]->ifElseBlock())
+				{
+					cfDepthProp.put(elseStats[i]->ifElseBlock(), depth);
+				}
+
+				else if (elseStats[i]->while_())
+				{
+					cfDepthProp.put(elseStats[i]->while_(), depth);
+				}
+			}
+		}
+	}
+
+	else if (whilectx)
+	{
+		vector<InoxisParser::StatementContext*> whileStats = whilectx->statList()->statement();
+
+		for (int i = 0; i < whileStats.size(); i++)
+		{
+			// if it's an if/else block we need to get the statements a different way
+			if (whileStats[i]->ifElseBlock())
+			{
+				cfDepthProp.put(whileStats[i]->ifElseBlock(), depth);
+			}
+
+			else if (whileStats[i]->while_())
+			{
+				cfDepthProp.put(whileStats[i]->while_(), depth);
+			}
+		}
+	}
+
+	else
+	{
+
+	}
+}
+
+
+
+void VMInputPass::enterWhile(InoxisParser::WhileContext* ctx)
+{
+	inControlBlock = true;
+
+	int  depth = 0;
+
+	depth = cfDepthProp.get(ctx);
+
+	if (depth == 0)
+	{
+		depth = 1;
+
+		cfDepthProp.put(ctx, depth);
+	}
+
+	findControlFlowBlocks(NULL, ctx, depth + 1);
+}
+
+
+
+void VMInputPass::enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
+{
+	inControlBlock = true;
+
+	int  depth = 0;
+
+	depth = cfDepthProp.get(ctx);
+
+	if (depth == 0)
+	{
+		depth = 1;
+
+		cfDepthProp.put(ctx, depth);
+	}
+
+	findControlFlowBlocks(ctx, NULL, depth + 1);
+
+}
+
+
+
 /*
 Function: exitFuncDef
 Description: make a new function struct and add it to array, reset statement index
@@ -79,21 +218,11 @@ void VMInputPass::exitWhile(InoxisParser::WhileContext* ctx)
 	// get all of the statements in the block
 	for (int i = 0; i < ctx->statList()->statement().size(); i++)
 	{
-		// if it's an if/else block we need to get the statements a different way
-		if (ctx->statList()->statement()[i]->ifElseBlock())
-		{
-			// call our custom function to get all of the statements
-			GArray* s = getIfElseBlocks(ctx->statList()->statement()[i]->ifElseBlock());
 
-			g_array_append_vals(whileStats, s->data, s->len);
-		}
-
-		else
-		{
 			statement newStatement = stmntProp.get(ctx->statList()->statement()[i]);
 
 			g_array_append_val(whileStats, newStatement);
-		}
+		
 	}
 
 	// create a new if statement and add it to statement list
@@ -103,9 +232,20 @@ void VMInputPass::exitWhile(InoxisParser::WhileContext* ctx)
 
 	//printStatement(whileStat);
 
-	g_array_append_val(currentStatementsGArray, whileStat);
+	int depth = cfDepthProp.get(ctx);
 
-	inControlBlock = false;
+	if (depth == 1)
+	{
+
+		g_array_append_val(currentStatementsGArray, whileStat);
+
+		inControlBlock = false;
+	}
+
+	else if (depth > 1)
+	{
+		stmntProp.put(ctx, whileStat);
+	}
 }
 
 
@@ -186,21 +326,11 @@ GArray* VMInputPass::getIfElseBlocks(InoxisParser::IfElseBlockContext* ctx)
 	// get all of the statements for the if block only
 	for (int i = 0; i < ctx->statList()->statement().size(); i++)
 	{
-		// if it's an if/else block we need to get the statements a different way
-		if (ctx->statList()->statement()[i]->ifElseBlock())
-		{
-			// call our custom function to get all of the statements
-			GArray* s = getIfElseBlocks(ctx->statList()->statement()[i]->ifElseBlock());
 
-			g_array_append_vals(ifStats, s->data, s->len);
-		}
-
-		else
-		{
 			statement newStatement = stmntProp.get(ctx->statList()->statement()[i]);
 
 			g_array_append_val(ifStats, newStatement);
-		}
+		
 	}
 
 	// create a new if statement and add it to statement list
@@ -227,21 +357,11 @@ GArray* VMInputPass::getIfElseBlocks(InoxisParser::IfElseBlockContext* ctx)
 
 			for (int j = 0; j < statLists[i]->statement().size(); j++)
 			{
-				// if it's an if/else block we need to get the statements a different way
-				if (statLists[i]->statement()[j]->ifElseBlock())
-				{
-					// call our custom function to get all of the statements
-					GArray* s = getIfElseBlocks(statLists[i]->statement()[j]->ifElseBlock());
 
-					g_array_append_vals(elifStats, s->data, s->len);
-				}
-
-				else
-				{
 					statement newStatement = stmntProp.get(statLists[i]->statement()[j]);
 
 					g_array_append_val(elifStats, newStatement);
-				}
+				
 			}
 
 			controlFlow* newElif = makeControlFlow(elifStats, elifCondition);
@@ -302,8 +422,11 @@ void VMInputPass::exitStatement(InoxisParser::StatementContext* ctx)
 	}
 
 	// this won't work
-	//else if (ctx->ifElseBlock())
-		//s = stmntProp.get(ctx->ifElseBlock());
+	else if (ctx->ifElseBlock())
+	{
+		s = stmntProp.get(ctx->ifElseBlock());
+		stmntProp.put(ctx, s);
+	}
 
 	else if (ctx->funcCall())
 	{
@@ -342,10 +465,21 @@ void VMInputPass::exitIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
 	// make the statement
 	statement newStat = initIfElseBlockStatement(ieb);
 
-	// add them to the function statement list
-	g_array_append_val(currentStatementsGArray, newStat);
+	int depth = cfDepthProp.get(ctx);
 
-	inControlBlock = false;
+	if (depth == 1)
+	{
+		// add them to the function statement list
+		g_array_append_val(currentStatementsGArray, newStat);
+
+		inControlBlock = false;
+	}
+
+	else if (depth > 1)
+	{
+		stmntProp.put(ctx, newStat);
+	}
+
 }
 
 

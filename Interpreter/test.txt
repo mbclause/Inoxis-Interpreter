@@ -5,13 +5,22 @@ int main()
 
 	int mut var2 = 2;
 
+	int mut index = 0;
+
+	int mut *array = new int[3];
+
 	if(var1 == 1)
 	{
-		if(var2 == 2)
+		while(index < 3)
 		{
-			cout << "in second if" << endl;
+			array[index] = index;
+			index = index + 1;
 		}
 	}
+
+	int &borrow = &mut array;
+
+	cout << "borrow[1] = " << borrow[1] << endl;
 
 	return 0;
 }

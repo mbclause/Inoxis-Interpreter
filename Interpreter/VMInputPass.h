@@ -49,9 +49,9 @@ public:
 		currentFuncIndex++;
 	}
 
-	void enterWhile(InoxisParser::WhileContext* ctx) { inControlBlock = true; }
+	void enterWhile(InoxisParser::WhileContext* ctx);
 
-	void enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx) { inControlBlock = true; }
+	void enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx);
 
 	// funcDef (set current statList)
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
@@ -169,6 +169,9 @@ public:
 	// function to get all of the blocks in an ifElseBlock statement
 	GArray* getIfElseBlocks(InoxisParser::IfElseBlockContext* ctx);
 
+	void  findControlFlowBlocks(InoxisParser::IfElseBlockContext* ifctx, 
+		InoxisParser::WhileContext* whilectx, int  depth);
+
 
 	// data members
 	vector<variant<string, sentinal>> currentStatList;
@@ -243,4 +246,7 @@ public:
 	ParseTreeProperty<vector<InoxisParser::StatListContext*>>  elifStatsProp;
 
 	ParseTreeProperty<vector<InoxisParser::ConditionContext*>>  elifCondsProp;
+
+	// property that keeps track of how deep we are in a control flow block
+	ParseTreeProperty<int>    cfDepthProp;
 };
