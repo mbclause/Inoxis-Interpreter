@@ -1712,8 +1712,8 @@ void  executeFree(freeI  f, GArray* localMem)
 /*
 Function: executeRef
 Description: creates a pointer to ref.varIndex's data and pushes it onto the stack.
-If var is a pointer, just copy the pointer. What if it's a stack array???????? Need to add that to type safety?
-Otherwise, create a new pointer with &var as the value.
+If var is a pointer, just copy the pointer. 
+Otherwise, push varIndex onto the stack.
 */
 void  executeRef(refI  ref, GArray* localMem, GArray* dataStack)
 {

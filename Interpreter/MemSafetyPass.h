@@ -61,6 +61,65 @@ public:
 
 	void enterOut(InoxisParser::OutContext* ctx);
 
+	// check type safety
+	void exitVarDec(InoxisParser::VarDecContext* ctx) {
+		if (ctx->varDecRHS()->getText().length() > 0)
+			checkDeclarationTypeSafety(ctx);
+	}
+
+	void exitAssign(InoxisParser::AssignContext* ctx) { checkAssignTypeSafety(ctx); }
+
+	// check if the variable expression evaluates to an integer
+	void exitVarDecRHS(InoxisParser::VarDecRHSContext* ctx) {
+		bool isInt = expIsIntProp.get(ctx->assignRHS());
+		expIsIntProp.put(ctx, isInt); 
+	}
+
+	void exitAssignRHS(InoxisParser::AssignRHSContext* ctx) { 
+		if (ctx->expression())
+		{
+			bool isInt = expIsIntProp.get(ctx->expression());
+
+			expIsIntProp.put(ctx, isInt);
+		}
+	}
+
+	void  exitVar(InoxisParser::VarContext* ctx);
+
+	void exitAdd(InoxisParser::AddContext* ctx) {
+		bool  left = expIsIntProp.get(ctx->expression()[0]);
+
+		bool  right = expIsIntProp.get(ctx->expression()[1]);
+
+		bool  result = false;
+
+		if (left && right)
+			result = true;
+
+		expIsIntProp.put(ctx, result);
+	}
+
+	void exitNumLiteral(InoxisParser::NumLiteralContext* ctx) { expIsIntProp.put(ctx, true); }
+
+	void exitSubtract(InoxisParser::SubtractContext* ctx) {
+		bool  left = expIsIntProp.get(ctx->expression()[0]);
+
+		bool  right = expIsIntProp.get(ctx->expression()[1]);
+
+		bool  result = false;
+
+		if (left && right)
+			result = true;
+
+		expIsIntProp.put(ctx, result);
+	}
+
+	void exitFuncCallExp(InoxisParser::FuncCallExpContext* ctx) { expIsIntProp.put(ctx, true); }
+
+	void exitVarLiteral(InoxisParser::VarLiteralContext* ctx) { expIsIntProp.put(ctx, expIsIntProp.get(ctx->var())); }
+
+
+
 
 
 
@@ -93,6 +152,10 @@ public:
 
 	void  addConditionalStatements(InoxisParser::StatementContext* condStatement, vector<string> &stringStatements);
 
+	void  checkAssignTypeSafety(InoxisParser::AssignContext* ctx);
+
+	void  checkDeclarationTypeSafety(InoxisParser::VarDecContext* ctx);
+
 
 	void  printStatList() {
 		for (int i = 0; i < currentStatList.size(); i++)
@@ -112,6 +175,8 @@ public:
 	ParseTreeProperty<vector<variant<string, sentinal>>> statLists;
 
 	vector<variant<string, sentinal>> currentStatList;
+
+	ParseTreeProperty<bool>   expIsIntProp;
 
 	int  statementIndex;
 

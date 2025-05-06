@@ -103,7 +103,8 @@ functions - the garray of function structs, need the symbols data member for eac
 void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels);
 
 
-
+// function for compiling an arithmetic expression in correct order
+void   compileArithmetic(expression  exp, GArray*  instructions, GHashTable* jumpLabels, GArray* functionLocations);
 
 
 

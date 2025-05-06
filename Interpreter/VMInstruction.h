@@ -330,6 +330,7 @@ inline void printInstructions(GArray* instructions) {
 
 
 
+
 // get methods for each instruction with operands
 //inline int   getJumpI(instruction i) { return i.values.jump.index; }
 

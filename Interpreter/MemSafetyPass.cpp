@@ -4,6 +4,327 @@ using namespace DataType;
 
 
 /*
+Function: exitVar
+Description: make sure that this variable expression evaluates to an integer and pass that result up the tree
+*/
+void  MemSafetyPass::exitVar(InoxisParser::VarContext* ctx)
+{
+	// get the var name
+	string  varName = ctx->ID()->getText();
+
+	// get the lhs data type
+	DATA_TYPE varDataType = currentFunction.locals[varName].dataType;
+
+	bool isArray = currentFunction.locals[varName]._isArray;
+
+	// check if an operator is used on the lhs
+	bool containsDereference = false;
+
+	bool containsAddressOp = false;
+
+	bool containsSubscript = false;
+
+	bool  expIsInt = false;
+
+	if (ctx->array()->getText().length() > 0)
+		containsSubscript = true;
+
+	if (ctx->pointRef()->getText() == "*")
+		containsDereference = true;
+
+	if (ctx->pointRef()->getText() == "&")
+		containsAddressOp = true;
+
+	// can't use subscript operator on non array
+	if (isArray && containsSubscript && varDataType != REF)
+	{
+		reportMemError(ctx);
+
+		cout << " can't use subscript operator on non array\n";
+	}
+
+	if (containsDereference && varDataType == INT)
+	{
+		reportMemError(ctx);
+
+		cout << " can only dereference a pointer\n";
+	}
+
+	// if * or [] is in expression, then it evaluates to an int
+	if (containsSubscript || containsDereference)
+	{
+		expIsInt = true;
+	}
+
+	// else, only INT data types evaluate to ints
+	else
+	{
+		if (varDataType == INT)
+			expIsInt = true;
+	}
+
+	// put the result in the parse tree
+	expIsIntProp.put(ctx, expIsInt);
+
+
+} // end exitVar
+
+
+
+/*
+Function: checkDeclarationTypeSafety
+Description: make sure that the data types on both sides of the assignment statement match. If not, report an error.
+*/
+void  MemSafetyPass::checkDeclarationTypeSafety(InoxisParser::VarDecContext* ctx)
+{
+	// get the lhs var name
+	string  lhsVarName = ctx->ID()->getText();
+
+	// get the lhs data type
+	DATA_TYPE lhsDataType = currentFunction.locals[lhsVarName].dataType;
+
+	bool lhsIsArray = currentFunction.locals[lhsVarName]._isArray;
+
+	bool rhsAllocation = false;
+
+	bool rhsMutRef = false;
+
+	bool rhsIsInt = expIsIntProp.get(ctx->varDecRHS());
+
+	// check if the rhs is a mutable reference
+	if (ctx->varDecRHS()->assignRHS()->rhsRef() != NULL)
+		rhsMutRef = true;
+
+	// check if there's an allocation
+	if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
+		rhsAllocation = true;
+
+	// cannot assign a value to a stack array during declaration
+	if (ctx->array()->getText().size() > 0)
+	{
+		reportMemError(ctx);
+
+		cout << "cannot assign a value to a stack array during declaration\n";
+	}
+
+	else
+	{
+		// if the lhs vars data type is an int
+		if (lhsDataType == INT)
+		{
+			if (rhsAllocation)
+			{
+				reportMemError(ctx);
+
+				cout << " cannot allocate to a non-pointer\n";
+			}
+
+			// check that the rhs is an int by getting the parse tree property
+			if (!rhsIsInt)
+			{
+				reportMemError(ctx);
+
+				cout << " can only assign an integer to an int\n";
+			}
+		}
+
+		// if it's a pointer, only another pointer can be assigned to it, or there could be an allocation
+		else if (lhsDataType == POINTER)
+		{
+			if (!rhsAllocation)
+			{
+				// get the number of variables on the rhs
+				string  rhsText = ctx->varDecRHS()->assignRHS()->getText();
+
+				vector<string>  rhsVars = getVars(rhsText);
+
+				int  numRHSVars = rhsVars.size();
+
+				if (numRHSVars != 1)
+				{
+					reportMemError(ctx);
+
+					cout << " can only assign another pointer to a pointer\n";
+				}
+
+				else
+				{
+					// check that the rhs var is another pointer
+					string  rhsVarName = rhsVars[0];
+
+					if (currentFunction.locals[rhsVarName].dataType != POINTER)
+					{
+						reportMemError(ctx);
+
+						cout << " can only assign another pointer to a pointer\n";
+					}
+				}
+			}
+		}
+
+		// vardec for reference is already check in enterVarDec()
+		else if (lhsDataType == REF)
+		{
+			if (rhsAllocation)
+			{
+				reportMemError(ctx);
+
+				cout << " cannot allocate to a non-pointer\n";
+			}
+
+		}
+	}
+} // end checkDeclarationTypeSafety
+
+
+
+
+
+/*
+Function: checkAssignTypeSafety
+Description: make sure that the data types on both sides of the assignment statement match. If not, report an error.
+*/
+void  MemSafetyPass::checkAssignTypeSafety(InoxisParser::AssignContext* ctx)
+{
+	// get the lhs var name
+	string  lhsVarName = ctx->var()->ID()->getText();
+
+	// get the lhs data type
+	DATA_TYPE lhsDataType = currentFunction.locals[lhsVarName].dataType;
+
+	bool lhsIsArray = currentFunction.locals[lhsVarName]._isArray;
+
+	// check if an operator is used on the lhs
+	bool containsDereference = false;
+
+	bool containsAddressOp = false;
+
+	bool containsSubscript = false;
+
+	bool rhsAllocation = false;
+
+	bool rhsIsInt = expIsIntProp.get(ctx->assignRHS());
+
+	if (ctx->var()->array()->getText().length() > 0)
+		containsSubscript = true;
+
+	if (ctx->var()->pointRef()->getText() == "*")
+		containsDereference = true;
+
+	if (ctx->var()->pointRef()->getText() == "&")
+		containsAddressOp = true;
+
+	if (ctx->assignRHS()->allocate() != NULL)
+		rhsAllocation = true;
+
+	// you can't have an address operator on the lhs of an assignment
+	if (containsAddressOp)
+	{
+		reportMemError(ctx);
+
+		cout << " cannot have '&' on the lhs of an assignment\n";
+	}
+
+	// can't have an allocation to a non-pointer/reference
+
+
+	// the lhs can be an int if the dereference or subscript operator is used with it
+	if (containsSubscript || containsDereference)
+	{
+		if (rhsAllocation)
+		{
+			reportMemError(ctx);
+
+			cout << " cannot allocate to a non-pointer\n";
+		}
+
+		// check that the rhs is an int by getting the parse tree property
+		if (!rhsIsInt)
+		{
+			reportMemError(ctx);
+
+			cout << " can only assign an integer to an int\n";
+		}
+	}
+	
+	else
+	{
+
+		// if the lhs vars data type is an int
+		if (lhsDataType == INT)
+		{
+			if (rhsAllocation)
+			{
+				reportMemError(ctx);
+
+				cout << " cannot allocate to a non-pointer\n";
+			}
+
+			// check that the rhs is an int by getting the parse tree property
+			if (!rhsIsInt)
+			{
+				reportMemError(ctx);
+
+				cout << " can only assign an integer to an int\n";
+			}
+		}
+
+		// if it's a pointer, only another pointer can be assigned to it, or there could be an allocation
+		else if (lhsDataType == POINTER)
+		{
+			if (!rhsAllocation)
+			{
+				// get the number of variables on the rhs
+				string  rhsText = ctx->assignRHS()->getText();
+
+				vector<string>  rhsVars = getVars(rhsText);
+
+				int  numRHSVars = rhsVars.size();
+
+				if (numRHSVars != 1)
+				{
+					reportMemError(ctx);
+
+					cout << " can only assign another pointer to a pointer\n";
+				}
+
+				else
+				{
+					// check that the rhs var is another pointer
+					string  rhsVarName = rhsVars[0];
+
+					if (currentFunction.locals[rhsVarName].dataType != POINTER)
+					{
+						reportMemError(ctx);
+
+						cout << " can only assign another pointer to a pointer\n";
+					}
+				}
+			}
+		}
+
+		// if it's a reference, make sure it's used with * or [], since another address can't be assigned to it
+		else if (lhsDataType == REF)
+		{
+			if (rhsAllocation)
+			{
+				reportMemError(ctx);
+
+				cout << " cannot allocate to a non-pointer\n";
+			}
+
+				reportMemError(ctx);
+
+				cout << " cannot re-assign another address to a reference\n";
+
+		}
+	}
+} // end checkAssignTypeSafety
+
+
+
+
+/*
 Function: addConditionalStatements
 Description: given a conditional statement, get all of the statements inside the block and add them to stringStatements
 */
@@ -468,6 +789,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 			size_t numRHSVars = rhsVars.size();
 
+
 			// first, check the read permissions for any variables on the right hand side
 			if (!checkReadPermissions(rhsVars, ctx))
 			{
@@ -664,7 +986,7 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					{
 						reportMemError(ctx);
 
-						cout << "can only have one variable on rhs when assigning initializing a reference\n";
+						cout << "can only have one variable on rhs when initializing a reference\n";
 					}
 				}
 
@@ -1328,6 +1650,13 @@ void  MemSafetyPass::dropVar(string varName)
 
 				//cout << varName << " no longer owns heap data\n";
 			}
+		}
+
+		// not a borrow, just drop heap ownership
+		else
+		{
+			if (currentFunction.locals[varName].ownsHeapData == true)
+				currentFunction.locals[varName].ownsHeapData = false;
 		}
 	}
 }
