@@ -1,3 +1,9 @@
+/*
+File: VMInput.h
+Description: Contains the C language data structure definitions that will be passed as input to the virtual machine.
+It also contains helper function declarations for manipulating the data structures.
+*/
+
 #pragma once
 
 #include <glib.h>
@@ -28,19 +34,19 @@ typedef enum
 
 } STAT_TYPE;
 
-
+// expression types
 typedef enum
 {
     EXPR_BIN, EXPR_LIT, EXPR_UNARY, EXPR_CALL, EXPR_NONE
 } EXPR_KIND;
 
-
+// literal types
 typedef enum
 {
     STRING_LIT, NUMBER_LIT, VARIABLE_LIT
 } LIT_KIND;
 
-
+// memory value types
 typedef enum
 {
     MEM_POINTER, MEM_INT, MEM_REF

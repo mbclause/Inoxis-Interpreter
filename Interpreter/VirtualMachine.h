@@ -86,11 +86,7 @@ void  printVMInput(GArray* functions);
 
 
 
-/*
-Function: crashReport
-Description: If we hit an error in the virtual machine, dump the top of the stack and the instruction we are on
-*/
-//void  crashReport(instruction badInstruction, int structnNum);
+
 
 
 

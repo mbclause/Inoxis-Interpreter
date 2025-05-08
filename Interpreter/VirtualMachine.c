@@ -822,23 +822,7 @@ void compileFree(freeType f, GArray* instructions)
 
 
 
-/*
-Function: crashReport
-Description: If we hit an error in the virtual machine, dump the top of the stack and the instruction we are on and exit program.
-*/
-/*void  crashReport(instruction badInstruction, int structnNum)
-{
-	printf("VM error at instruction %d", structnNum);
 
-	// printInstruction
-
-	// print stack
-	printf("Stack contents: \n");
-
-	// printStack()
-
-	exit(1);
-} // end crashReport*/
 
 
 
@@ -906,8 +890,6 @@ GArray* compile(GArray* functions, GHashTable* jumpLabels)
 
 	if (instructions)
 	{
-		// create an array of jump labels
-		//GArray* jumpLabels = g_array_new(false, false, sizeof(jumpLabel));
 
 		// array containing the location of the first instruction for function i
 		GArray* functionLocations = g_array_new(false, false, sizeof(unsigned));
@@ -960,15 +942,9 @@ GArray* compile(GArray* functions, GHashTable* jumpLabels)
 			}
 		}
 
-		// print function instruction locations
-		for (unsigned i = 0; i < functionLocations->len; i++)
-		{
-			//printf("Function %d starts at instruction - %d\n", i + 1, g_array_index(functionLocations, unsigned, i) + 1);
-		}
+		printf("LABEL TABLE\n");
 
-		//printf("LABEL TABLE\n");
-
-		//g_hash_table_foreach(jumpLabels, printLabelHashMap, NULL);
+		g_hash_table_foreach(jumpLabels, printLabelHashMap, NULL);
 
 		return instructions;
 	}
@@ -1008,7 +984,7 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 
 	pushStack(dataStack, pcd);
 
-	//printf("\nEXECUTE\n");
+	printf("\nEXECUTE\n");
 
 	//printf("Data Stack before execution:\n");
 
@@ -1042,7 +1018,7 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			exit(1);
 		}
 
-		//printInstruction(currentI);
+		printInstruction(currentI);
 
 		// call the appropriate execute_x function for the instruction
 		switch (iType)
@@ -1149,9 +1125,9 @@ void  execute(GArray* instructions, GArray* functions, GHashTable* jumpLabels)
 			break;
 		}
 
-		//printDataStack(dataStack);
+		printDataStack(dataStack);
 
-		//printf("\n");
+		printf("\n");
 	}
 }
 
@@ -1196,7 +1172,9 @@ bool  VMMain(GArray* functions)
 		exit(1);
 	}
 
-	//printInstructions(instructions);
+	printf("INTSTRUCTIONS\n");
+
+	printInstructions(instructions);
 
 	// execute the instructions, passing the local arrays for the functions
 	execute(instructions, functions, jumpLabels);

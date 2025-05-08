@@ -1,5 +1,6 @@
 /*
 File: Interpreter.h
+Description: class definition for the Interpreter class
 */
 
 // include statements

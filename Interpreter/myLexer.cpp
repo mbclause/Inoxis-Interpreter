@@ -1,5 +1,8 @@
 /*
 File: myLexer.cpp
+Description: The member function definitions for the myLexer class. 
+The main function here is the overridden nextToken() function. 
+This lexes the next token from the input stream and returns it to the parser.
 */
 
 #include "myLexer.h"
@@ -67,6 +70,7 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 	size_t initCharPos = getCharPositionInLine();
 
+	// keep chewing until we get the next good token (which could be EOF)
 	while (!validToken)
 	{
 		type = WS;
@@ -513,11 +517,12 @@ std::unique_ptr<antlr4::Token> myLexer::nextToken()
 
 				// convert token type from enum to size_t
 				returnedType = type;
-			}
+			} // end else
 
 		} // end else
-	}
+	} // end while
 
+	// if the token is EOF, feed that token to the stream
 	if (hitEndOfFile)
 	{
 		std::unique_ptr<antlr4::CommonToken>

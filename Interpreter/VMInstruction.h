@@ -332,11 +332,7 @@ inline void printInstructions(GArray* instructions) {
 
 
 // get methods for each instruction with operands
-//inline int   getJumpI(instruction i) { return i.values.jump.index; }
 
-//inline int  getJNZ(instruction i) { return i.values.jnz.index; }
-
-//inline int  getCallI(instruction i) { return i.values.call.funcIndex; };
 
 inline int  getMoveI(instruction i) { return i.values.mov.index; };
 

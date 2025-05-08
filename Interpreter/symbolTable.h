@@ -1,3 +1,10 @@
+/*
+File: symbolTable.h
+Description: The class definition for the symbol table class, which inherits from the InoxisBaseListener class. 
+This is one of the parse tree walker classes. 
+It creates a symbol table of funcSymbol objects and validates the symbols.
+*/
+
 #pragma once
 #include "antlr4-runtime.h"
 #include ".antlr/InoxisBaseListener.h"
@@ -13,16 +20,17 @@ using namespace std;
 
 
 
-
+// class: symbolTable
+// Inherits from InoxisBaseListener
 class symbolTable : public InoxisBaseListener
 {
 public:
 
+	// constructor
 	symbolTable() : numErrors(0) {};
 
 
-
-
+	// overloaded InoxisBaseListener functions
 	void enterFuncDec(InoxisParser::FuncDecContext* ctx);
 
 	void enterFuncDef(InoxisParser::FuncDefContext* ctx);
@@ -41,7 +49,7 @@ public:
 
 
 
-
+	// member functions
 	bool compFuncSignatures(funcSymbol func1, funcSymbol func2);
 
 	void reportError(antlr4::ParserRuleContext* ctx) { 
@@ -53,9 +61,10 @@ public:
 
 
 
-	// need some error checking and tracking code
+	// data members
 	int numErrors;
 
+	// ParseTreeProperty objects get saved in the tree itself
 	antlr4::tree::ParseTreeProperty<funcSymbol>  treeFuncSymbols;
 
 	map<string, funcSymbol> funcSymbols;

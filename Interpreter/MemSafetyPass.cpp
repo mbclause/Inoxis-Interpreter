@@ -1,3 +1,9 @@
+/*
+File: MemSafetyPass.cpp
+Description: The member function definitions for MemSafetyPass. 
+Like the other AST walkers, these are mostly overridden enter and exit rule functions.
+*/
+
 #include "MemSafetyPass.h"
 
 using namespace DataType;
@@ -430,7 +436,7 @@ void  MemSafetyPass::addConditionalStatements(InoxisParser::StatementContext* co
 
 		stringStatements.push_back(endWhileSentinal);
 	}
-}
+} // end addConditionalStatements
 
 
 
@@ -496,7 +502,7 @@ vector<string>  MemSafetyPass::convertStatementsToString(vector<InoxisParser::St
 		stringStatements.push_back(returnStatement->getText());
 
 	return stringStatements;
-}
+} // end convertStatementsToString
 
 
 
@@ -529,7 +535,7 @@ vector<string>  MemSafetyPass::getPrintVars(InoxisParser::PrintContext* ctx)
 
 
 	return vars;
-}
+} // end getPrintVars
 
 
 
@@ -558,7 +564,8 @@ void MemSafetyPass::enterOut(InoxisParser::OutContext* ctx)
 			//reportMemError(ctx);
 		}
 	}
-}
+} // end enterOut
+
 
 
 /*
@@ -580,7 +587,7 @@ void MemSafetyPass::enterPrint(InoxisParser::PrintContext* ctx)
 			//reportMemError(ctx);
 		}
 	}
-}
+} // end enterPrint
 
 
 
@@ -707,15 +714,11 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 			if (lhsMut)
 			{
 				currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-				//cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
 			}
 
 			else
 			{
 				currentFunction.locals[varName].setPermissions(read | own, false);
-
-				//cout << "assign: " << varName << ". Permissions: " << currentFunction.locals[varName].memPermissions << endl;
 			}
 
 			// if the lhs is initialized with another pointer, the rhs pointer is dropped
@@ -730,8 +733,6 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 					currentFunction.locals[varName].ownsHeapData = true;
 
 					currentFunction.locals[rhsVar].ownsHeapData = false;
-
-					//cout << varName << " now owns heap data\n";
 				}
 
 				if (rhsDataType == POINTER)
@@ -745,13 +746,11 @@ void   MemSafetyPass::enterAssign(InoxisParser::AssignContext* ctx)
 			if (ctx->assignRHS()->allocate() != NULL)
 			{
 				currentFunction.locals[varName].ownsHeapData = true;
-
-				//cout << varName << " now owns heap data\n";
 			}
 		}
 	}
 
-}
+} // end enterAssign
 
 
 
@@ -800,8 +799,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 			{
 
 				// integer init 
-				// int x = 7;
-				// int y = x;
 				if (lhsType == INT)
 				{
 					// check that the rhs is an expression
@@ -810,21 +807,16 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					if (lhsMut)
 					{
 						currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-						//cout << "init: " << varName << ". Permissions: " << 
-							//currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					else
 					{
 						currentFunction.locals[varName].setPermissions(read | own, false);
-
-						//cout << "init: " << varName << ". Permissions: " << 
-							//currentFunction.locals[varName].memPermissions << endl;
 					}
 				}
 
 				// pointer init with variable
+				// example:
 				// int *y = &x;
 				// int *z = new int;  *z = 7; int *y = z;
 				// pointer init with allocation
@@ -835,17 +827,11 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					if (lhsMut)
 					{
 						currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-						//cout << "init: " << varName << ". Permissions: " << 
-							//currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					else
 					{
 						currentFunction.locals[varName].setPermissions(read | own, false);
-
-						//cout << "init: " << varName << ". Permissions: " << 
-							// currentFunction.locals[varName].memPermissions << endl;
 					}
 
 					// if the lhs is initialized with another pointer, the rhs pointer is dropped
@@ -858,8 +844,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 						if (currentFunction.locals[rhsVar].ownsHeapData)
 						{
 							currentFunction.locals[varName].ownsHeapData = true;
-
-							//cout << varName << " now owns heap data\n";
 						}
 
 						if (rhsDataType == POINTER)
@@ -873,8 +857,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 					if (ctx->varDecRHS()->assignRHS()->allocate() != NULL)
 					{
 						currentFunction.locals[varName].ownsHeapData = true;
-
-						//cout << varName << " now owns heap data\n";
 					}
 				}
 
@@ -894,8 +876,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 						{
 							currentFunction.locals[varName].ownsHeapData = true;
 
-							//cout << varName << " now owns heap data\n";
-
 							currentFunction.locals[rhsVar].ownsHeapData = false;
 						}
 
@@ -905,25 +885,22 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 							if (ctx->varDecRHS()->assignRHS()->rhsRef()->mut()->getText() == "mut")
 							{
 								mutRef = true;
-
-								//
-								//cout << "mutable reference\n";
 							}
 						}
 
 						if (ctx->varDecRHS()->getText().find("&") != string::npos)
 						{
 							rhsRefSymbol = true;
-
-							//cout << "rhs reference\n";
 						}
 
 						if (lhsMut)
 						{
 							// report error, not allowed in C++
+							reportMemError(ctx);
+
+							cout << "cannot change the address of a reference in Inoxis\n";
 						}
 
-						// can't change address
 						else
 						{
 							// mutable reference, syntax is "int &var1 = &mut var2;
@@ -950,11 +927,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 								// borrower data gains r/w/o
 								currentFunction.locals[varName].setPermissions(read | write | own, true);
-
-								/*cout << "init: " << varName << ". Permissions: " <<
-									currentFunction.locals[varName].memPermissions
-									<< ". Place permissions: " << 
-									currentFunction.locals[varName].placeMemPermissions << endl;*/
 							}
 
 							else
@@ -973,11 +945,6 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 
 								// borrower data gains r
 								currentFunction.locals[varName].setPermissions(read, true);
-
-								/*cout << "init: " << varName << ". Permissions: " <<
-									currentFunction.locals[varName].memPermissions
-									<< ". Place permissions: " <<
-									currentFunction.locals[varName].placeMemPermissions << endl;*/
 							}
 						}
 					}
@@ -1001,21 +968,15 @@ void MemSafetyPass::enterVarDec(InoxisParser::VarDecContext* ctx)
 			if (lhsMut)
 			{
 				currentFunction.locals[varName].setPermissions(read | write | own, false);
-
-				//cout << "init: " << varName << ". Permissions: " <<
-					//currentFunction.locals[varName].memPermissions << endl;
 			}
 
 			else
 			{
 				currentFunction.locals[varName].setPermissions(read | own, false);
-
-				//cout << "init: " << varName << ". Permissions: " <<
-					//currentFunction.locals[varName].memPermissions << endl;
 			}
 		}
 	}
-}
+} // end enterVarDec
 
 
 
@@ -1077,7 +1038,7 @@ void MemSafetyPass::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 		}
 	}
 
-}
+} // end enterFuncCall
 
 
 
@@ -1088,8 +1049,6 @@ Description: same as for enterFuncDef
 void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 {
 	currentFunction = functions.get(ctx);
-
-	//cout << "MAIN\n";
 
 	// sentinel drops permissions for borower and regains for borowee
 
@@ -1199,8 +1158,6 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 					}
 				}
 			}
-
-			// need to check code to add sentinal for the parameter
 		}
 
 
@@ -1212,9 +1169,7 @@ void MemSafetyPass::enterMain(InoxisParser::MainContext* ctx)
 
 
 	}
-
-	//cout << endl;
-}
+} // end enterMain
 
 
 
@@ -1229,8 +1184,6 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	currentFunction = functions.get(ctx);
 
 	string paramName = ctx->param()->ID()->getText();
-
-	//cout << endl << currentFunction.getName() << endl;
 
 	// sentinel drops permissions for borower and regains for borowee
 
@@ -1371,29 +1324,21 @@ void MemSafetyPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	if (ctx->param()->mut()->getText() == "mut")
 	{
 		currentFunction.locals[paramName].setPermissions(read | write | own, false);
-
-		//cout << "init: " << paramName << ". Permissions: " <<
-			//currentFunction.locals[paramName].memPermissions << endl;
 	}
 
 	else
 	{
 		currentFunction.locals[paramName].setPermissions(read | own, false);
-
-		//cout << "init: " << paramName << ". Permissions: " <<
-			//currentFunction.locals[paramName].memPermissions << endl;
 	}
-
-	//cout << endl;
-}
+} // end enterFuncDef
 
 
 
 
 
 // getVars()
-// could use string search, search the string for all the var names in function.locals
-// false positives??
+// description: loop through all of the local variable names and searhc the input string for them and add any hits
+// to the returned string vector
 vector<string>  MemSafetyPass::getVars(string statement)
 {
 	vector<string>  vars;
@@ -1410,11 +1355,11 @@ vector<string>  MemSafetyPass::getVars(string statement)
 	}
 
 	return vars;
-}
+} // end getVars
 
 
 
-
+// function: checkIFSentinal
 // loop through rest of the anotated statements starting from 'start' index
 // check if there's a sentinal value for var
 bool MemSafetyPass::checkIfSentinal(vector<variant<string, sentinal>>
@@ -1441,11 +1386,12 @@ bool MemSafetyPass::checkIfSentinal(vector<variant<string, sentinal>>
 	}
 
 	return false;
-}
+} // end checkIfSentinal
 
 
 
 
+// function: isFinalUse
 // given a variable name, and the index of current statement + 1, check if the variable is used in the 
 // remaining statements
 bool   MemSafetyPass::isFinalUse(vector<string> statements, int start, string var)
@@ -1478,7 +1424,7 @@ bool   MemSafetyPass::isFinalUse(vector<string> statements, int start, string va
 
 	// if we reach the end, return true
 	return true;
-}
+} // end isFinalUse
 
 
 
@@ -1491,7 +1437,7 @@ bool   MemSafetyPass::isFinalUse(vector<string> statements, int start, string va
 
 
 
-
+// function: incrementStatements
 // every time this is called by exitStatement, we need to print that statement, then loop through any following
 // sentinels, dropping all of those permissions
 void  MemSafetyPass::incrementStatements()
@@ -1508,7 +1454,7 @@ void  MemSafetyPass::incrementStatements()
 		{
 			try
 			{
-				//cout << get<string>(currentStatList[statementIndex]) << endl;
+
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -1568,7 +1514,6 @@ void  MemSafetyPass::incrementStatements()
 
 				dropVar(currentSentinal.varName);
 
-				//cout << currentSentinal.varName << " dropped \n";
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -1586,7 +1531,7 @@ void  MemSafetyPass::incrementStatements()
 			{
 				try
 				{
-					//cout << get<string>(currentStatList[statementIndex]) << endl;
+
 				}
 
 				catch (std::bad_variant_access const& ex)
@@ -1601,7 +1546,7 @@ void  MemSafetyPass::incrementStatements()
 			}
 		}
 	}
-}
+} // end incrementStatement
 
 
 
@@ -1640,7 +1585,6 @@ void  MemSafetyPass::dropVar(string varName)
 				{
 					currentFunction.locals[borroweeName].ownsHeapData = true;
 
-					//cout << varName << " no longer owns heap data\n";
 				}
 			}
 
@@ -1648,7 +1592,6 @@ void  MemSafetyPass::dropVar(string varName)
 			{
 				currentFunction.locals[varName].ownsHeapData = false;
 
-				//cout << varName << " no longer owns heap data\n";
 			}
 		}
 
@@ -1659,4 +1602,4 @@ void  MemSafetyPass::dropVar(string varName)
 				currentFunction.locals[varName].ownsHeapData = false;
 		}
 	}
-}
+} // end dropVar

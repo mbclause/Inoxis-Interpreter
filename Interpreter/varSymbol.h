@@ -1,3 +1,9 @@
+/*
+File: varSymbol.h
+Description: The class definition for varSymbol. 
+It represents a local variable in a function, containing all of its information.
+This includes the variable's memory permissions.
+*/
 
 #pragma once
 #include <string>
@@ -6,6 +12,7 @@
 using namespace std;
 
 
+// an enum representing the memory permission types for a variable
 enum MemFlags {
 	none = 0,
 	read = 1,
@@ -14,7 +21,11 @@ enum MemFlags {
 	flow = 8
 };
 
+
+
 // code taken from StackOverflow user eidolon
+// overloaded & and | operators used with the MemFlags enum
+
 // set flags with |
 inline MemFlags operator|(MemFlags a, MemFlags b)
 {
@@ -28,11 +39,13 @@ inline MemFlags operator&(MemFlags a, MemFlags b)
 };
 
 
+
+// class: varSymbol
 class varSymbol
 {
 public:
 
-
+	// data members
 	string _name;
 
 	bool _isMutable;
@@ -44,8 +57,6 @@ public:
 	bool hasBeenDropped;
 
 	bool ownsHeapData;
-
-	//funcSymbol parentFunction;
 
 	DataType::DATA_TYPE dataType;
 
@@ -62,7 +73,7 @@ public:
 	int arraySize;
 
 
-
+	// ctors
 	varSymbol() : _name(""), _isMutable(false), _needsMemSafety(false), _isArray(false), dataType(DataType::INT), 
 		memPermissions(none), placeMemPermissions(none), isBorrow(false), borrowee(""), hasBeenDropped(false), arraySize(0),
 		ownsHeapData(false)
@@ -75,8 +86,11 @@ public:
 		hasBeenDropped(false), arraySize(size), ownsHeapData(false)
 	{};
 
+
+	// member functions
 	void printVarSymbol();
 
+	// functions to change memory permissions
 	// drop all of variables permissions, including its place's if applicable
 	void dropPermissions() {
 		setPermissions(none, false);
@@ -84,11 +98,6 @@ public:
 		if (isBorrow)
 			setPermissions(none, true);
 	}
-
-
-
-
-
 
 	void  regainPermissions();
 
@@ -100,8 +109,8 @@ public:
 			memPermissions = permissions; 
 	};
 
+
 	// functions to check which flags are set
-	// need to test these
 	bool  hasReadPermissions(bool place) {
 		if (place)
 			return placeMemPermissions & read;

@@ -1,6 +1,16 @@
+/*
+File: VMInputPass.cpp
+Description: Member function definitions for VMInputPass.
+*/
+
+
 #include "VMInputPass.h"
 
 
+/*
+Function: findControlFlowBlocks
+Description: loop through all statements in a control flow block, if we find another cf block, pass depth+1 to it
+*/
 void  VMInputPass::findControlFlowBlocks(InoxisParser::IfElseBlockContext* ifctx,
 	InoxisParser::WhileContext* whilectx, int  depth)
 {
@@ -95,10 +105,14 @@ void  VMInputPass::findControlFlowBlocks(InoxisParser::IfElseBlockContext* ifctx
 	{
 
 	}
-}
+} // end fincControlFlowBlocks
 
 
 
+/*
+Function: enterWhile
+Description: get current depth and then check if there are any cf statements in the block
+*/
 void VMInputPass::enterWhile(InoxisParser::WhileContext* ctx)
 {
 	inControlBlock = true;
@@ -115,10 +129,14 @@ void VMInputPass::enterWhile(InoxisParser::WhileContext* ctx)
 	}
 
 	findControlFlowBlocks(NULL, ctx, depth + 1);
-}
+} // end enterWhile
 
 
 
+/*
+Function: enterIfElseBlock
+Description: get current depth and then check if there are any cf statements in the block
+*/
 void VMInputPass::enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
 {
 	inControlBlock = true;
@@ -136,7 +154,7 @@ void VMInputPass::enterIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
 
 	findControlFlowBlocks(ctx, NULL, depth + 1);
 
-}
+} // end enterIfElseBlock
 
 
 
@@ -146,14 +164,14 @@ Description: make a new function struct and add it to array, reset statement ind
 */
 void VMInputPass::exitFuncDef(InoxisParser::FuncDefContext* ctx) 
 {
-	//cout << "symbol table size: " << currentSymbolsGArray->len << endl;
 
 	function newFunction = { currentStatementsGArray, currentSymbolsGArray };
 
 	g_array_append_val(functions, newFunction);
 
 	statementIndex = 0;
-}
+} // end exitFuncDef
+
 
 
 /*
@@ -162,23 +180,14 @@ Description: make a new function struct and add it to array, reset statement ind
 */
 void VMInputPass::exitMain(InoxisParser::MainContext* ctx) 
 {
-	//cout << "main\n";
 
 	statementIndex = 0;
-
-	//cout << "symbol table size: " << currentSymbolsGArray->len << endl;
-
-	/*for (unsigned i = 0; i < currentStatementsGArray->len; i++)
-	{
-		statement stat = g_array_index(currentStatementsGArray, statement, i);
-
-		//printStatement(stat);
-	}*/
 
 	function newFunction = { currentStatementsGArray, currentSymbolsGArray };
 
 	g_array_append_val(functions, newFunction);
-}
+} // end exitMain
+
 
 
 /*
@@ -200,7 +209,7 @@ void VMInputPass::exitReturn(InoxisParser::ReturnContext* ctx)
 	g_array_append_val(currentStatementsGArray, newReturn);
 
 	incrementStatements();
-}
+} // end exitReturn
 
 
 
@@ -246,7 +255,7 @@ void VMInputPass::exitWhile(InoxisParser::WhileContext* ctx)
 	{
 		stmntProp.put(ctx, whileStat);
 	}
-}
+} // end exitwhile
 
 
 
@@ -289,7 +298,7 @@ void VMInputPass::exitElse(InoxisParser::ElseContext* ctx)
 	statement elseStat = initControlFlowStatement(*newElse, ELSE);
 
 	stmntProp.put(ctx, elseStat);
-}
+} // end exitElse
 
 
 
@@ -305,7 +314,7 @@ void VMInputPass::exitElif(InoxisParser::ElifContext* ctx)
 
 		elifStatsProp.put(ctx, ctx->statList());
 	}
-}
+} // end exitElif
 
 
 
@@ -387,7 +396,7 @@ GArray* VMInputPass::getIfElseBlocks(InoxisParser::IfElseBlockContext* ctx)
 	}
 
 	return blockStats;
-}
+} // end getIFElseBlocks
 
 
 
@@ -446,7 +455,7 @@ void VMInputPass::exitStatement(InoxisParser::StatementContext* ctx)
 		
 	}
 
-}
+} // end exitStatement
 
 
 
@@ -480,7 +489,7 @@ void VMInputPass::exitIfElseBlock(InoxisParser::IfElseBlockContext* ctx)
 		stmntProp.put(ctx, newStat);
 	}
 
-}
+} // end exitIfElseBlock
 
 
 
@@ -521,7 +530,7 @@ void VMInputPass::exitPrintLiteral(InoxisParser::PrintLiteralContext* ctx)
 	}
 
 	expProp.put(ctx, newExp);
-}
+} // end exitPrintLiteral
 
 
 
@@ -557,7 +566,7 @@ void VMInputPass::exitPrint(InoxisParser::PrintContext* ctx)
 		g_array_append_val(currentStatementsGArray, newStatement);
 
 	stmntProp.put(ctx, newStatement);
-}
+} // end exitPrint
 
 
 
@@ -579,7 +588,7 @@ void VMInputPass::exitOut(InoxisParser::OutContext* ctx)
 	print* p = makePrint(newLiterals);
 
 	PrintProp.put(ctx, *p);
-}
+} // end exitOut
 
 
 
@@ -636,7 +645,7 @@ void VMInputPass::exitAssign(InoxisParser::AssignContext* ctx)
 		g_array_append_val(currentStatementsGArray, newStatement);
 
 	stmntProp.put(ctx, newStatement);
-}
+} // end exitAssign
 
 
 
@@ -670,7 +679,8 @@ void VMInputPass::exitAllocate(InoxisParser::AllocateContext* ctx)
 	expression* newExp = makeUnaryOpExpression(uo);
 
 	expProp.put(ctx, *newExp);
-}
+} // end exitAllocate
+
 
 
 /*
@@ -700,7 +710,8 @@ void VMInputPass::exitAssignRHS(InoxisParser::AssignRHSContext* ctx)
 	}
 
 	allocationSizeProp.put(ctx, allocationSize);
-}
+} // end exitAssignRHS
+
 
 
 /*
@@ -779,18 +790,12 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 
 		// get array size for variable
 		stackArraySize = currentFunction.locals[varName].arraySize;
-
-		//freeBinOp(newBinOp);
-
-		//free(newExp);
 	}
 
 	// otherwise just use the literal expression
 	else
 	{
 		lhs = newLitExp;
-
-		//free(newLitExp);
 	}
 
 	// now check if the declaration has an assignment...
@@ -831,7 +836,7 @@ void VMInputPass::exitVarDec(InoxisParser::VarDecContext* ctx)
 		g_array_append_val(currentStatementsGArray, newStatement);
 
 	stmntProp.put(ctx, newStatement);
-}
+} // end exitVarDec
 
 
 
@@ -866,9 +871,8 @@ void VMInputPass::exitCondRHS(InoxisParser::CondRHSContext* ctx)
 	}
 
 	expProp.put(ctx, *newExp);
+} // end exitCondRHS
 
-	//free(newExp);
-}
 
 
 /*
@@ -936,24 +940,14 @@ void VMInputPass::exitCondition(InoxisParser::ConditionContext* ctx)
 		expression* notExp = makeUnaryOpExpression(uo);
 
 		expProp.put(ctx, *notExp);
-
-		//freeBinOp(bo);
-
-		//freeUnaryOp(uo);
-
-		//free(notExp);
 	}
 
 	else
 	{
 		expProp.put(ctx, *condExp);
-
-		//freeBinOp(bo);
-
-		//free(condExp);
 	}
 
-}
+} // end exitCondition
 
 
 
@@ -991,11 +985,7 @@ void VMInputPass::exitRhsRef(InoxisParser::RhsRefContext* ctx)
 	expression* newUnaryExp = makeUnaryOpExpression(uo);
 
 	expProp.put(ctx, *newUnaryExp);
-
-	//freeUnaryOp(uo);
-
-	//free(newUnaryExp);
-}
+} // end exitRhsRef
 
 
 
@@ -1025,9 +1015,7 @@ void VMInputPass::exitArg(InoxisParser::ArgContext* ctx)
 	}
 
 	expProp.put(ctx, *newExp);
-
-	//free(newExp);
-}
+} // end exitArg
 
 
 
@@ -1068,9 +1056,6 @@ void VMInputPass::exitVar(InoxisParser::VarContext* ctx)
 
 		expProp.put(ctx, *unExp);
 
-		//freeUnaryOp(newUnary);
-
-		//free(unExp);
 	}
 
 	// if the subscript operator is used...
@@ -1085,19 +1070,14 @@ void VMInputPass::exitVar(InoxisParser::VarContext* ctx)
 		expression* newExp = makeBinOpExpression(newBinOp);
 
 		expProp.put(ctx, *newExp);
-
-		//freeBinOp(newBinOp);
-
-		//free(newExp);
 	}
 
 	else
 	{
 		expProp.put(ctx, *newLitExp);
-
-		//free(newLitExp);
 	}
-}
+} // end exitVar
+
 
 
 /*
@@ -1134,8 +1114,9 @@ void VMInputPass::exitIndex(InoxisParser::IndexContext* ctx)
 
 	expProp.put(ctx, *newExp);
 
-	//free(newExp);
-}
+} // end exitIndex
+
+
 
 
 /*
@@ -1165,7 +1146,7 @@ void VMInputPass::exitFuncCall(InoxisParser::FuncCallContext* ctx)
 		g_array_append_val(currentStatementsGArray, newStatement);
 
 	stmntProp.put(ctx, newStatement);
-}
+} // end exitFuncCall
 
 
 
@@ -1188,10 +1169,6 @@ void VMInputPass::exitFuncCallFactor(InoxisParser::FuncCallFactorContext* ctx)
 	expression* funcExp = makeFuncCallExpression(newFuncCall);
 
 	expProp.put(ctx, *funcExp);
-
-	//freeFuncCall(newFuncCall);
-
-	//free(funcExp);
 }
 
 
@@ -1208,8 +1185,6 @@ void VMInputPass::exitNumLiteral(InoxisParser::NumLiteralContext* ctx)
 	literal numLiteral = initNumberLiteral(num);
 
 	expression exp = initLiteralExpression(numLiteral);
-
-	//cout << exp.val.litVal.number << endl;
 
 	expProp.put(ctx, exp);
 }
@@ -1249,9 +1224,6 @@ void VMInputPass::exitAdd(InoxisParser::AddContext* ctx)
 
 	// nestle data into ast
 	expProp.put(ctx, *newExp);
-
-	// free the binOp pointer
-	//freeBinOp(newBinOp);
 }
 
 
@@ -1276,20 +1248,17 @@ void VMInputPass::exitSubtract(InoxisParser::SubtractContext* ctx)
 
 	// nestle data into ast
 	expProp.put(ctx, *newExp);
-
-	// free the binOp pointer
-	//freeBinOp(newBinOp);
 }
 
 
 
 /*
 Function: enterFuncDef
-Description: 
+Description: create new GArrays for the local memory and the function statements.
+Then, loop through all the locals and add a memVal entry for each to local memory.
 */
 void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 {
-	//cout << endl << ctx->ID()->getText() << endl;
 
 	string funcName = ctx->ID()->getText();
 
@@ -1315,8 +1284,6 @@ void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 		string varName = v._name;
 
-		//cout << varName << " index: " << index << endl;
-
 		locals[varName] = index;
 
 		// if the variable is an array, we need to increment i
@@ -1329,8 +1296,6 @@ void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		{
 			index++;
 		}
-
-		//cout << varName << " index: " << locals[varName] << endl;;
 	}
 
 
@@ -1348,20 +1313,18 @@ void VMInputPass::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	currentSymbolsGArray = localSymbols;
 
-	//cout << funcName << " locals size: " << currentSymbolsGArray->len << endl;
-
 	currentStatList = statLists.get(ctx); 
-}
+} // end enterFuncDef
 
 
 
 /*
 Function: enterMain
-Description:
+Description:  create new GArrays for the local memory and the function statements.
+Then, loop through all the locals and add a memVal entry for each to local memory.
 */
 void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 {
-	//cout << "\nmain\n"; 
 
 	currentFunction = symbolTables.get(ctx);
 
@@ -1375,8 +1338,6 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 	// create a new map from var names to array indices
 	map<string, unsigned>  locals;
 
-	//cout << "size of locals from symbol table: " << currentFunction.locals.size() << endl;
-
 	unsigned index = 0;
 
 	// loop through the locals and make a new array from their names
@@ -1385,8 +1346,6 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 		varSymbol v = varList[i];
 
 		string varName = v._name;
-
-		//cout << varName << " index: " << index << endl;
 
 		locals[varName] = index;
 
@@ -1400,11 +1359,7 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 		{
 			index++;
 		}
-
-		//cout << varName << " index: " << locals[varName] << endl;;
 	}
-
-	//cout << "size of string to index map: " << locals.size() << endl;
 
 	for (unsigned k = 0; k < index; k++)
 	{
@@ -1420,7 +1375,7 @@ void VMInputPass::enterMain(InoxisParser::MainContext* ctx)
 	currentStatementsGArray = funcStatements;
 	
 	currentStatList = statLists.get(ctx);
-}
+} // end enterMain
 
 
 
@@ -1446,7 +1401,7 @@ void  VMInputPass::incrementStatements()
 		{
 			try
 			{
-				//cout << get<string>(currentStatList[statementIndex]) << endl;
+
 			}
 
 			catch (std::bad_variant_access const& ex)
@@ -1486,8 +1441,6 @@ void  VMInputPass::incrementStatements()
 
 					freeType newFree{ index };
 
-					//printFree(newFree);
-
 					statement newStatement = initFreeStatement(newFree);
 
 					g_array_append_val(currentStatementsGArray, newStatement);
@@ -1509,7 +1462,7 @@ void  VMInputPass::incrementStatements()
 			{
 				try
 				{
-					//cout << get<string>(currentStatList[statementIndex]) << endl;
+
 				}
 
 				catch (std::bad_variant_access const& ex)
@@ -1524,7 +1477,7 @@ void  VMInputPass::incrementStatements()
 			}
 		}
 	}
-}
+} // end IncrementStatements
 
 
 

@@ -1,5 +1,6 @@
 /*
 File: myLexer.h
+Description: The class definition for the myLexer class. It inherits from the antlr4 TokenSource class.
 */
 
 #ifndef MYLEXER_H
@@ -18,7 +19,7 @@ using namespace std;
 /// 
 /// Parent Class: TokenSource
 /// 
-/// Description:
+/// Description for a TokenSource class:
 /// A source of tokens must provide a sequence of tokens via nextToken()
 /// and also must reveal it's source of characters; CommonToken's text is
 /// computed from a CharStream; it only store indices into the char

@@ -71,12 +71,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="accepted_1.txt">
-      <Filter>Inoxis Test Suite</Filter>
-    </Text>
-    <Text Include="rejected_1.txt">
-      <Filter>Inoxis Test Suite</Filter>
-    </Text>
     <Text Include="test.txt" />
   </ItemGroup>
   <ItemGroup>

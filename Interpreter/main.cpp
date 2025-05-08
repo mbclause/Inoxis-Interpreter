@@ -21,6 +21,9 @@ template class antlr4::tree::ParseTreeProperty<int>;
 
 
 
+/*
+Main
+*/
 int main(int argc, char* argv[])
 {
 	//check for correct number of command line args
@@ -36,7 +39,7 @@ int main(int argc, char* argv[])
 
 	ifstream in;
 
-	// open Inoxis file
+	// open Inoxis program file
 	in.open(file_name);
 
 	// check file has opened correctly
@@ -48,11 +51,11 @@ int main(int argc, char* argv[])
 	}
 
 	
-
+	// use the file to create an antlr input stream object and pass it to the interpreter
 	antlr4::ANTLRInputStream input(in);
 
 	Interpreter newInterpreter(input);
 
 
 	return 0;
-}
+} // end main

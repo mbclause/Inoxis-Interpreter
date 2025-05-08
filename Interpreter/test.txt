@@ -1,13 +1,29 @@
 
-int  main()
+int main()
 {
-	int *var1;
+	// create a new mutable int pointer
+	int mut *var1 = new int;
 
-	int  var2 = var1;
+	// set its data
+	*var1 = 10;
+
+	// var2 make a mutable reference of var1, meaning it can change var1's data
+	// var1 loses all permissions, var2 gains read/write/ownership permissions
+	int &var2 = & mut var1;
+
+	cout << "*var2 = " << *var2 << endl;
+
+	// var2 goes out of scope, var1 regains permissions
+	cout << "var1 has regained permissions and is now: " << *var1 << endl;
 
 	return 0;
-
 }
+
+
+
+
+
+
 
 
 

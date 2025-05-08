@@ -1,3 +1,10 @@
+/*
+File: MemSafetyPass.h
+Description: The class definition for the MemSafetyPass class. 
+Since it also walks the AST, it inherits from the InoxisBaseListener class. As it walks the AST, it sets memory 
+permissions for varSymbol objects and also checks that they have the required permissions for the operation.
+*/
+
 #pragma once
 #include "antlr4-runtime.h"
 #include ".antlr/InoxisBaseListener.h"
@@ -12,6 +19,7 @@ using namespace std;
 using namespace antlr4::tree;
 
 
+// this struct is a flag that represents when a variable goes out of scope
 struct sentinal
 {
 	string varName;
@@ -21,7 +29,7 @@ struct sentinal
 
 
 
-// need to actually set heapAllocation in sentinal 
+
 
 // Class Definition: MemSafetyPass
 class MemSafetyPass : public InoxisBaseListener
@@ -47,9 +55,7 @@ public:
 
 	void enterMain(InoxisParser::MainContext* ctx);
 
-	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); 
-	//printStatList();
-	resetStatList(); };
+	void exitMain(InoxisParser::MainContext* ctx) { statLists.put(ctx, currentStatList); resetStatList(); };
 
 	void exitStatement(InoxisParser::StatementContext* ctx) { incrementStatements(); };
 
@@ -122,7 +128,7 @@ public:
 
 
 
-
+	// member functions
 	void reportMemError(antlr4::ParserRuleContext* ctx) {
 		size_t line = ctx->getStart()->getLine();
 		cout << "Line " << line << ": ";

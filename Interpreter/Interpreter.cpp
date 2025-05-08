@@ -1,5 +1,6 @@
 /*
 File: Interpreter.cpp
+Description: member function defns for Interpreter class
 */
 
 
@@ -10,47 +11,50 @@ File: Interpreter.cpp
 
 /*
 Function: run
+Description: main driver for the interpreter, calls the main function for each phase of the Interpreter.
 */
 void     Interpreter::run(antlr4::ANTLRInputStream input)
 {
+	// pass the input to hte lexer
 	myLexer lexer(input);
 
-	//InoxisLexer lexer(&input);
-
+	// the lexer feeds tokens to the antlr common token stream object
 	antlr4::CommonTokenStream tokens(&lexer);
 
+	// pass that to the parser, which will create the parse tree
 	InoxisParser parser(&tokens);
 
 	antlr4::tree::ParseTree* tree = parser.program();
 
+	// check if there are any errors in the lexing and parsing phases
 	int numLexErrors = lexer.getErrorCount();
 
 	size_t numParseErrors = parser.getNumberOfSyntaxErrors();
 
+	// if there are no errors...
 	if (numLexErrors + numParseErrors == 0)
 	{
-		auto s = tree->toStringTree(&parser);
-
-		//cout << "Parse Tree: " << s << endl;
-
+		// create an antlr parse tree walker object
 		antlr4::tree::ParseTreeWalker walker;
 
+		// use the symbol table class to walk the parse tree
 		walker.walk(&symTable, tree);
 
+		// if no symbol errors...
 		if (symTable.numErrors == 0)
 		{
+			// walk the tree again with the MemSafetyPass class
 			MemSafetyPass  memPass(symTable.treeFuncSymbols);
 
 			walker.walk(&memPass, tree);
 
+			// if no memory safety errors...
 			if (memPass._numErrors == 0)
 			{
 
 				// output of this walk will be a GArray of function structs
 				// this will be passed to the VM
 				VMInputPass  vmInput(memPass.statLists, symTable.treeFuncSymbols, symTable.varListProp);
-
-				//vmInput.test();
 
 				walker.walk(&vmInput, tree);
 
@@ -59,7 +63,7 @@ void     Interpreter::run(antlr4::ANTLRInputStream input)
 			}
 		}
 	}
-}
+} // end run
 
 
 
@@ -79,7 +83,8 @@ void Interpreter::report_error(ERROR_TYPE type, int line)
 	cerr << error_type << " at line " << line << ".\n";
 
 	error_count++;
-}
+} // end report_error
+
 
 
 /*
@@ -112,4 +117,4 @@ void Interpreter::printVMInput(GArray* input)
 
 		cout << endl;
 	}
-}
+} // end printVMInput

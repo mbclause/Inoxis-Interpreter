@@ -1,8 +1,20 @@
+/*
+Function: varSymbol.cpp
+Description: The member function definitions for varSymbol. 
+*/
+
+
 #include "varSymbol.h"
 #include <iostream>
 
 using namespace DataType;
 
+
+
+/*
+Function: printVarSymbol
+Description: print all of the variable data for this object.
+*/
 void  varSymbol::printVarSymbol()
 {
 	string type;
@@ -32,11 +44,12 @@ void  varSymbol::printVarSymbol()
 		mut = "/immutable";
 
 	cout << _name << type << array << memSafety << mut << memPermissions << endl;
-}
+} // end printVarSymbol
 
 
 
-// when a borrow is dropped, the borowee regains its permissions it had before
+// Function: regainPermissions
+// Description: when a borrow is dropped, the borowee regains its permissions it had before
 // immutable types never had the write permission
 void  varSymbol::regainPermissions()
 {
@@ -49,6 +62,4 @@ void  varSymbol::regainPermissions()
 	{
 		setPermissions(read | own, false);
 	}
-
-	//cout << _name << "s permissions have been regained and are now: " << memPermissions << endl;
-}
+} // end regainPermissions

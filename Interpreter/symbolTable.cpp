@@ -1,14 +1,23 @@
+/*
+File: symbolTable.cpp
+Description: The member function definitions for the symbolTable class. 
+Most of these are overridden functions from InoxisBaseListener. 
+It includes an enterRule and exitRule function for each parser rule in the Inoxis grammar. 
+They are called when rules are entered and exited while walking the AST.
+*/
+
 #include "symbolTable.h"
 using namespace DataType;
 
 
 
 /*
-going to need to add more info to funcSymbol, mainly the type and name of the parameter, need to make
-sure it matches with the definition
+Function: enterFuncDec
+Description: gets the function signature for the function declaration and uses it to create a funcSymbol object
 */
 void   symbolTable::enterFuncDec(InoxisParser::FuncDecContext* ctx)
 {
+	// get the function name, param name and data type, return type, and whether the parameter is mutable
 	string funcName = ctx->ID()->getText();
 
 	// check that the function name isn't already in funcSymbols
@@ -71,23 +80,23 @@ void   symbolTable::enterFuncDec(InoxisParser::FuncDecContext* ctx)
 		isMut = true;
 	}
 
-
-
-	//cout << "in function declaration. Function name: " << funcName << "\nParam Name: " << paramName << 
-		//"\nreturn type: " << returnTypeText << endl;
-
+	// create a new funcSymbol object and add it to the funcSymbols hash table
 	funcSymbol newFunction(funcName, paramName, isMut, returnType, paramType);
 
 	funcSymbols[funcName] = newFunction;
-}
+} // end enterFuncDec
 
 
 
-
+/*
+Function: enterFuncDef
+Description: check that the function has been declared by checking the funcSymbols table, then add the parameter
+to the function's local variables table
+*/
 void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 {
+	// get the function signature for the definition
 	bool isDeclared = false;
-
 
 	string funcName = ctx->ID()->getText();
 
@@ -156,7 +165,7 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 	funcSymbol funcDef(funcName, paramName, isMut, returnType, paramType);
 
 
-
+	// check that the function has been declared
 	if (funcSymbols.count(funcName) == 1)
 	{
 		funcSymbol funcDec = funcSymbols[funcName];
@@ -164,8 +173,6 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		if (compFuncSignatures(funcDef, funcDec))
 		{
 			isDeclared = true;
-
-			//cout << funcName << " has been declared\n";
 		}
 
 		else
@@ -183,6 +190,7 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		cout << funcName << " has NOT been declared\n";
 	}
 
+	// add the parameter to locals
 	if (isDeclared)
 	{
 		currentFunction = funcSymbols[funcName];
@@ -192,17 +200,15 @@ void   symbolTable::enterFuncDef(InoxisParser::FuncDefContext* ctx)
 		variablesList.push_back(param);
 
 		funcSymbols[funcName].locals[paramName] = param;
-
-		/*for (auto x : currentFunction.locals)
-		{
-			varSymbol var = x.second;
-
-			var.printVarSymbol();
-		}*/
 	}
-}
+} // end enterFuncDef
 
 
+
+/*
+Function: enterMain
+Description: simply add a function called "main" to the funcSymbols table
+*/
 void symbolTable::enterMain(InoxisParser::MainContext* ctx)
 {
 	funcSymbol main("main", "", false, INT, INT);
@@ -214,8 +220,14 @@ void symbolTable::enterMain(InoxisParser::MainContext* ctx)
 
 
 
+/*
+Function: enterFuncCall
+Description: First check that the function called has been declared. Also check that the argument has been declared.
+Then check that the argument and parameter data types match.
+*/
 void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 {
+	// get all of the funcCall info
 	string funcName = ctx->ID()->getText();
 
 	string currentFuncName = currentFunction.getName();
@@ -312,7 +324,6 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 	// or maybe I need to get the variable data type and compare THAT to the parameter data type
 	// then, i could use this info to add the proper PARAM variable to that functions locals,
 	// with all of the proper memory info
-	//cout << argType << " " << calledFunc._paramType << endl;
 
 	if (argType != calledFunc._paramType)
 	{
@@ -326,18 +337,15 @@ void symbolTable::enterFuncCall(InoxisParser::FuncCallContext* ctx)
 		string paramName = calledFunc._paramName;
 
 		varSymbol param(paramName, calledFunc.paramIsMut, needsMemSafety, isArray, argType, none, none, false, 0);
-
-		//funcSymbols[funcName].locals[paramName] = param;
 	}
-
-	//cout << funcName << " " << argDataTypeText << " " << argType << endl;
-
-	// save the called function's info in the parse tree
-	//treeFuncSymbols.put(ctx, calledFunc);
-}
+} // end enterFuncCall
 
 
 
+/*
+Function: exitFuncDef
+Description: store the funcSymbol object for the current function in the parse tree
+*/
 void symbolTable::exitFuncDef(InoxisParser::FuncDefContext* ctx)
 {
 	string funcName = ctx->ID()->getText();
@@ -346,23 +354,23 @@ void symbolTable::exitFuncDef(InoxisParser::FuncDefContext* ctx)
 
 	treeFuncSymbols.put(ctx, function);
 
-	function = treeFuncSymbols.get(ctx);
-
 	varListProp.put(ctx, variablesList);
 
 	variablesList.clear();
+} // end exitFuncDef
 
 
-}
 
 
+/*
+Function: exitMain
+Description: same as exitFuncDef, but for main
+*/
 void symbolTable::exitMain(InoxisParser::MainContext* ctx)
 {
 	string  funcName = "main";
 
 	funcSymbol function = funcSymbols[funcName];
-
-
 
 	treeFuncSymbols.put(ctx, function);
 
@@ -375,6 +383,11 @@ void symbolTable::exitMain(InoxisParser::MainContext* ctx)
 
 
 
+/*
+Function: enterVarDec
+Description: create a varSymbol object with the declared var's info, then add it to the locals table for current
+function.
+*/
 void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 {
 	funcSymbol parentFunc = currentFunction;
@@ -454,11 +467,15 @@ void symbolTable::enterVarDec(InoxisParser::VarDecContext* ctx)
 	variablesList.push_back(newVar);
 
 	currentFunction = funcSymbols[parentFunc.getName()];
-}
+} // end enterVarDec
 
 
 
 
+/*
+Function: enterVar
+Description: check that the variable has been declared by looking up the name in the currentFunc.locals table.
+*/
 void symbolTable::enterVar(InoxisParser::VarContext* ctx)
 {
 	string currentFuncName = currentFunction.getName();
@@ -475,11 +492,15 @@ void symbolTable::enterVar(InoxisParser::VarContext* ctx)
 
 		return;
 	}
-}
+} // end enterVar
 
 
 
 
+/*
+Function: compFuncSignartures
+Description: given two funcSymbol objects, check if they are the same and return true or false.
+*/
 bool symbolTable::compFuncSignatures(funcSymbol func1, funcSymbol func2)
 {
 	bool sameFunc = false;
@@ -491,4 +512,4 @@ bool symbolTable::compFuncSignatures(funcSymbol func1, funcSymbol func2)
 					sameFunc = true;
 
 	return sameFunc;
-}
+} // end compFuncSignatures

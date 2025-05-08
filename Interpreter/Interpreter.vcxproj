@@ -161,8 +161,6 @@ gthread-2.0.lib
     <ClCompile Include="VMInstruction.c" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="accepted_1.txt" />
-    <Text Include="rejected_1.txt" />
     <Text Include="test.txt" />
   </ItemGroup>
   <ItemGroup>

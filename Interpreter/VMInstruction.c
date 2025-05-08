@@ -1656,6 +1656,8 @@ void  executeAllocate(allocI a, GArray* localMem)
 
 	if (a.varIndex < 0 || a.varIndex >= localMem->len)
 	{
+		printf("%d, %d, ", a.varIndex, localMem->len);
+
 		printf("bad local mem index\n");
 
 		exit(1);
