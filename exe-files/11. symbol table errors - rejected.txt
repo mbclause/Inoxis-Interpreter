@@ -1,0 +1,28 @@
+
+int  func1(int stuff);
+
+int main()
+{
+
+	int var1;
+
+	// line 9
+	int var1 = 10;
+
+	// line 11
+	var2 = 10;
+
+	return 0;
+}
+
+
+// line 16
+int func1(int param)
+{
+	return 0;
+}
+
+
+
+
+

@@ -1,0 +1,12 @@
+int main()
+{
+	int mut* var1 = new int;
+
+	*var1 = 8;
+
+	int mut *var2 = var1;
+
+	cout << "var2 =  " << *var2 << endl;
+
+	return 0;
+}

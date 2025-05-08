@@ -1,0 +1,28 @@
+
+int main()
+{
+	// create a new mutable int pointer
+	int mut *var1 = new int;
+
+	// set its data
+	*var1 = 10;
+
+	// immutable reference, var2 can't change data
+	int &var2 = & var1;
+
+	// var1 attempts a write
+	*var1 = 5;
+
+	// print var2's data
+	cout << "*var2 = " << *var2 << endl;
+
+	// var2 goes out of scope and is dropped, var1's permissions are restored
+	// the heap data var1 and var2 were pointing to is freed automatically after its owner (var2) is dropped
+
+	return 0;
+}
+
+
+
+
+

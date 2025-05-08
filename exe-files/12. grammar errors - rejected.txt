@@ -1,0 +1,32 @@
+
+int  main()
+{
+	int  var1
+
+	// line 6
+	bool  var2;
+
+	else
+	{
+		cout << endl;
+	} // line 11
+
+	if var1 < 10
+	{
+		cout << endl;
+	}
+
+	// line 13
+	if var1 < 20
+		cout << endl;
+
+	alsdkjfl kadjf
+
+}
+
+
+int  func1(param);
+
+
+
+

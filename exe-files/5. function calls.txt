@@ -1,0 +1,36 @@
+
+int  func1(int param);
+
+int  func2(int  param);
+
+int main()
+{
+	int mut arg = 25;
+
+	int  mut retVal = func1(arg);
+
+	cout << "first return value is " << retVal << endl;
+
+	retVal = 10 - func2(5);
+
+	cout << "second return value is " << retVal << endl;
+
+	return 0;
+}
+
+int func1(int param)
+{
+	int var2 = param + 25;
+
+	return var2;
+}
+
+
+int  func2(int  param)
+{
+	int mut *retVal = new int;
+
+	*retVal = param + 10;
+
+	return *retVal;
+}

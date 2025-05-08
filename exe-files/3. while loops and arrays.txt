@@ -1,0 +1,28 @@
+
+
+int main()
+{
+	int mut* var1 = new int[3];
+
+	int mut index = 0;
+
+	while(index < 3)
+	{
+		var1[index] = index;
+
+		index = index + 1;
+	}
+
+	index = 0;
+
+	while(index < 3)
+	{
+		cout << "var[" << index << "] = " << var1[index] << endl;
+
+		index = index + 1;
+	}
+
+	return 0;
+}
+
+
