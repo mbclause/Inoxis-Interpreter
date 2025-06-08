@@ -34,19 +34,19 @@ int main()
 
 ## Project Structure
 
-main.cpp – Entry point: loads source and starts interpretation
+- main.cpp – Entry point: loads source and starts interpretation
 
-Interpreter.* – Core logic for parsing and execution flow
+- Interpreter.* – Core logic for parsing and execution flow
 
-myLexer.* – Custom lexer implementation
+- myLexer.* – Custom lexer implementation
 
-symbolTable.*, MemSafetyPass.*, VMInputPass.* – Three AST passes
+- symbolTable.*, MemSafetyPass.*, VMInputPass.* – Three AST passes
 
-VMInput.*, VirtualMachine.*, VMInstruction.* – Virtual machine backend
+- VMInput.*, VirtualMachine.*, VMInstruction.* – Virtual machine backend
 
-.antlr/ – ANTLR-generated parser files
+- .antlr/ – ANTLR-generated parser files
 
-Inoxis.g4, lexRules.g4 – Grammar definition for parser and lexer
+- Inoxis.g4, lexRules.g4 – Grammar definition for parser and lexer
 
 
 ## Installation
@@ -73,25 +73,11 @@ Ensure iconv-2.dll and your input file are in the same directory as the executab
 
 ## Dependencies
 
-Visual Studio 2022
+- Visual Studio 2022
 
-ANTLR4 (requires Java 8+, JDK 23, and Python 3)
+- ANTLR4 (requires Java 8+, JDK 23, and Python 3)
 
-GLib (via vcpkg)
-
-## Test Suite
-
-Over 50 manually written test programs validate the interpreter. These include:
-
-Ownership and borrowing semantics
-
-Memory safety enforcement
-
-Control flow: if, elif, else, while
-
-Pointer/reference usage
-
-Function calls and returns
+- GLib (via vcpkg)
 
 ## Future Work
 
