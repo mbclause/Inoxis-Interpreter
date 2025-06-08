@@ -1,24 +1,27 @@
 # Inoxis Interpreter
 
-Inoxis is a memory-safe, statically-typed programming language inspired by Rust's ownership model, but with C++-like syntax. This repository contains a full interpreter for the language, built using C/C++ and ANTLR, and running on a custom virtual machine.
-Features
+**Inoxis** is a memory-safe, statically-typed programming language inspired by Rust's ownership model, but with C++-like syntax. This repository contains a full interpreter for the language, built using C/C++ and ANTLR, and running on a custom virtual machine.
 
-    Rust-style memory safety (ownership, borrowing, mutability)
+---
 
-    C++-like syntax
+## Features
 
-    Stack- and heap-allocated arrays
+- Rust-style memory safety (ownership, borrowing, mutability)
+- C++-like syntax
+- Stack- and heap-allocated arrays
+- Custom instruction set for a stack-based virtual machine
+- Manual lexer, ANTLR-generated parser
+- Three-pass AST walker:
+  - Symbol resolution
+  - Memory safety checking
+  - Intermediate representation (IR) generation
+- Detailed error reporting with line numbers and messages
 
-    Custom instruction set for a stack-based virtual machine
+---
 
-    Manual lexer, ANTLR-generated parser
+## Example
 
-    Three-pass AST walker: symbol resolution, memory safety checking, and IR generation
-
-    Detailed error reporting with line numbers and messages
-
-Example Code
-
+```cpp
 int main()
 {
     int mut *x = new int;
@@ -27,72 +30,87 @@ int main()
     cout << "*y = " << *y << endl;
     return 0;
 }
+```
 
-Project Structure
+## Project Structure
 
-    main.cpp – Entry point: loads source and starts interpretation
+main.cpp – Entry point: loads source and starts interpretation
 
-    Interpreter.* – Core logic for parsing and execution flow
+Interpreter.* – Core logic for parsing and execution flow
 
-    myLexer.* – Custom lexer implementation
+myLexer.* – Custom lexer implementation
 
-    symbolTable.*, MemSafetyPass.*, VMInputPass.* – Three AST passes
+symbolTable.*, MemSafetyPass.*, VMInputPass.* – Three AST passes
 
-    VMInput.*, VirtualMachine.*, VMInstruction.* – Virtual machine backend
+VMInput.*, VirtualMachine.*, VMInstruction.* – Virtual machine backend
 
-    .antlr/ – ANTLR-generated parser files
+.antlr/ – ANTLR-generated parser files
 
-    Inoxis.g4 – ANTLR grammar definition
+Inoxis.g4, lexRules.g4 – Grammar definition for parser and lexer
 
-Installation
 
-    Clone the repository:
+## Installation
 
-git clone https://github.com/mbclause/Inoxis-Interpreter
+Clone the repository:
 
-Install GLib via vcpkg:
+    git clone https://github.com/mbclause/Inoxis-Interpreter
+
+Install GLib using vcpkg:
 
     ./vcpkg install glib:x64-windows-static
 
-    Build using Visual Studio 2022.
+Open the solution in Visual Studio 2022 and build it.
 
-Usage
+Note: The ANTLR runtime and generated parser files are included in the repo, but GLib must be installed separately.
 
-To run a compiled .exe:
+## Usage
 
-Inoxis-Interpreter.exe <input-file.txt>
+From the directory containing the executable:
+
+    Inoxis-Interpreter.exe <input-file.txt>
 
 Ensure iconv-2.dll and your input file are in the same directory as the executable.
-Dependencies
 
-    Visual Studio 2022
+## Dependencies
 
-    ANTLR4 (Java 8+, JDK 23, Python 3)
+Visual Studio 2022
 
-    GLib (via vcpkg)
+ANTLR4 (requires Java 8+, JDK 23, and Python 3)
 
-Test Suite
+GLib (via vcpkg)
 
-Over 50 test programs validate the interpreter. These include:
+## Test Suite
 
-    Memory safety violations (ownership/borrow checking)
+Over 50 manually written test programs validate the interpreter. These include:
 
-    Pointer/reference usage
+Ownership and borrowing semantics
 
-    Control flow constructs (if/elif/else, while)
+Memory safety enforcement
 
-    Function calls and return semantics
+Control flow: if, elif, else, while
 
-Limitations & Future Work
+Pointer/reference usage
 
-    No variable declarations or return inside control blocks
+Function calls and returns
 
-    No pointer/reference/array function arguments
+## Future Work
 
-    Fixed array sizes only
+Planned Improvements
 
-    Planned: more data types, operator support, optimization passes
+- Add data types: float, double, bool, char, string, etc.
 
-License
+- Support void functions, and more flexible parameter lists
+
+- Add operators: multiplication, division, modulus, and expression parentheses
+
+- Implement optimization passes (peephole, loop)
+
+- Improve scoping using parse tree metadata instead of string search
+
+- Improve interpretation speed with better scope-resolution algorithms
+
+- Fix evaluation order issues in arithmetic expressions
+
+## License
 
 MIT License
